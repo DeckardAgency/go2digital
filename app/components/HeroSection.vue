@@ -26,7 +26,6 @@ const { getSplitElements } = useSplitText()
 const sectionRef = ref<HTMLElement | null>(null)
 const mediaRef = ref<HTMLElement | null>(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
-const contentRef = ref<HTMLElement | null>(null)
 const logoRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
 const badgeRef = ref<HTMLElement | null>(null)
@@ -180,10 +179,6 @@ const setupInitialState = () => {
     gsap.set(videoRef.value, { willChange: 'transform' })
   }
 
-  if (contentRef.value) {
-    gsap.set(contentRef.value, { opacity: 1 })
-  }
-
   setVideoWindowBoundaries()
 }
 
@@ -326,8 +321,13 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // Clear pending timers
+  if (rafId) cancelAnimationFrame(rafId)
+  if (resizeTimeout) clearTimeout(resizeTimeout)
+
   window.removeEventListener('resize', handleResize)
 
+  // Kill GSAP instances
   if (timeline) {
     timeline.kill()
     timeline = null
@@ -338,12 +338,17 @@ onUnmounted(() => {
     scrollTriggerInstance = null
   }
 
+  // Clear animated elements
   if (mediaRef.value) {
-    gsap.set(mediaRef.value, { clearProps: 'all', willChange: 'auto' })
+    gsap.set(mediaRef.value, { clearProps: 'all' })
   }
 
   if (videoRef.value) {
-    gsap.set(videoRef.value, { clearProps: 'all', willChange: 'auto' })
+    gsap.set(videoRef.value, { clearProps: 'all' })
+  }
+
+  if (logoRef.value) {
+    gsap.set(logoRef.value, { clearProps: 'all' })
   }
 })
 </script>
@@ -367,7 +372,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Content Layer -->
-    <div ref="contentRef" class="hero-section__content">
+    <div class="hero-section__content">
       <!-- Logo -->
       <div ref="logoRef" class="hero-section__logo">
         <NuxtLink to="/">
