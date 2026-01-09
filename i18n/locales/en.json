@@ -1,0 +1,36 @@
+{
+  "hero": {
+    "titleLine1": "Brands",
+    "titleLine2": "of tomorrow.",
+    "kicker": "Available for work",
+    "heading": "We help brands grow and build a human connection.",
+    "description": "A Zagreb-based digital agency for ambitious brands ready to succeed.",
+    "scrollDown": "Scroll Down"
+  },
+  "nav": {
+    "home": "Home",
+    "work": "Work",
+    "about": "About",
+    "contact": "Contact",
+    "blog": "Blog",
+    "lab": "Lab"
+  },
+  "common": {
+    "readMore": "Read more",
+    "viewProject": "View project",
+    "backToTop": "Back to top",
+    "loading": "Loading..."
+  },
+  "contact": {
+    "pageTitle": "Contact",
+    "batteryTextLine1": "We are available from",
+    "batteryTextLine2": "9 AM to 5 PM",
+    "seo": {
+      "title": "Contact - Go2Digital",
+      "description": "Contact Go2Digital digital agency from Zagreb"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved"
+  }
+}

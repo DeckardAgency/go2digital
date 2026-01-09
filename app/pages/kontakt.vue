@@ -1,152 +1,495 @@
-<template>
-  <div class="page page--kontakt">
-    <section class="hero">
-      <h1
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="0.6"
-        data-split-stagger="0.08"
-      >Contact Us</h1>
-      <p
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="0.5"
-        data-split-delay="0.2"
-        data-split-stagger="0.06"
-      >Let's start a conversation.</p>
-    </section>
-    <section class="content">
-      <div class="contact-grid">
-        <div class="contact-info">
-          <h2>Get in Touch</h2>
-          <p>We'd love to hear from you. Whether you have a question about our services, pricing, or anything else, our team is ready to answer all your questions.</p>
-          <div class="info-item">
-            <strong>Email</strong>
-            <p>hello@go2digital.com</p>
-          </div>
-          <div class="info-item">
-            <strong>Phone</strong>
-            <p>+385 1 234 5678</p>
-          </div>
-          <div class="info-item">
-            <strong>Address</strong>
-            <p>Zagreb, Croatia</p>
-          </div>
-        </div>
-        <div class="contact-form">
-          <form @submit.prevent>
-            <input type="text" placeholder="Your Name" />
-            <input type="email" placeholder="Your Email" />
-            <textarea placeholder="Your Message" rows="5"></textarea>
-            <button type="submit">Send Message</button>
-          </form>
-        </div>
-      </div>
-      <div class="links">
-        <NuxtLink to="/">Back to Home</NuxtLink>
-      </div>
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
+const { t } = useI18n()
+const {
+  time,
+  date,
+  temperature,
+  weatherDescription,
+  batteryPercentage,
+  init,
+  destroy
+} = useContactHeader()
+
+const { initSplitText } = useSplitText()
+
+const overlayVisible = ref(true)
+const weatherLoaded = ref(false)
+const timeAnimationComplete = ref(false)
+const initialTime = ref('')
+
+// Capture initial time for split text animation
+watch(time, (newVal) => {
+  if (newVal && !initialTime.value) {
+    initialTime.value = newVal
+    // After animation completes, switch to live time
+    setTimeout(() => {
+      timeAnimationComplete.value = true
+    }, 1200)
+  }
+}, { immediate: true })
+
+// SEO
 useHead({
-  title: 'Contact - Go2Digital'
+  title: t('contact.seo.title')
+})
+
+// Watch for weather data to load, then init split text
+watch(temperature, (newVal) => {
+  if (newVal !== '--°' && !weatherLoaded.value) {
+    weatherLoaded.value = true
+    nextTick(() => {
+      setTimeout(() => initSplitText(), 50)
+    })
+  }
+})
+
+// Initialize on mount
+onMounted(() => {
+  init()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  destroy()
 })
 </script>
 
-<style scoped>
-.page--kontakt {
-  min-height: 100vh;
-  padding: 6rem 2rem 2rem;
-  background: #0a1a0a;
-  color: #fff;
-}
+<template>
+  <div class="contact-page" :class="{ 'overlay-visible': overlayVisible }" :style="{ backgroundImage: 'url(/images/contact-bg.jpg)' }">
+    <!-- Left Content Stack -->
+    <div class="left-content">
+      <!-- Header Info -->
+      <div class="header-info">
+        <!-- Static time for split text animation -->
+        <div
+          v-if="!timeAnimationComplete && initialTime"
+          class="header-info__time"
+          data-split-text
+          data-split-type="chars"
+          data-split-trigger="load"
+          data-split-duration="0.8"
+          data-split-delay="0"
+          data-split-stagger="0.04"
+        >{{ initialTime }}</div>
+        <!-- Live updating time after animation -->
+        <div v-else class="header-info__time">{{ time }}</div>
+        <div
+          class="header-info__date"
+          data-split-text
+          data-split-type="chars"
+          data-split-trigger="load"
+          data-split-duration="0.8"
+          data-split-delay="0.2"
+          data-split-stagger="0.03"
+        >{{ date }}</div>
+      </div>
 
-.hero {
-  text-align: center;
-  padding: 4rem 0;
-}
+      <!-- Weather -->
+      <div class="weather">
+        <div
+          v-if="weatherLoaded"
+          class="weather__temperature"
+          data-split-text
+          data-split-type="chars"
+          data-split-trigger="load"
+          data-split-duration="0.8"
+          data-split-delay="0"
+          data-split-stagger="0.05"
+        >{{ temperature }}</div>
+        <div
+          v-if="weatherLoaded"
+          class="weather__description"
+          data-split-text
+          data-split-type="words"
+          data-split-trigger="load"
+          data-split-duration="0.8"
+          data-split-delay="0.1"
+          data-split-stagger="0.08"
+        >{{ weatherDescription }}</div>
+      </div>
 
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #4ade80;
-}
+      <!-- Battery Status -->
+      <div class="battery-status">
+        <div class="battery-status__text">
+          <span
+            data-split-text
+            data-split-type="words"
+            data-split-trigger="load"
+            data-split-duration="0.8"
+            data-split-delay="0.4"
+            data-split-stagger="0.06"
+          >{{ t('contact.batteryTextLine1') }}</span>
+          <br>
+          <span
+            data-split-text
+            data-split-type="words"
+            data-split-trigger="load"
+            data-split-duration="0.8"
+            data-split-delay="0.5"
+            data-split-stagger="0.06"
+          >{{ t('contact.batteryTextLine2') }}</span>
+        </div>
+        <div class="battery-status__bar-wrapper">
+          <div class="battery-status__bar">
+            <div class="battery-status__fill" :style="{ width: batteryPercentage + '%' }"></div>
+          </div>
+          <span class="battery-status__percentage">{{ batteryPercentage }}%</span>
+        </div>
+      </div>
+    </div>
 
-.content {
-  max-width: 1000px;
-  margin: 0 auto;
-}
+    <!-- Right Content -->
+    <div class="right-content">
+      <!-- Social Links -->
+      <div class="social-links">
+        <BtnAnimated
+          text="LinkedIn"
+          href="https://linkedin.com/company/go2digital"
+          target="_blank"
+          variant="on-dark"
+          size="small"
+          :no-icon="true"
+          border-radius="0.5rem"
+        />
+        <BtnAnimated
+          text="Instagram"
+          href="https://instagram.com/go2digital"
+          target="_blank"
+          variant="on-dark"
+          size="small"
+          :no-icon="true"
+          border-radius="0.5rem"
+        />
+        <BtnAnimated
+          text="Facebook"
+          href="https://facebook.com/go2digital"
+          target="_blank"
+          variant="on-dark"
+          size="small"
+          :no-icon="true"
+          border-radius="0.5rem"
+        />
+        <BtnAnimated
+          text="YouTube"
+          href="https://youtube.com/go2digital"
+          target="_blank"
+          variant="on-dark"
+          size="small"
+          :no-icon="true"
+          border-radius="0.5rem"
+        />
+      </div>
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-}
+      <!-- Contact Info -->
+      <div class="contact-info">
+        <div class="contact-info__row">
+          <BtnAnimated
+            text="info[@]go2digital.hr"
+            href="mailto:info@go2digital.hr"
+            variant="on-dark"
+            size="small"
+            :no-icon="true"
+            border-radius="0.5rem"
+          />
+          <BtnAnimated
+            text="+38514839192"
+            href="tel:+38514839192"
+            variant="on-dark"
+            size="small"
+            :no-icon="true"
+            border-radius="0.5rem"
+          />
+        </div>
+        <BtnAnimated
+          text="Radnička cesta 52, 10 000 Zagreb"
+          href="https://maps.google.com/?q=Radnička+cesta+52,+Zagreb"
+          target="_blank"
+          variant="on-dark"
+          size="small"
+          :no-icon="true"
+          border-radius="0.5rem"
+        />
+      </div>
+    </div>
+  </div>
+</template>
 
-@media (max-width: 768px) {
-  .contact-grid {
-    grid-template-columns: 1fr;
+<style scoped lang="scss">
+// Variables
+$color-white: #ffffff;
+$color-green: #0CD459;
+$spacing-xs: 0.5rem;
+$spacing-sm: 0.75rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2.5rem;
+$font-weight-regular: 400;
+$font-weight-light: 300;
+$overlay-light: rgba(0, 0, 0, 0.4);
+$text-light: rgba(255, 255, 255, 0.85);
+$text-lighter: rgba(255, 255, 255, 0.6);
+
+// Responsive mixin
+@mixin responsive($breakpoint) {
+  @if $breakpoint == 'desktop' {
+    @media (max-width: 1440px) { @content; }
+  } @else if $breakpoint == 'tablet' {
+    @media (max-width: 1024px) { @content; }
+  } @else if $breakpoint == 'mobile' {
+    @media (max-width: 768px) { @content; }
   }
 }
 
-.contact-info h2 {
-  color: #4ade80;
-  margin-bottom: 1rem;
+.contact-page {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  @include responsive('mobile') {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: $overlay-light;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  &.overlay-visible::after {
+    opacity: 1;
+  }
 }
 
-.info-item {
-  margin: 1.5rem 0;
-}
-
-.info-item strong {
-  display: block;
-  color: #4ade80;
-  margin-bottom: 0.25rem;
-}
-
-.contact-form form {
+.left-content {
+  position: absolute;
+  top: $spacing-xl;
+  left: $spacing-xl;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: $spacing-xl;
+
+  @include responsive('desktop') {
+    left: $spacing-lg;
+    top: $spacing-lg;
+    gap: 3.125rem;
+  }
+
+  @include responsive('tablet') {
+    left: $spacing-md;
+    top: $spacing-md;
+    gap: $spacing-lg;
+  }
+
+  @include responsive('mobile') {
+    all: unset;
+    margin-top: 6rem;
+    padding: 1rem;
+    z-index: 3;
+  }
 }
 
-.contact-form input,
-.contact-form textarea {
-  padding: 1rem;
-  background: #1a2a1a;
-  border: 1px solid #2a3a2a;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
+.header-info {
+  color: $color-white;
+
+  @include responsive('mobile') {
+    margin-bottom: 2.5rem;
+  }
+
+  &__time {
+    font-size: 5rem;
+    font-weight: $font-weight-light;
+    line-height: 1;
+    letter-spacing: -0.1875rem;
+    margin-bottom: $spacing-xs;
+
+    @include responsive('desktop') {
+      font-size: 3.75rem;
+    }
+
+    @include responsive('tablet') {
+      font-size: 3rem;
+    }
+
+    @include responsive('mobile') {
+      font-size: 3.125rem;
+      letter-spacing: -0.0625rem;
+    }
+  }
+
+  &__date {
+    font-size: 5rem;
+    font-weight: $font-weight-light;
+    line-height: 1;
+    letter-spacing: -0.1875rem;
+
+    @include responsive('desktop') {
+      font-size: 3.75rem;
+    }
+
+    @include responsive('tablet') {
+      font-size: 3rem;
+    }
+
+    @include responsive('mobile') {
+      font-size: 2.25rem;
+      letter-spacing: -0.0625rem;
+    }
+  }
 }
 
-.contact-form button {
-  padding: 1rem 2rem;
-  background: #4ade80;
-  color: #0a1a0a;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
+.weather {
+  color: $color-white;
+
+  &__temperature {
+    font-size: 3.5rem;
+    font-weight: $font-weight-light;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.0625rem;
+
+    @include responsive('desktop') {
+      font-size: 3rem;
+    }
+
+    @include responsive('tablet') {
+      font-size: 2.5rem;
+    }
+
+    @include responsive('mobile') {
+      margin-bottom: 0;
+      font-size: 2rem;
+    }
+  }
+
+  &__description {
+    font-size: 0.9375rem;
+    color: $text-light;
+    line-height: 1.5;
+    font-weight: $font-weight-regular;
+
+    @include responsive('mobile') {
+      font-size: 0.8125rem;
+    }
+  }
 }
 
-.contact-form button:hover {
-  background: #22c55e;
+.battery-status {
+  width: 15rem;
+  color: $color-white;
+
+  &__text {
+    font-size: 0.9375rem;
+    color: $text-light;
+    margin-bottom: 0.9375rem;
+    line-height: 1.5;
+    font-weight: $font-weight-regular;
+
+    @include responsive('mobile') {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__bar {
+    position: relative;
+    flex: 1;
+    height: 2rem;
+    background: #FAFAFA;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    position: absolute;
+    left: 0.25rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 2%;
+    max-width: calc(100% - 0.5rem);
+    background: $color-green;
+    border-radius: 12px;
+    transition: width 0.3s ease;
+  }
+
+  &__percentage {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    color: $text-lighter;
+    font-weight: $font-weight-regular;
+  }
 }
 
-.links {
-  margin-top: 3rem;
+.right-content {
+  position: absolute;
+  top: $spacing-xl;
+  right: $spacing-xl;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-sm;
+
+  @include responsive('desktop') {
+    right: $spacing-lg;
+    top: $spacing-lg;
+  }
+
+  @include responsive('tablet') {
+    right: $spacing-md;
+    top: $spacing-md;
+  }
+
+  @include responsive('mobile') {
+    all: unset;
+    margin-top: auto;
+    padding: 1rem;
+    z-index: 3;
+  }
 }
 
-.links a {
-  padding: 0.75rem 1.5rem;
-  background: #1a2a1a;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0.5rem;
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  justify-content: flex-end;
+
+  @include responsive('tablet') {
+    max-width: 15.625rem;
+  }
+
+  @include responsive('mobile') {
+    max-width: unset;
+    margin-bottom: 0.625rem;
+  }
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-xs;
+
+  &__row {
+    display: flex;
+    gap: $spacing-xs;
+  }
 }
 </style>

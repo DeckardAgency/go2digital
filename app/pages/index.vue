@@ -1,11 +1,6 @@
 <template>
   <div class="page page--home">
-    <HeroSection
-      title="Brands<br/>of tomorrow."
-      kicker="Available for work"
-      heading="We help brands grow and build a human connection."
-      description="A Zagreb-based digital agency for ambitious brands ready to succeed."
-    />
+    <HeroSection />
     <section class="content">
       <h2>Our Work</h2>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>

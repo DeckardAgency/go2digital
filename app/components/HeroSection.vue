@@ -4,20 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Props
-interface Props {
-  title?: string
-  kicker?: string
-  heading?: string
-  description?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  title: 'Brands<br/>of tomorrow.',
-  kicker: 'Available for work',
-  heading: 'We help brands grow and build a human connection.',
-  description: 'A Zagreb-based digital agency for ambitious brands ready to succeed.'
-})
+const { t } = useI18n()
 
 // Split text composable (for accessing split elements in scroll animation)
 const { getSplitElements } = useSplitText()
@@ -403,8 +390,7 @@ onUnmounted(() => {
             data-split-trigger="load"
             data-split-duration="0.5"
             data-split-delay="0.1"
-            v-html="props.title"
-          />
+          >{{ t('hero.titleLine1') }}<br/>{{ t('hero.titleLine2') }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
@@ -419,7 +405,7 @@ onUnmounted(() => {
               data-split-trigger="load"
               data-split-duration="0.5"
               data-split-delay="0.15"
-            >{{ props.kicker }}</span>
+            >{{ t('hero.kicker') }}</span>
           </div>
 
           <h2
@@ -430,7 +416,7 @@ onUnmounted(() => {
             data-split-duration="0.5"
             data-split-delay="0.2"
           >
-            {{ props.heading }}
+            {{ t('hero.heading') }}
           </h2>
 
           <p
@@ -441,7 +427,7 @@ onUnmounted(() => {
             data-split-duration="0.5"
             data-split-delay="0.25"
           >
-            {{ props.description }}
+            {{ t('hero.description') }}
           </p>
         </div>
 
@@ -457,7 +443,7 @@ onUnmounted(() => {
               data-split-duration="0.5"
               data-split-delay="0.3"
             >
-              Scroll Down
+              {{ t('hero.scrollDown') }}
             </span>
           </div>
         </div>
