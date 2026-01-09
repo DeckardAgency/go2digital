@@ -108,7 +108,7 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
         right: 0,
         bottom: verticalPadding,
         left: 0,
-        borderRadius: mobileWindowConfig.borderRadius
+        borderRadius: 0 // Remove radius during width expansion
       }
     } else {
       const scale = vw / figmaWidth
@@ -121,7 +121,7 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
         right: 0,
         bottom: vh - windowTop - windowHeight,
         left: 0,
-        borderRadius: windowConfig.borderRadius
+        borderRadius: 0 // Remove radius during width expansion
       }
     }
   }
