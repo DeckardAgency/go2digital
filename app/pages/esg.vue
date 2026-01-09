@@ -1,8 +1,19 @@
 <template>
   <div class="page page--esg">
     <section class="hero">
-      <h1>ESG</h1>
-      <p>Environmental, Social & Governance</p>
+      <h1
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.08"
+      >ESG</h1>
+      <p
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.5"
+        data-split-delay="0.2"
+        data-split-stagger="0.06"
+      >Environmental, Social & Governance</p>
     </section>
     <section class="content">
       <div class="esg-grid">

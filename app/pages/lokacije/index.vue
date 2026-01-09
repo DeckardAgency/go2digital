@@ -1,8 +1,19 @@
 <template>
   <div class="page page--lokacije">
     <section class="hero">
-      <h1>Locations</h1>
-      <p>Find us around the world.</p>
+      <h1
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.08"
+      >Locations</h1>
+      <p
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.5"
+        data-split-delay="0.2"
+        data-split-stagger="0.06"
+      >Find us around the world.</p>
     </section>
     <section class="content">
       <div class="locations-grid">

@@ -22,6 +22,33 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Lenis Smooth Scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -71,4 +98,15 @@ textarea,
 select {
   font-family: inherit;
   font-size: inherit;
+}
+
+/* Split Text Animations */
+/* Hide text initially to prevent flash before JS processes it */
+[data-split-text] {
+  visibility: hidden;
+}
+
+/* Show after JS has processed */
+[data-split-text].split-text-ready {
+  visibility: visible;
 }

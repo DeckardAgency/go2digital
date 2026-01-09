@@ -195,6 +195,11 @@ router.afterEach(async () => {
 
 /* Page wrapper for animations */
 .page-wrapper {
+  will-change: auto;
+}
+
+/* Only apply will-change during transitions */
+html.is-transitioning .page-wrapper {
   will-change: transform, opacity, filter;
 }
 

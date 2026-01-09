@@ -1,8 +1,19 @@
 <template>
   <div class="page page--blog">
     <section class="hero">
-      <h1>Articles</h1>
-      <p>Insights, tutorials, and stories from our team.</p>
+      <h1
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.08"
+      >Articles</h1>
+      <p
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.5"
+        data-split-delay="0.2"
+        data-split-stagger="0.06"
+      >Insights, tutorials, and stories from our team.</p>
     </section>
     <section class="content">
       <div class="blog-grid">

@@ -1,8 +1,19 @@
 <template>
   <div class="page page--lab">
     <section class="hero">
-      <h1>Go2Labs</h1>
-      <p>Exploring the future of digital innovation.</p>
+      <h1
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.08"
+      >Go2Labs</h1>
+      <p
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.5"
+        data-split-delay="0.2"
+        data-split-stagger="0.06"
+      >Exploring the future of digital innovation.</p>
     </section>
     <section class="content">
       <p>Our laboratory is where ideas come to life. We experiment with cutting-edge technologies and push the boundaries of what's possible in the digital realm.</p>

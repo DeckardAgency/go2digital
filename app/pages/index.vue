@@ -1,12 +1,21 @@
 <template>
   <div class="page page--home">
-    <section class="hero">
-      <h1>Welcome to Go2Digital</h1>
-      <p>We create digital experiences that matter.</p>
-    </section>
+    <HeroSection
+      title="Brands<br/>of tomorrow."
+      kicker="Available for work"
+      heading="We help brands grow and build a human connection."
+      description="A Zagreb-based digital agency for ambitious brands ready to succeed."
+    />
     <section class="content">
+      <h2>Our Work</h2>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
       <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
       <div class="links">
         <NuxtLink to="/lab">Go to Labs</NuxtLink>
         <NuxtLink to="/blog">Go to Blog</NuxtLink>
@@ -25,25 +34,15 @@ useHead({
 <style scoped>
 .page--home {
   min-height: 100vh;
-  padding: 6rem 2rem 2rem;
-  background: #0a0a0a;
-  color: #fff;
-}
-
-.hero {
-  text-align: center;
-  padding: 4rem 0;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
 }
 
 .content {
   max-width: 800px;
   margin: 0 auto;
+  padding: 4rem 2rem;
   line-height: 1.8;
+  background: #0a0a0a;
+  color: #fff;
 }
 
 .content p {
