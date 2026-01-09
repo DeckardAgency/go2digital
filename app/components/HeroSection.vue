@@ -238,7 +238,7 @@ const createAnimation = () => {
     }, 0.5)
   }
 
-  // Text fade out using split elements
+  // Text hide using reverse split text animation (clip-path)
   const splitTextElements = [
     titleRef.value,
     badgeTextRef.value,
@@ -251,42 +251,36 @@ const createAnimation = () => {
     const splitEls = getSplitElements(el)
 
     if (splitEls && splitEls.length > 0) {
+      // Reverse of the reveal animation - clip from top, move up
       timeline!.to(splitEls, {
-        opacity: 0,
+        clipPath: 'inset(100% 0 0 0)',
         y: -30,
         duration: 0.4,
         stagger: 0.02,
         ease: 'power2.in'
       }, 0.05 + (index * 0.03))
-    } else {
-      timeline!.to(el, {
-        opacity: 0,
-        y: -30,
-        duration: 0.4,
-        ease: 'power2.in'
-      }, 0.05 + (index * 0.03))
     }
   })
 
-  // Fade out badge dot
+  // Hide badge dot with scale
   const badgeDot = badgeRef.value?.querySelector('.hero-section__badge-dot')
   if (badgeDot) {
     timeline.to(badgeDot, {
+      scale: 0,
       opacity: 0,
-      y: -20,
       duration: 0.3,
       ease: 'power2.in'
     }, 0.08)
   }
 
-  // Fade out logo
+  // Hide logo with clip-path
   if (logoRef.value) {
     timeline.to(logoRef.value, {
-      opacity: 0,
+      clipPath: 'inset(100% 0 0 0)',
       y: -20,
-      duration: 0.3,
+      duration: 0.15,
       ease: 'power2.in'
-    }, 0.1)
+    }, 0.05)
   }
 }
 
