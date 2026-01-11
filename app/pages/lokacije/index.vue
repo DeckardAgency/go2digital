@@ -1,7 +1,7 @@
 <template>
-  <div class="locations-page" :class="[currentViewClass, { 'dark-mode': isDarkMode, 'locations-page--scrolled': isScrolled }]">
+  <div class="locations-page" :class="[currentViewClass, { 'locations-page--dark': isDarkMode, 'locations-page--scrolled': isScrolled }]">
     <!-- Sidebar -->
-    <aside class="locations-sidebar" :class="{ 'dark-mode': isDarkMode, 'locations-sidebar--scrolled': isScrolled }">
+    <aside class="locations-sidebar" :class="{ 'locations-sidebar--dark': isDarkMode, 'locations-sidebar--scrolled': isScrolled }">
       <!-- Header -->
       <div class="locations-sidebar__header">
         <h1 class="locations-sidebar__title">
@@ -158,7 +158,7 @@
           :class="{
             'location-card--selected': selectedLocations.has(location.id),
             'location-card--active': activeLocationId === location.id,
-            'dark-mode': isDarkMode
+            'location-card--dark': isDarkMode
           }"
           :data-location-id="location.id"
           :data-lat="location.lat"
@@ -176,13 +176,13 @@
             >
           </div>
 
-          <div class="location-card__badge-v2" @click.stop="focusOnLocation(location)">
-            <svg class="location-card__badge-v2--v1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <div class="location-card__focus" @click.stop="focusOnLocation(location)">
+            <svg class="location-card__focus-icon location-card__focus-icon--default" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M9.375 9.375V13.875" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M9.375 9.375C11.5841 9.375 13.375 7.58414 13.375 5.375C13.375 3.16586 11.5841 1.375 9.375 1.375C7.16586 1.375 5.375 3.16586 5.375 5.375C5.375 7.58414 7.16586 9.375 9.375 9.375Z" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M13.125 11.625C15.3667 12.1114 16.875 13.0205 16.875 14.0618C16.875 15.6155 13.5171 16.875 9.375 16.875C5.23286 16.875 1.875 15.6155 1.875 14.0618C1.875 13.0205 3.38324 12.1114 5.625 11.625" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <svg class="location-card__badge-v2--v2" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <svg class="location-card__focus-icon location-card__focus-icon--active" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M9.375 9.375V13.875" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M9.375 9.375C11.5841 9.375 13.375 7.58414 13.375 5.375C13.375 3.16586 11.5841 1.375 9.375 1.375C7.16586 1.375 5.375 3.16586 5.375 5.375C5.375 7.58414 7.16586 9.375 9.375 9.375Z" fill="#0CD459" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M13.125 11.625C15.3667 12.1114 16.875 13.0205 16.875 14.0618C16.875 15.6155 13.5171 16.875 9.375 16.875C5.23286 16.875 1.875 15.6155 1.875 14.0618C1.875 13.0205 3.38324 12.1114 5.625 11.625" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
@@ -220,7 +220,7 @@
     </aside>
 
     <!-- Map View -->
-    <main class="locations-map" :class="{ 'dark-mode': isDarkMode }">
+    <main class="locations-map" :class="{ 'locations-map--dark': isDarkMode }">
       <!-- View Toggle -->
       <div class="locations-map__controls">
         <button
@@ -240,7 +240,7 @@
       </div>
 
       <!-- Collection Badge -->
-      <div class="locations-collection" :class="{ 'dark-mode': isDarkMode }" @click="openSidebar">
+      <div class="locations-collection" :class="{ 'locations-collection--dark': isDarkMode }" @click="openSidebar">
         <span class="locations-collection__dot"></span>
         <span class="locations-collection__text">
           {{ $t('location.collection') }} <span class="locations-collection__count">({{ selectedLocations.size }})</span>
@@ -252,7 +252,7 @@
     </main>
 
     <!-- Selection Sidebar -->
-    <aside class="locations-selection-sidebar" :class="{ 'locations-selection-sidebar--open': isSidebarOpen, 'dark-mode': isDarkMode }">
+    <aside class="locations-selection-sidebar" :class="{ 'locations-selection-sidebar--open': isSidebarOpen, 'locations-selection-sidebar--dark': isDarkMode }">
       <div class="locations-selection-sidebar__header">
         <div class="locations-selection-sidebar__title-wrapper">
           <h2 class="locations-selection-sidebar__title">{{ $t('location.collection') }} <span>({{ selectedLocations.size }})</span></h2>
@@ -291,27 +291,27 @@
           <template v-if="selectedLocations.size === 0">
             <div class="locations-selection-sidebar__empty">
               <div class="locations-selection-sidebar__empty-icon">📍</div>
-              <p>{{ $t('location.emptyCollection') }}</p>
-              <p style="font-size: 12px; color: #bbb;">{{ $t('location.emptyCollectionHint') }}</p>
+              <p class="locations-selection-sidebar__empty-text">{{ $t('location.emptyCollection') }}</p>
+              <p class="locations-selection-sidebar__empty-hint">{{ $t('location.emptyCollectionHint') }}</p>
             </div>
           </template>
           <template v-else>
             <div
               v-for="[id, location] in selectedLocations"
               :key="id"
-              class="location-card"
-              :class="{ 'dark-mode': isDarkMode }"
+              class="location-card location-card--selected"
+              :class="{ 'location-card--dark': isDarkMode }"
             >
               <div class="location-card__badge" @click="removeFromCollection(id)">
                 <input type="checkbox" class="location-card__badge-input" checked @click.stop @change="removeFromCollection(id)">
               </div>
-              <div class="location-card__badge-v2" @click="focusOnLocation(location)">
-                <svg class="location-card__badge-v2--v1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <div class="location-card__focus" @click="focusOnLocation(location)">
+                <svg class="location-card__focus-icon location-card__focus-icon--default" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M9.375 9.375V13.875" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9.375 9.375C11.5841 9.375 13.375 7.58414 13.375 5.375C13.375 3.16586 11.5841 1.375 9.375 1.375C7.16586 1.375 5.375 3.16586 5.375 5.375C5.375 7.58414 7.16586 9.375 9.375 9.375Z" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M13.125 11.625C15.3667 12.1114 16.875 13.0205 16.875 14.0618C16.875 15.6155 13.5171 16.875 9.375 16.875C5.23286 16.875 1.875 15.6155 1.875 14.0618C1.875 13.0205 3.38324 12.1114 5.625 11.625" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <svg class="location-card__badge-v2--v2" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <svg class="location-card__focus-icon location-card__focus-icon--active" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M9.375 9.375V13.875" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9.375 9.375C11.5841 9.375 13.375 7.58414 13.375 5.375C13.375 3.16586 11.5841 1.375 9.375 1.375C7.16586 1.375 5.375 3.16586 5.375 5.375C5.375 7.58414 7.16586 9.375 9.375 9.375Z" fill="#0CD459" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M13.125 11.625C15.3667 12.1114 16.875 13.0205 16.875 14.0618C16.875 15.6155 13.5171 16.875 9.375 16.875C5.23286 16.875 1.875 15.6155 1.875 14.0618C1.875 13.0205 3.38324 12.1114 5.625 11.625" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
@@ -339,11 +339,11 @@
     </aside>
 
     <!-- Overlay -->
-    <div class="locations-overlay" :class="{ 'locations-overlay--visible': isSidebarOpen, 'dark-mode': isDarkMode }" @click="closeSidebar"></div>
+    <div class="locations-overlay" :class="{ 'locations-overlay--visible': isSidebarOpen }" @click="closeSidebar"></div>
 
     <!-- Toast Notification -->
     <Teleport to="body">
-      <div class="location-toast" :class="[toastClass, { 'location-toast--visible': isToastVisible, 'dark-mode': isDarkMode }]">
+      <div class="location-toast" :class="[toastClass, { 'location-toast--visible': isToastVisible, 'location-toast--dark': isDarkMode }]">
         {{ toastMessage }}
       </div>
     </Teleport>
@@ -850,45 +850,60 @@ $breakpoint-desktop: 1024px;
   @include tablet { grid-template-columns: 1fr; }
   &--grid-view { @include tablet { .locations-sidebar { display: block; } .locations-map { display: none; } } }
   &--map-view { @include tablet { .locations-sidebar { display: none; } .locations-map { display: block; } } }
-  &.dark-mode { background-color: $dark-background; }
+  &--dark { background-color: $dark-background; }
 }
 
 .locations-sidebar {
   display: flex; flex-direction: column; height: 100dvh; border-right: 1px solid $color-border; background-color: $color-background; position: sticky; top: 0;
   @include tablet { height: auto; min-height: 100dvh; border-right: none; }
-  &.dark-mode { background-color: $dark-background; border-color: $dark-border; }
-  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; .dark-mode & { border-color: $dark-border; } }
-  &__title { font-size: 1.5rem; font-weight: 400; margin: 0 0 1rem; display: flex; align-items: baseline; gap: 0.5rem; .dark-mode & { color: $dark-text; } }
+  &--dark { background-color: $dark-background; border-color: $dark-border;
+    .locations-sidebar__header { border-color: $dark-border; }
+    .locations-sidebar__title { color: $dark-text; }
+    .locations-sidebar__clear-btn { border-color: $dark-border; color: $dark-text; }
+    .locations-sidebar__view-toggle { color: $dark-text; }
+    .locations-sidebar__mode-btn { border-color: $dark-border; color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
+    .locations-sidebar__filters { border-color: $dark-border; }
+    .locations-sidebar__mobile-buttons { border-color: $dark-border; }
+    .locations-sidebar__collection-btn, .locations-sidebar__filters-btn { border-color: $dark-border; color: $dark-text; }
+    .locations-sidebar__search { border-color: $dark-border; }
+    .locations-sidebar__search-input { background-color: $dark-surface; border-color: $dark-border; color: $dark-text; }
+    .locations-sidebar__active-filters { border-color: $dark-border; }
+    .locations-sidebar__tag { border-color: $dark-border; color: $dark-text; }
+    .locations-sidebar__clear-all { color: rgba($dark-text, 0.6); &:hover { color: $dark-text; } }
+    .locations-sidebar__empty { color: rgba($dark-text, 0.6); }
+  }
+  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; }
+  &__title { font-size: 1.5rem; font-weight: 400; margin: 0 0 1rem; display: flex; align-items: baseline; gap: 0.5rem; }
   &__count { font-size: 0.875rem; color: $color-muted; }
   &__buttons-wrapper { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-  &__clear-btn { padding: 0.5rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { border-color: $color-primary; } .dark-mode & { border-color: $dark-border; color: $dark-text; } }
-  &__view-toggle { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; .dark-mode & { color: $dark-text; } }
+  &__clear-btn { padding: 0.5rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { border-color: $color-primary; } }
+  &__view-toggle { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; }
   &__view-checkbox { width: 1rem; height: 1rem; accent-color: $color-accent; }
   &__mode-switch { display: none; @include tablet { display: flex; gap: 0.25rem; } }
-  &__mode-btn { padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.625rem; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; } .dark-mode & { border-color: $dark-border; color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } } }
-  &__filters { padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; @include tablet { display: none; } .dark-mode & { border-color: $dark-border; } }
+  &__mode-btn { padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.625rem; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; } }
+  &__filters { padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; @include tablet { display: none; } }
   &__filter-group { display: flex; gap: 0.75rem; }
-  &__mobile-buttons { display: none; padding: 1rem 1.5rem; gap: 0.75rem; border-bottom: 1px solid $color-border; @include tablet { display: flex; } .dark-mode & { border-color: $dark-border; } }
-  &__collection-btn, &__filters-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.75rem; cursor: pointer; .dark-mode & { border-color: $dark-border; color: $dark-text; } }
+  &__mobile-buttons { display: none; padding: 1rem 1.5rem; gap: 0.75rem; border-bottom: 1px solid $color-border; @include tablet { display: flex; } }
+  &__collection-btn, &__filters-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.75rem; cursor: pointer; }
   &__collection-btn-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__search { display: flex; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; .dark-mode & { border-color: $dark-border; } }
-  &__search-input { flex: 1; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; font-size: 0.875rem; font-family: inherit; &:focus { outline: none; border-color: $color-primary; } .dark-mode & { background-color: $dark-surface; border-color: $dark-border; color: $dark-text; } }
+  &__search { display: flex; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; }
+  &__search-input { flex: 1; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; font-size: 0.875rem; font-family: inherit; &:focus { outline: none; border-color: $color-primary; } }
   &__search-btn { padding: 0.75rem 1.25rem; border: none; border-radius: 0.5rem; background-color: $color-primary; color: $color-background; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: opacity 0.2s ease; &:hover { opacity: 0.9; } }
-  &__active-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; .dark-mode & { border-color: $dark-border; } }
-  &__tag { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; font-size: 0.75rem; .dark-mode & { border-color: $dark-border; color: $dark-text; } }
+  &__active-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; }
+  &__tag { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; font-size: 0.75rem; }
   &__tag-close { cursor: pointer; opacity: 0.6; &:hover { opacity: 1; } }
-  &__clear-all { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: $color-muted; text-decoration: none; &:hover { color: $color-primary; } .dark-mode & { color: rgba($dark-text, 0.6); &:hover { color: $dark-text; } } }
+  &__clear-all { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: $color-muted; text-decoration: none; &:hover { color: $color-primary; } }
   &__shimmer { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow: hidden; }
-  &__cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow-y: auto; flex: 1; @include mobile { grid-template-columns: 1fr; } }
-  &__empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: $color-muted; .dark-mode & { color: rgba($dark-text, 0.6); } }
+  &__cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; @include mobile { grid-template-columns: 1fr; } }
+  &__empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: $color-muted; }
 }
 
 .custom-select {
   position: relative; flex: 1;
-  &__trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: border-color 0.2s ease; &:hover { border-color: $color-primary; } .dark-mode & { border-color: $dark-border; color: $dark-text; } }
+  &__trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: border-color 0.2s ease; &:hover { border-color: $color-primary; } .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; } }
   &__arrow { transition: transform 0.2s ease; .custom-select--open & { transform: rotate(180deg); } }
-  &__dropdown { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: $color-background; border: 1px solid $color-border; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); z-index: 100; .dark-mode & { background-color: $dark-surface; border-color: $dark-border; } }
-  &__option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; cursor: pointer; transition: background-color 0.2s ease; &:hover { background-color: rgba($color-primary, 0.05); } .dark-mode & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } } input { accent-color: $color-accent; } }
+  &__dropdown { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: $color-background; border: 1px solid $color-border; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); z-index: 100; .locations-sidebar--dark & { background-color: $dark-surface; border-color: $dark-border; } }
+  &__option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; cursor: pointer; transition: background-color 0.2s ease; &:hover { background-color: rgba($color-primary, 0.05); } .locations-sidebar--dark & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } } input { accent-color: $color-accent; } }
 }
 
 .location-card {
@@ -896,18 +911,25 @@ $breakpoint-desktop: 1024px;
   &:hover { border-color: $color-primary; }
   &--selected { border-color: $color-accent; .location-card__badge-input { accent-color: $color-accent; } }
   &--active { box-shadow: 0 0 0 2px $color-accent; }
-  &.dark-mode { background-color: $dark-surface; border-color: $dark-border; &:hover { border-color: $dark-text; } }
-  &__badge { position: absolute; top: 0.75rem; left: 0.75rem; z-index: 10; width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 0.25rem; cursor: pointer; .dark-mode & { background-color: $dark-surface; } }
+  &--dark { background-color: $dark-surface; border-color: $dark-border; &:hover { border-color: $dark-text; }
+    .location-card__badge { background-color: $dark-surface; }
+    .location-card__focus { background-color: $dark-surface; }
+    .location-card__image-wrapper { background-color: $dark-background; }
+    .location-card__city, .location-card__type { color: rgba($dark-text, 0.6); }
+    .location-card__name { color: $dark-text; }
+  }
+  &__badge { position: absolute; top: 0.75rem; left: 0.75rem; z-index: 10; width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 0.25rem; cursor: pointer; }
   &__badge-input { width: 1rem; height: 1rem; accent-color: $color-accent; cursor: pointer; }
-  &__badge-v2 { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 10; width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease; &:hover { transform: scale(1.1); } .dark-mode & { background-color: $dark-surface; } &--v1 { display: block; } &--v2 { display: none; } .location-card--selected &, .location-card--active & { .location-card__badge-v2--v1 { display: none; } .location-card__badge-v2--v2 { display: block; } } }
+  &__focus { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 10; width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease; &:hover { transform: scale(1.1); } }
+  &__focus-icon { &--default { display: block; } &--active { display: none; } .location-card--selected &, .location-card--active & { &--default { display: none; } &--active { display: block; } } }
   &__link { display: block; text-decoration: none; color: inherit; }
-  &__image-wrapper { aspect-ratio: 4 / 3; overflow: hidden; background-color: darken($color-background, 5%); .dark-mode & { background-color: $dark-background; } }
+  &__image-wrapper { aspect-ratio: 4 / 3; overflow: hidden; background-color: darken($color-background, 5%); }
   &__image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; .location-card:hover & { transform: scale(1.05); } }
   &__content { padding: 0.75rem; }
   &__meta { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.25rem; }
-  &__city, &__type { font-size: 0.625rem; color: $color-muted; text-transform: uppercase; .dark-mode & { color: rgba($dark-text, 0.6); } }
+  &__city, &__type { font-size: 0.625rem; color: $color-muted; text-transform: uppercase; }
   &__dot { font-size: 0.5rem; color: $color-muted; }
-  &__name { font-size: 0.875rem; font-weight: 400; line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; .dark-mode & { color: $dark-text; } }
+  &__name { font-size: 0.875rem; font-weight: 400; line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
 
 .location-card-shimmer {
@@ -922,8 +944,12 @@ $breakpoint-desktop: 1024px;
 
 .locations-map {
   position: relative; height: 100dvh; @include tablet { height: 100dvh; }
-  &__controls { position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.25rem; z-index: 10; background-color: $color-background; border-radius: 999px; padding: 0.25rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); @include tablet { display: none; } .dark-mode & { background-color: $dark-surface; } }
-  &__toggle { padding: 0.5rem 1rem; border: none; border-radius: 999px; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; color: $color-background; } .dark-mode & { color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } } }
+  &--dark {
+    .locations-map__controls { background-color: $dark-surface; }
+    .locations-map__toggle { color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
+  }
+  &__controls { position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.25rem; z-index: 10; background-color: $color-background; border-radius: 999px; padding: 0.25rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); @include tablet { display: none; } }
+  &__toggle { padding: 0.5rem 1rem; border: none; border-radius: 999px; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; color: $color-background; } }
   &__container { width: 100%; height: 100%; }
 }
 
@@ -931,25 +957,34 @@ $breakpoint-desktop: 1024px;
   position: absolute; top: 1rem; right: 1rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background-color: $color-background; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer; z-index: 10; transition: transform 0.2s ease;
   &:hover { transform: scale(1.02); }
   @include tablet { display: none; }
-  &.dark-mode { background-color: $dark-surface; }
+  &--dark { background-color: $dark-surface; .locations-collection__text { color: $dark-text; } }
   &__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__text { font-size: 0.75rem; .dark-mode & { color: $dark-text; } }
+  &__text { font-size: 0.75rem; }
 }
 
 .locations-selection-sidebar {
   position: fixed; top: 0; right: 0; width: 400px; max-width: 100%; height: 100dvh; background-color: $color-background; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1); transform: translateX(100%); transition: transform 0.3s ease; z-index: 1000; display: flex; flex-direction: column;
   &--open { transform: translateX(0); }
-  &.dark-mode { background-color: $dark-background; }
-  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; .dark-mode & { border-color: $dark-border; } }
+  &--dark { background-color: $dark-background;
+    .locations-selection-sidebar__header { border-color: $dark-border; }
+    .locations-selection-sidebar__title { color: $dark-text; }
+    .locations-selection-sidebar__close { color: $dark-text; }
+    .locations-selection-sidebar__share-btn, .locations-selection-sidebar__export-btn { border-color: $dark-border; color: $dark-text; }
+    .locations-selection-sidebar__empty { color: rgba($dark-text, 0.6); }
+    .locations-selection-sidebar__empty-hint { color: rgba($dark-text, 0.4); }
+  }
+  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; }
   &__title-wrapper { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  &__title { font-size: 1.25rem; font-weight: 400; margin: 0; .dark-mode & { color: $dark-text; } }
-  &__close { padding: 0.5rem; border: none; background: transparent; cursor: pointer; .dark-mode & { color: $dark-text; } }
+  &__title { font-size: 1.25rem; font-weight: 400; margin: 0; }
+  &__close { padding: 0.5rem; border: none; background: transparent; cursor: pointer; }
   &__header-actions { display: flex; gap: 0.75rem; }
-  &__share-btn, &__export-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &:hover { border-color: $color-primary; } .dark-mode & { border-color: $dark-border; color: $dark-text; } }
+  &__share-btn, &__export-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &:hover { border-color: $color-primary; } }
   &__content { flex: 1; overflow-y: auto; padding: 1.5rem; }
   &__list { display: flex; flex-direction: column; gap: 1rem; }
-  &__empty { text-align: center; padding: 2rem; color: $color-muted; .dark-mode & { color: rgba($dark-text, 0.6); } }
+  &__empty { text-align: center; padding: 2rem; }
   &__empty-icon { font-size: 2rem; margin-bottom: 1rem; }
+  &__empty-text { color: $color-muted; margin: 0 0 0.5rem; }
+  &__empty-hint { font-size: 0.75rem; color: rgba($color-primary, 0.4); margin: 0; }
 }
 
 .locations-overlay {
@@ -990,6 +1025,6 @@ $breakpoint-desktop: 1024px;
   &--success { background-color: #4CAF50; }
   &--error { background-color: #f44336; }
   &--warning { background-color: #ff9800; }
-  &.dark-mode { background-color: #ffffff; color: #03120F; }
+  &--dark { background-color: #ffffff; color: #03120F; }
 }
 </style>
