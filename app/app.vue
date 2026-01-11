@@ -161,6 +161,7 @@ router.afterEach(async () => {
         duration: 0.5,
         ease: 'power2.out'
       }, '-=0.4')
+      .set(wrapper, { clearProps: 'all' }) // Clear all inline styles to prevent stacking issues
       .set(transitionOverlay, { visibility: 'hidden', yPercent: 100 })
       .set(depthOverlay, { visibility: 'hidden' })
   })
