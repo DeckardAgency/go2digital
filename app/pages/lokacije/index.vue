@@ -436,7 +436,11 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-// Page meta
+// Page meta - hide footer on this page
+definePageMeta({
+  showFooter: false
+})
+
 useHead({
   title: 'Lokacije - Go2Digital'
 })

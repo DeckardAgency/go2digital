@@ -5,7 +5,7 @@
     <HeroNav />
     <div class="page-wrapper" ref="pageWrapper">
       <NuxtPage />
-      <FooterSection />
+      <FooterSection v-if="showFooter" />
     </div>
   </div>
 </template>
@@ -19,7 +19,11 @@ const isAnimating = ref(false)
 let transitionOverlay: HTMLElement | null = null
 
 const router = useRouter()
+const route = useRoute()
 const { isMenuOpen, closeMenu } = useNavigation()
+
+// Show footer by default, unless page meta explicitly sets showFooter: false
+const showFooter = computed(() => route.meta.showFooter !== false)
 
 // Menu close animation duration (matches HeroNav CSS transition)
 const MENU_CLOSE_DURATION = 300
