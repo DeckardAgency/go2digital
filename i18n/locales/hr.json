@@ -120,5 +120,48 @@
       "description": "Pročitajte naše najnovije članke o digitalnom marketingu, dizajnu, tehnologiji i više.",
       "keywords": "blog, članci, digitalni marketing, dizajn, tehnologija"
     }
+  },
+  "location": {
+    "pageTitle": "Lokacije - Go2Digital",
+    "title": "Lokacije",
+    "collectionView": "Prikaz kolekcije",
+    "mapStyle": {
+      "light": "Svijetla",
+      "dark": "Tamna"
+    },
+    "filters": {
+      "title": "Filteri",
+      "cities": "Gradovi",
+      "environments": "Okruženja",
+      "clearAll": "Očisti sve",
+      "apply": "Primijeni"
+    },
+    "search": {
+      "placeholder": "Pretraži lokacije...",
+      "button": "Traži",
+      "label": "Pretraga"
+    },
+    "collection": "Kolekcija",
+    "clearAll": "Očisti sve",
+    "noResults": "Nema rezultata za odabrane filtere.",
+    "shareUrl": "Podijeli URL",
+    "downloadPdf": "Preuzmi PDF",
+    "emptyCollection": "Vaša kolekcija je prazna",
+    "emptyCollectionHint": "Dodajte lokacije klikom na kvačicu",
+    "viewSwitcher": {
+      "grid": "Lista",
+      "map": "Mapa"
+    },
+    "toast": {
+      "added": "Lokacija dodana u kolekciju",
+      "removed": "Lokacija uklonjena iz kolekcije",
+      "urlCopied": "URL kopiran u međuspremnik",
+      "urlError": "Greška pri kopiranju URL-a"
+    },
+    "seo": {
+      "title": "Lokacije - Go2Digital",
+      "description": "Pregledajte sve naše lokacije digitalnih ekrana u Hrvatskoj.",
+      "keywords": "lokacije, digitalni ekrani, vanjsko oglašavanje, Hrvatska"
+    }
   }
 }

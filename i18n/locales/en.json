@@ -120,5 +120,48 @@
       "description": "Read our latest articles about digital marketing, design, technology and more.",
       "keywords": "blog, articles, digital marketing, design, technology"
     }
+  },
+  "location": {
+    "pageTitle": "Locations - Go2Digital",
+    "title": "Locations",
+    "collectionView": "Collection view",
+    "mapStyle": {
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "filters": {
+      "title": "Filters",
+      "cities": "Cities",
+      "environments": "Environments",
+      "clearAll": "Clear all",
+      "apply": "Apply"
+    },
+    "search": {
+      "placeholder": "Search locations...",
+      "button": "Search",
+      "label": "Search"
+    },
+    "collection": "Collection",
+    "clearAll": "Clear all",
+    "noResults": "No results for selected filters.",
+    "shareUrl": "Share URL",
+    "downloadPdf": "Download PDF",
+    "emptyCollection": "Your collection is empty",
+    "emptyCollectionHint": "Add locations by clicking the checkbox",
+    "viewSwitcher": {
+      "grid": "Grid",
+      "map": "Map"
+    },
+    "toast": {
+      "added": "Location added to collection",
+      "removed": "Location removed from collection",
+      "urlCopied": "URL copied to clipboard",
+      "urlError": "Error copying URL"
+    },
+    "seo": {
+      "title": "Locations - Go2Digital",
+      "description": "Browse all our digital screen locations in Croatia.",
+      "keywords": "locations, digital screens, outdoor advertising, Croatia"
+    }
   }
 }
