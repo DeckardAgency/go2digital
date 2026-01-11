@@ -1,6 +1,7 @@
 <template>
   <div class="page page--home">
     <HeroSection />
+    <HorizontalScrollSection />
     <section class="content">
       <h2>Our Work</h2>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
@@ -26,7 +27,10 @@ useHead({
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+// Variables and mixins are now globally available via nuxt.config.ts
+
+// NOTE: Do NOT use `contain: layout` here - it breaks ScrollTrigger pinning in HeroSection
 .page--home {
   min-height: 100vh;
 }
@@ -34,32 +38,32 @@ useHead({
 .content {
   max-width: 800px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: $spacing-2xl $spacing-xl;
   line-height: 1.8;
-  background: #0a0a0a;
-  color: #fff;
-}
+  background: $dark-background;
+  color: $dark-text;
 
-.content p {
-  margin-bottom: 1.5rem;
+  p {
+    margin-bottom: $spacing-lg;
+  }
 }
 
 .links {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
+  gap: $spacing-md;
+  margin-top: $spacing-xl;
 
-.links a {
-  padding: 0.75rem 1.5rem;
-  background: #1a1a2e;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0.5rem;
-  transition: background 0.3s;
-}
+  a {
+    padding: $spacing-sm $spacing-lg;
+    background: $dark-surface;
+    color: $dark-text;
+    text-decoration: none;
+    border-radius: $radius-md;
+    transition: background $transition-slow;
 
-.links a:hover {
-  background: #2a2a4e;
+    @include hover {
+      background: lighten($dark-surface, 10%);
+    }
+  }
 }
 </style>

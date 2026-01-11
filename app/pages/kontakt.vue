@@ -215,30 +215,11 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
-// Variables
-$color-white: #ffffff;
-$color-green: #0CD459;
-$spacing-xs: 0.5rem;
-$spacing-sm: 0.75rem;
-$spacing-md: 1rem;
-$spacing-lg: 1.5rem;
-$spacing-xl: 2.5rem;
-$font-weight-regular: 400;
-$font-weight-light: 300;
+// Variables and mixins are now globally available via nuxt.config.ts
+// Page-specific design tokens
 $overlay-light: rgba(0, 0, 0, 0.4);
 $text-light: rgba(255, 255, 255, 0.85);
 $text-lighter: rgba(255, 255, 255, 0.6);
-
-// Responsive mixin
-@mixin responsive($breakpoint) {
-  @if $breakpoint == 'desktop' {
-    @media (max-width: 1440px) { @content; }
-  } @else if $breakpoint == 'tablet' {
-    @media (max-width: 1024px) { @content; }
-  } @else if $breakpoint == 'mobile' {
-    @media (max-width: 768px) { @content; }
-  }
-}
 
 .contact-page {
   position: relative;
@@ -249,19 +230,16 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  contain: layout style;
 
-  @include responsive('mobile') {
+  @include tablet {
     display: flex;
     flex-direction: column;
   }
 
   &::after {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    @include absolute-fill;
     background: $overlay-light;
     z-index: 1;
     opacity: 0;
@@ -275,56 +253,56 @@ $text-lighter: rgba(255, 255, 255, 0.6);
 
 .left-content {
   position: absolute;
-  top: $spacing-xl;
-  left: $spacing-xl;
+  top: $spacing-2xl;
+  left: $spacing-2xl;
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: $spacing-2xl;
 
-  @include responsive('desktop') {
+  @include wide {
     left: $spacing-lg;
     top: $spacing-lg;
     gap: 3.125rem;
   }
 
-  @include responsive('tablet') {
+  @include desktop {
     left: $spacing-md;
     top: $spacing-md;
     gap: $spacing-lg;
   }
 
-  @include responsive('mobile') {
+  @include tablet {
     all: unset;
     margin-top: 6rem;
-    padding: 1rem;
+    padding: $spacing-md;
     z-index: 3;
   }
 }
 
 .header-info {
-  color: $color-white;
+  color: $dark-text;
 
-  @include responsive('mobile') {
+  @include tablet {
     margin-bottom: 2.5rem;
   }
 
   &__time {
     font-size: 5rem;
-    font-weight: $font-weight-light;
+    font-weight: 300;
     line-height: 1;
     letter-spacing: -0.1875rem;
     margin-bottom: $spacing-xs;
 
-    @include responsive('desktop') {
+    @include wide {
       font-size: 3.75rem;
     }
 
-    @include responsive('tablet') {
+    @include desktop {
       font-size: 3rem;
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       font-size: 3.125rem;
       letter-spacing: -0.0625rem;
     }
@@ -332,19 +310,19 @@ $text-lighter: rgba(255, 255, 255, 0.6);
 
   &__date {
     font-size: 5rem;
-    font-weight: $font-weight-light;
+    font-weight: 300;
     line-height: 1;
     letter-spacing: -0.1875rem;
 
-    @include responsive('desktop') {
+    @include wide {
       font-size: 3.75rem;
     }
 
-    @include responsive('tablet') {
+    @include desktop {
       font-size: 3rem;
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       font-size: 2.25rem;
       letter-spacing: -0.0625rem;
     }
@@ -352,23 +330,23 @@ $text-lighter: rgba(255, 255, 255, 0.6);
 }
 
 .weather {
-  color: $color-white;
+  color: $dark-text;
 
   &__temperature {
     font-size: 3.5rem;
-    font-weight: $font-weight-light;
+    font-weight: 300;
     margin-bottom: 0.75rem;
     letter-spacing: -0.0625rem;
 
-    @include responsive('desktop') {
+    @include wide {
       font-size: 3rem;
     }
 
-    @include responsive('tablet') {
+    @include desktop {
       font-size: 2.5rem;
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       margin-bottom: 0;
       font-size: 2rem;
     }
@@ -378,9 +356,9 @@ $text-lighter: rgba(255, 255, 255, 0.6);
     font-size: 0.9375rem;
     color: $text-light;
     line-height: 1.5;
-    font-weight: $font-weight-regular;
+    font-weight: 400;
 
-    @include responsive('mobile') {
+    @include tablet {
       font-size: 0.8125rem;
     }
   }
@@ -388,16 +366,16 @@ $text-lighter: rgba(255, 255, 255, 0.6);
 
 .battery-status {
   width: 15rem;
-  color: $color-white;
+  color: $dark-text;
 
   &__text {
     font-size: 0.9375rem;
     color: $text-light;
     margin-bottom: 0.9375rem;
     line-height: 1.5;
-    font-weight: $font-weight-regular;
+    font-weight: 400;
 
-    @include responsive('mobile') {
+    @include tablet {
       font-size: 0.8125rem;
     }
   }
@@ -424,7 +402,7 @@ $text-lighter: rgba(255, 255, 255, 0.6);
     bottom: 0.25rem;
     width: 2%;
     max-width: calc(100% - 0.5rem);
-    background: $color-green;
+    background: $color-accent;
     border-radius: 12px;
     transition: width 0.3s ease;
   }
@@ -433,7 +411,7 @@ $text-lighter: rgba(255, 255, 255, 0.6);
     flex-shrink: 0;
     font-size: 0.8125rem;
     color: $text-lighter;
-    font-weight: $font-weight-regular;
+    font-weight: 400;
   }
 }
 
@@ -447,17 +425,17 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   align-items: flex-end;
   gap: $spacing-sm;
 
-  @include responsive('desktop') {
+  @include wide {
     right: $spacing-lg;
     top: $spacing-lg;
   }
 
-  @include responsive('tablet') {
+  @include desktop {
     right: $spacing-md;
     top: $spacing-md;
   }
 
-  @include responsive('mobile') {
+  @include tablet {
     all: unset;
     margin-top: auto;
     padding: 1rem;
@@ -471,11 +449,11 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   gap: $spacing-xs;
   justify-content: flex-end;
 
-  @include responsive('tablet') {
+  @include desktop {
     max-width: 15.625rem;
   }
 
-  @include responsive('mobile') {
+  @include tablet {
     max-width: unset;
     margin-bottom: 0.625rem;
   }

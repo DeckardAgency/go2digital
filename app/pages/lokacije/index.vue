@@ -902,207 +902,610 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 </script>
 
 <style lang="scss" scoped>
-$color-primary: #03120F;
-$color-accent: #0CD459;
-$color-background: #ffffff;
-$color-border: #E5E5E5;
-$color-muted: rgba($color-primary, 0.4);
-$dark-background: #1a1a1a;
-$dark-surface: #2a2a2a;
-$dark-border: #3a3a3a;
-$dark-text: #ffffff;
-$breakpoint-mobile: 576px;
-$breakpoint-tablet: 768px;
-$breakpoint-desktop: 1024px;
-
-@mixin mobile { @media (max-width: $breakpoint-mobile) { @content; } }
-@mixin tablet { @media (max-width: $breakpoint-tablet) { @content; } }
-@mixin desktop { @media (max-width: $breakpoint-desktop) { @content; } }
+// Variables and mixins are now globally available via nuxt.config.ts
 
 .locations-page {
-  display: grid; grid-template-columns: 420px 1fr; min-height: 100dvh; background-color: $color-background;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  min-height: 100dvh;
+  background-color: $color-background;
+  contain: layout style;
+
   @include desktop { grid-template-columns: 350px 1fr; }
   @include tablet { grid-template-columns: 1fr; }
+
   &--grid-view { @include tablet { .locations-sidebar { display: block; } .locations-map { display: none; } } }
   &--map-view { @include tablet { .locations-sidebar { display: none; } .locations-map { display: block; } } }
   &--dark { background-color: $dark-background; }
 }
 
 .locations-sidebar {
-  display: flex; flex-direction: column; height: 100dvh; overflow: hidden; border-right: 1px solid $color-border; background-color: $color-background; position: sticky; top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  border-right: 1px solid $color-border;
+  background-color: $color-background;
+  position: sticky;
+  top: 0;
+  contain: layout style;
+
   @include tablet { height: auto; min-height: 100dvh; border-right: none; }
-  &--dark { background-color: $dark-background; border-color: $dark-border;
+
+  // Dark mode
+  &--dark {
+    background-color: $dark-background;
+    border-color: $dark-border;
+
     .locations-sidebar__header { border-color: $dark-border; }
     .locations-sidebar__title { color: $dark-text; }
-    .locations-sidebar__count { color: rgba($dark-text, 0.6); }
+    .locations-sidebar__count { color: $dark-muted; }
     .locations-sidebar__clear-btn { border-color: $dark-border; color: $dark-text; }
     .locations-sidebar__view-toggle { color: $dark-text; }
     .locations-sidebar__mode-btn { border-color: $dark-border; color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
     .locations-sidebar__filters { border-color: $dark-border; }
     .locations-sidebar__mobile-buttons { border-color: $dark-border; }
-    .locations-sidebar__collection-btn, .locations-sidebar__filters-btn { border-color: $dark-border; color: $dark-text; }
+    .locations-sidebar__collection-btn,
+    .locations-sidebar__filters-btn { border-color: $dark-border; color: $dark-text; }
     .locations-sidebar__search { border-color: $dark-border; }
     .locations-sidebar__search-input { background-color: $dark-surface; border-color: $dark-border; color: $dark-text; }
     .locations-sidebar__active-filters { border-color: $dark-border; }
     .locations-sidebar__tag { border-color: $dark-border; color: $dark-text; }
-    .locations-sidebar__clear-all { color: rgba($dark-text, 0.6); &:hover { color: $dark-text; } }
-    .locations-sidebar__empty { color: rgba($dark-text, 0.6); }
+    .locations-sidebar__clear-all { color: $dark-muted; &:hover { color: $dark-text; } }
+    .locations-sidebar__empty { color: $dark-muted; }
   }
-  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; }
-  &__title-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem; }
-  &__title { font-size: 1.5rem; font-weight: 400; margin: 0; }
-  &__count { font-size: 0.875rem; color: $color-muted; }
-  &__buttons-wrapper { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-  &__clear-btn { padding: 0.5rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { border-color: $color-primary; } }
-  &__view-toggle { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; cursor: pointer; }
+
+  // Elements
+  &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__title-row { display: flex; align-items: baseline; gap: $spacing-sm; margin-bottom: $spacing-md; }
+  &__title { font-size: $font-size-xl; font-weight: 400; margin: 0; }
+  &__count { font-size: $font-size-base; color: $color-muted; }
+  &__buttons-wrapper { display: flex; align-items: center; gap: $spacing-lg; flex-wrap: wrap; }
+  &__clear-btn {
+    padding: $spacing-sm;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: transparent;
+    cursor: pointer;
+    @include flex-center;
+    transition: border-color $transition-base;
+    &:hover { border-color: $color-primary; }
+  }
+  &__view-toggle { display: flex; align-items: center; gap: $spacing-sm; font-size: $font-size-sm; cursor: pointer; }
   &__view-checkbox { width: 1rem; height: 1rem; accent-color: $color-accent; }
-  &__mode-switch { display: none; @include tablet { display: flex; gap: 0.25rem; } }
-  &__mode-btn { padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.625rem; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; } }
-  &__filters { padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; @include tablet { display: none; } }
-  &__filter-group { display: flex; gap: 0.75rem; }
-  &__mobile-buttons { display: none; padding: 1rem 1.5rem; gap: 0.75rem; border-bottom: 1px solid $color-border; @include tablet { display: flex; } }
-  &__collection-btn, &__filters-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 999px; background: transparent; font-size: 0.75rem; cursor: pointer; }
+  &__mode-switch { display: none; @include tablet { display: flex; gap: $spacing-xs; } }
+  &__mode-btn {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid $color-border;
+    border-radius: $radius-full;
+    background: transparent;
+    font-size: $font-size-xs;
+    cursor: pointer;
+    transition: all $transition-base;
+    &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; }
+  }
+  &__filters { padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; @include tablet { display: none; } }
+  &__filter-group { display: flex; gap: $spacing-lg; }
+  &__mobile-buttons { display: none; padding: $spacing-md $spacing-lg; gap: $spacing-lg; border-bottom: 1px solid $color-border; @include tablet { display: flex; } }
+  &__collection-btn,
+  &__filters-btn {
+    flex: 1;
+    @include flex-center;
+    gap: $spacing-sm;
+    padding: 0.75rem $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $radius-full;
+    background: transparent;
+    font-size: $font-size-sm;
+    cursor: pointer;
+  }
   &__collection-btn-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__search { display: flex; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; }
-  &__search-input { flex: 1; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; font-size: 0.875rem; font-family: inherit; &:focus { outline: none; border-color: $color-primary; } }
-  &__search-btn { padding: 0.75rem 1.25rem; border: none; border-radius: 0.5rem; background-color: $color-primary; color: $color-background; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: opacity 0.2s ease; &:hover { opacity: 0.9; } }
-  &__active-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 1.5rem; border-bottom: 1px solid $color-border; }
-  &__tag { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border: 1px solid $color-border; border-radius: 999px; font-size: 0.75rem; }
-  &__tag-close { cursor: pointer; opacity: 0.6; &:hover { opacity: 1; } }
-  &__clear-all { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: $color-muted; text-decoration: none; &:hover { color: $color-primary; } }
-  &__shimmer { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow: hidden; }
-  &__cards { display: grid; grid-template-columns: repeat(2, 1fr); align-items: start; gap: 1rem; padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; @include mobile { grid-template-columns: 1fr; } }
-  &__empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: $color-muted; }
+  &__search { display: flex; gap: $spacing-sm; padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__search-input {
+    flex: 1;
+    padding: 0.75rem $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-family: inherit;
+    transition: border-color $transition-base;
+    &:focus { outline: none; border-color: $color-primary; }
+  }
+  &__search-btn {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: $radius-md;
+    background-color: $color-primary;
+    color: $color-background;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity $transition-base;
+    &:hover { opacity: 0.9; }
+  }
+  &__active-filters { display: flex; flex-wrap: wrap; gap: $spacing-sm; padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid $color-border;
+    border-radius: $radius-full;
+    font-size: $font-size-sm;
+  }
+  &__tag-close { cursor: pointer; opacity: 0.6; transition: opacity $transition-fast; &:hover { opacity: 1; } }
+  &__clear-all {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-size-sm;
+    color: $color-muted;
+    text-decoration: none;
+    transition: color $transition-base;
+    &:hover { color: $color-primary; }
+  }
+  &__shimmer { display: grid; grid-template-columns: repeat(2, 1fr); gap: $spacing-md; padding: $spacing-lg; overflow: hidden; }
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    contain: strict;
+    @include mobile { grid-template-columns: 1fr; }
+  }
+  &__empty { grid-column: 1 / -1; text-align: center; padding: $spacing-xl; color: $color-muted; }
 }
 
 .custom-select {
-  position: relative; flex: 1;
-  &__trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: border-color 0.2s ease; &:hover { border-color: $color-primary; } .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; } }
-  &__arrow { transition: transform 0.2s ease; .custom-select--open & { transform: rotate(180deg); } }
-  &__dropdown { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: $color-background; border: 1px solid $color-border; border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); z-index: 100; .locations-sidebar--dark & { background-color: $dark-surface; border-color: $dark-border; } }
-  &__option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; font-size: 0.875rem; cursor: pointer; transition: background-color 0.2s ease; &:hover { background-color: rgba($color-primary, 0.05); } .locations-sidebar--dark & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } } input { accent-color: $color-accent; } }
+  position: relative;
+  flex: 1;
+
+  &__trigger {
+    width: 100%;
+    @include flex-between;
+    padding: 0.625rem $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: transparent;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color $transition-base;
+    &:hover { border-color: $color-primary; }
+    .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; }
+  }
+
+  &__arrow {
+    transition: transform $transition-base;
+    .custom-select--open & { transform: rotate(180deg); }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + $spacing-sm);
+    left: 0;
+    right: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: $color-background;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    box-shadow: $shadow-md;
+    z-index: $z-dropdown;
+    .locations-sidebar--dark & { background-color: $dark-surface; border-color: $dark-border; }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    padding: 0.75rem $spacing-md;
+    font-size: $font-size-base;
+    cursor: pointer;
+    transition: background-color $transition-base;
+    &:hover { background-color: rgba($color-primary, 0.05); }
+    .locations-sidebar--dark & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } }
+    input { accent-color: $color-accent; }
+  }
 }
 
 .location-card {
-  position: relative; border: 1px solid $color-border; border-radius: 0.75rem; background-color: $color-background; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background-color: $color-background;
+  transition: border-color $transition-base, box-shadow $transition-base;
+  contain: layout style;
+
   &:hover { border-color: $color-primary; }
-  &--selected { border-color: $color-accent; .location-card__badge-input { accent-color: $color-accent; } }
+  &--selected { border-color: $color-accent; }
   &--active { box-shadow: 0 0 0 2px $color-accent; }
-  &--dark { background-color: $dark-surface; border-color: $dark-border; &:hover { border-color: $dark-text; }
+
+  &--dark {
+    background-color: $dark-surface;
+    border-color: $dark-border;
+    &:hover { border-color: $dark-text; }
     .location-card__badge { background-color: $dark-surface; }
     .location-card__focus { background-color: $dark-surface; }
     .location-card__image-wrapper { background-color: $dark-background; }
     .location-card__content { background-color: $dark-surface; }
-    .location-card__city, .location-card__type { color: rgba($dark-text, 0.6); }
+    .location-card__city,
+    .location-card__type { color: $dark-muted; }
     .location-card__name { color: $dark-text; }
   }
-  &__badge { position: absolute; top: 0.75rem; left: 0.75rem; z-index: 10; width: 1.5rem; height: 1.5rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 0.25rem; cursor: pointer; }
+
+  &__badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 10;
+    width: 1.5rem;
+    height: 1.5rem;
+    @include flex-center;
+    background-color: $color-background;
+    border-radius: $radius-sm;
+    cursor: pointer;
+  }
+
   &__badge-input { width: 1rem; height: 1rem; accent-color: $color-accent; cursor: pointer; }
-  &__focus { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 10; width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease; &:hover { transform: scale(1.1); } }
-  &__focus-icon { &--default { display: block; } &--active { display: none; } .location-card--selected &, .location-card--active & { &--default { display: none; } &--active { display: block; } } }
+
+  &__focus {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    width: 1.75rem;
+    height: 1.75rem;
+    @include flex-center;
+    background-color: $color-background;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform $transition-base;
+    &:hover { transform: scale(1.1); }
+  }
+
+  &__focus-icon {
+    &--default { display: block; }
+    &--active { display: none; }
+    .location-card--selected &,
+    .location-card--active & {
+      &--default { display: none; }
+      &--active { display: block; }
+    }
+  }
+
   &__link { display: block; text-decoration: none; color: inherit; }
-  &__image-wrapper { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 0.65rem 0.65rem 0 0; background-color: darken($color-background, 5%); }
-  &__image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; .location-card:hover & { transform: scale(1.05); } }
+
+  &__image-wrapper {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 0.65rem 0.65rem 0 0;
+    background-color: $color-surface;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+    will-change: transform;
+    .location-card:hover & { transform: scale(1.05); }
+  }
+
   &__content { padding: 0.75rem; background-color: $color-background; }
-  &__meta { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.25rem; }
-  &__city, &__type { font-size: 0.625rem; color: $color-muted; text-transform: uppercase; }
+  &__meta { display: flex; align-items: center; gap: 0.375rem; margin-bottom: $spacing-xs; }
+  &__city,
+  &__type { font-size: $font-size-xs; color: $color-muted; text-transform: uppercase; }
   &__dot { font-size: 0.5rem; color: $color-muted; }
-  &__name { font-size: 0.875rem; font-weight: 400; line-height: 1.3; margin: 0; color: $color-primary; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  &__name {
+    font-size: $font-size-base;
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 0;
+    color: $color-primary;
+    @include text-clamp(2);
+  }
 }
 
+// Shimmer loading state
 .location-card-shimmer {
-  position: relative; border: 1px solid $color-border; border-radius: 0.75rem; overflow: hidden; background-color: $color-background;
-  &__badge { position: absolute; top: 0.75rem; left: 0.75rem; width: 1.5rem; height: 1.5rem; border-radius: 0.25rem; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-  &__image { aspect-ratio: 4 / 3; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+  position: relative;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background-color: $color-background;
+
+  &__badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: $radius-sm;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  &__image {
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
   &__content { padding: 0.75rem; }
-  &__line { height: 0.75rem; border-radius: 0.25rem; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 0.5rem; &--short { width: 40%; } &--long { width: 80%; } }
+
+  &__line {
+    height: 0.75rem;
+    border-radius: $radius-sm;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: $spacing-sm;
+    &--short { width: 40%; }
+    &--long { width: 80%; }
+  }
 }
 
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 
+// Map container
 .locations-map {
-  position: relative; height: 100dvh; @include tablet { height: 100dvh; }
+  position: relative;
+  height: 100dvh;
+  contain: layout;
+
+  @include tablet { height: 100dvh; }
+
   &--dark {
     .locations-map__controls { background-color: $dark-surface; }
     .locations-map__toggle { color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
   }
-  &__controls { position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.25rem; z-index: 10; background-color: $color-background; border-radius: 999px; padding: 0.25rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); @include tablet { display: none; } }
-  &__toggle { padding: 0.5rem 1rem; border: none; border-radius: 999px; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; color: $color-background; } }
+
+  &__controls {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    display: flex;
+    gap: $spacing-xs;
+    z-index: 10;
+    background-color: $color-background;
+    border-radius: $radius-full;
+    padding: $spacing-xs;
+    box-shadow: $shadow-sm;
+    @include tablet { display: none; }
+  }
+
+  &__toggle {
+    padding: $spacing-sm $spacing-md;
+    border: none;
+    border-radius: $radius-full;
+    background: transparent;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all $transition-base;
+    &--active { background-color: $color-primary; color: $color-background; }
+  }
+
   &__container { width: 100%; height: 100%; }
 }
 
+// Collection badge
 .locations-collection {
-  position: absolute; top: 1rem; right: 1rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background-color: $color-background; border-radius: 999px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); cursor: pointer; z-index: 10; transition: transform 0.2s ease;
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 0.75rem 1.25rem;
+  background-color: $color-background;
+  border-radius: $radius-full;
+  box-shadow: $shadow-sm;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform $transition-base;
+
   &:hover { transform: scale(1.02); }
   @include tablet { display: none; }
   &--dark { background-color: $dark-surface; .locations-collection__text { color: $dark-text; } }
   &__dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__text { font-size: 0.75rem; }
+  &__text { font-size: $font-size-sm; }
 }
 
+// Selection sidebar
 .locations-selection-sidebar {
-  position: fixed; top: 0; right: 0; width: 400px; max-width: 100%; height: 100dvh; background-color: $color-background; box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1); transform: translateX(100%); transition: transform 0.3s ease; z-index: 1000; display: flex; flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  max-width: 100%;
+  height: 100dvh;
+  background-color: $color-background;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform $transition-slow;
+  z-index: $z-modal;
+  display: flex;
+  flex-direction: column;
+  contain: layout style;
+
   &--open { transform: translateX(0); }
-  &--dark { background-color: $dark-background;
+  &--dark {
+    background-color: $dark-background;
     .locations-selection-sidebar__header { border-color: $dark-border; }
     .locations-selection-sidebar__title { color: $dark-text; }
     .locations-selection-sidebar__close { color: $dark-text; }
-    .locations-selection-sidebar__share-btn, .locations-selection-sidebar__export-btn { border-color: $dark-border; color: $dark-text; }
-    .locations-selection-sidebar__empty { color: rgba($dark-text, 0.6); }
+    .locations-selection-sidebar__share-btn,
+    .locations-selection-sidebar__export-btn { border-color: $dark-border; color: $dark-text; }
+    .locations-selection-sidebar__empty { color: $dark-muted; }
     .locations-selection-sidebar__empty-hint { color: rgba($dark-text, 0.4); }
   }
-  &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; }
-  &__title-wrapper { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  &__title { font-size: 1.25rem; font-weight: 400; margin: 0; }
-  &__close { padding: 0.5rem; border: none; background: transparent; cursor: pointer; }
-  &__header-actions { display: flex; gap: 0.75rem; }
-  &__share-btn, &__export-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &:hover { border-color: $color-primary; } }
-  &__content { flex: 1; overflow-y: auto; padding: 1.5rem; }
-  &__list { display: flex; flex-direction: column; gap: 1rem; }
-  &__empty { text-align: center; padding: 2rem; }
-  &__empty-icon { font-size: 2rem; margin-bottom: 1rem; }
-  &__empty-text { color: $color-muted; margin: 0 0 0.5rem; }
-  &__empty-hint { font-size: 0.75rem; color: rgba($color-primary, 0.4); margin: 0; }
+
+  &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__title-wrapper { @include flex-between; margin-bottom: $spacing-md; }
+  &__title { font-size: $font-size-lg; font-weight: 400; margin: 0; }
+  &__close { padding: $spacing-sm; border: none; background: transparent; cursor: pointer; }
+  &__header-actions { display: flex; gap: $spacing-lg; }
+  &__share-btn,
+  &__export-btn {
+    flex: 1;
+    @include flex-center;
+    gap: $spacing-sm;
+    padding: 0.75rem $spacing-md;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    background: transparent;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all $transition-base;
+    &:hover { border-color: $color-primary; }
+  }
+  &__content { flex: 1; overflow-y: auto; padding: $spacing-lg; contain: strict; }
+  &__list { display: flex; flex-direction: column; gap: $spacing-md; }
+  &__empty { text-align: center; padding: $spacing-xl; }
+  &__empty-icon { font-size: 2rem; margin-bottom: $spacing-md; }
+  &__empty-text { color: $color-muted; margin: 0 0 $spacing-sm; }
+  &__empty-hint { font-size: $font-size-sm; color: rgba($color-primary, 0.4); margin: 0; }
 }
 
+// Overlay
 .locations-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; z-index: 999;
+  @include fixed-fill;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity $transition-slow, visibility $transition-slow;
+  z-index: $z-modal-backdrop;
   &--visible { opacity: 1; visibility: visible; }
 }
 
+// Mobile view switcher
 .locations-view-switcher {
-  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: none; gap: 0.25rem; padding: 0.25rem; background-color: $color-background; border-radius: 999px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); z-index: 100;
+  position: fixed;
+  bottom: $spacing-lg;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  gap: $spacing-xs;
+  padding: $spacing-xs;
+  background-color: $color-background;
+  border-radius: $radius-full;
+  box-shadow: $shadow-lg;
+  z-index: $z-dropdown;
+
   @include tablet { display: flex; }
-  &__btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border: none; border-radius: 999px; background: transparent; font-size: 0.75rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &--active { background-color: $color-primary; color: $color-background; } }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: $radius-full;
+    background: transparent;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all $transition-base;
+    &--active { background-color: $color-primary; color: $color-background; }
+  }
 }
 
+// Mobile filters modal
 .locations-filters-modal {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: $color-background; transform: translateY(100%); transition: transform 0.3s ease; z-index: 1001; display: none; flex-direction: column;
+  @include fixed-fill;
+  background-color: $color-background;
+  transform: translateY(100%);
+  transition: transform $transition-slow;
+  z-index: $z-modal + 1;
+  display: none;
+  flex-direction: column;
+
   @include tablet { display: flex; }
   &--open { transform: translateY(0); }
-  &__header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid $color-border; }
-  &__title { font-size: 1.25rem; font-weight: 400; margin: 0; }
-  &__close { padding: 0.5rem; border: none; background: transparent; cursor: pointer; }
+
+  &__header { @include flex-between; padding: $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__title { font-size: $font-size-lg; font-weight: 400; margin: 0; }
+  &__close { padding: $spacing-sm; border: none; background: transparent; cursor: pointer; }
   &__content { flex: 1; overflow-y: auto; padding: 0; }
-  &__section { border-bottom: 1px solid $color-border; &--open { .locations-filters-modal__section-content { display: block; } .locations-filters-modal__section-icon { transform: rotate(180deg); } } }
-  &__section-header { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 1.25rem 1.5rem; border: none; background: transparent; font-size: 1rem; font-family: inherit; text-align: left; cursor: pointer; }
-  &__section-icon { transition: transform 0.2s ease; }
-  &__section-content { display: none; padding: 0 1.5rem 1.5rem; }
-  &__option { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba($color-border, 0.5); cursor: pointer; &:last-child { border-bottom: none; } }
-  &__option-label { font-size: 0.875rem; }
+  &__section {
+    border-bottom: 1px solid $color-border;
+    &--open {
+      .locations-filters-modal__section-content { display: block; }
+      .locations-filters-modal__section-icon { transform: rotate(180deg); }
+    }
+  }
+  &__section-header {
+    @include flex-between;
+    width: 100%;
+    padding: 1.25rem $spacing-lg;
+    border: none;
+    background: transparent;
+    font-size: $font-size-md;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  &__section-icon { transition: transform $transition-base; }
+  &__section-content { display: none; padding: 0 $spacing-lg $spacing-lg; }
+  &__option {
+    @include flex-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba($color-border, 0.5);
+    cursor: pointer;
+    &:last-child { border-bottom: none; }
+  }
+  &__option-label { font-size: $font-size-base; }
   &__option-checkbox { accent-color: $color-accent; }
-  &__footer { display: flex; gap: 0.75rem; padding: 1.5rem; border-top: 1px solid $color-border; }
-  &__btn { flex: 1; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-family: inherit; cursor: pointer; transition: all 0.2s ease; &--clear { border: 1px solid $color-border; background: transparent; &:hover { border-color: $color-primary; } } &--apply { border: none; background-color: $color-primary; color: $color-background; &:hover { opacity: 0.9; } } }
+  &__footer { display: flex; gap: $spacing-lg; padding: $spacing-lg; border-top: 1px solid $color-border; }
+  &__btn {
+    flex: 1;
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    font-size: $font-size-base;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all $transition-base;
+    &--clear { border: 1px solid $color-border; background: transparent; &:hover { border-color: $color-primary; } }
+    &--apply { border: none; background-color: $color-primary; color: $color-background; &:hover { opacity: 0.9; } }
+  }
 }
 </style>
 
 <style lang="scss">
+// Toast notification (unscoped for Teleport)
 .location-toast {
-  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); padding: 1rem 1.5rem; background-color: #03120F; color: #ffffff; border-radius: 0.5rem; font-size: 0.875rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 10000; white-space: nowrap;
+  position: fixed;
+  bottom: $spacing-xl;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-primary;
+  color: $color-background;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  box-shadow: $shadow-lg;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-slow;
+  z-index: $z-toast;
+  white-space: nowrap;
+
   &--visible { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
   &--success { background-color: #4CAF50; }
   &--error { background-color: #f44336; }
   &--warning { background-color: #ff9800; }
-  &--dark { background-color: #ffffff; color: #03120F; }
+  &--dark { background-color: $color-background; color: $color-primary; }
 }
 </style>

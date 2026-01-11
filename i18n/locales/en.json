@@ -7,6 +7,31 @@
     "description": "A Zagreb-based digital agency for ambitious brands ready to succeed.",
     "scrollDown": "Scroll Down"
   },
+  "homepage": {
+    "horizontalScroll": {
+      "scrollLabel": "Scroll",
+      "panel1": {
+        "title": "In Croatia, DOOH ads reach more than 2.5 million people, representing almost the entire urban population.",
+        "tag": "Reach",
+        "description": "Our network of digital screens shapes the way brands communicate with audiences. Each display becomes a moment of attention, a message in motion, and an opportunity to highlight what truly deserves to be seen."
+      },
+      "panel2": {
+        "title": "With 460 digital advertising surfaces in premium locations, your brand achieves exceptional visibility and strong reach.",
+        "tag": "Coverage",
+        "description": "Our network of digital screens shapes the way brands communicate with audiences. Each display becomes a moment of attention, a message in motion, and an opportunity to highlight what truly deserves to be seen."
+      },
+      "panel3": {
+        "title": "With a network of digital screens in the largest Croatian cities, your brand gains strong visibility and wide reach in urban areas.",
+        "tag": "Reach",
+        "description": "Our network of digital screens shapes the way brands communicate with audiences. Each display becomes a moment of attention, a message in motion, and an opportunity to highlight what truly deserves to be seen."
+      },
+      "panel4": {
+        "title": "Through digital screens inside leading shopping centers, your brand reaches audiences at the moment of purchase.",
+        "tag": "Locations",
+        "description": "Our network of digital screens shapes the way brands communicate with audiences. Each display becomes a moment of attention, a message in motion, and an opportunity to highlight what truly deserves to be seen."
+      }
+    }
+  },
   "nav": {
     "home": "Home",
     "work": "Work",

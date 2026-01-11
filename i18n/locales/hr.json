@@ -7,6 +7,31 @@
     "description": "Digitalna agencija iz Zagreba za ambiciozne brendove spremne na uspjeh.",
     "scrollDown": "Skrolaj dolje"
   },
+  "homepage": {
+    "horizontalScroll": {
+      "scrollLabel": "Scroll",
+      "panel1": {
+        "title": "U Hrvatskoj, DOOH oglasi dosežu više od 2,5 milijuna ljudi, što predstavlja gotovo cijelu urbanu populaciju.",
+        "tag": "Doseg",
+        "description": "Naša mreža digitalnih ekrana oblikuje način na koji brendovi komuniciraju s publikom. Svaki prikaz postaje trenutak pažnje, poruka u pokretu i prilika da se istakne ono što zaista vrijedi vidjeti."
+      },
+      "panel2": {
+        "title": "Uz 460 digitalnih oglasnih površina na vrhunskim lokacijama, vaš brend ostvaruje izvanrednu vidljivost i snažan doseg.",
+        "tag": "Pokrivenost",
+        "description": "Naša mreža digitalnih ekrana oblikuje način na koji brendovi komuniciraju s publikom. Svaki prikaz postaje trenutak pažnje, poruka u pokretu i prilika da se istakne ono što zaista vrijedi vidjeti."
+      },
+      "panel3": {
+        "title": "S mrežom digitalnih ekrana u najvećim hrvatskim gradovima, vaš brend dobiva snažnu vidljivost i širok doseg u urbanim sredinama.",
+        "tag": "Doseg",
+        "description": "Naša mreža digitalnih ekrana oblikuje način na koji brendovi komuniciraju s publikom. Svaki prikaz postaje trenutak pažnje, poruka u pokretu i prilika da se istakne ono što zaista vrijedi vidjeti."
+      },
+      "panel4": {
+        "title": "Kroz digitalne ekrane unutar vodećih shopping centara, vaš brend dopire do publike u trenutku kupnje.",
+        "tag": "Lokacije",
+        "description": "Naša mreža digitalnih ekrana oblikuje način na koji brendovi komuniciraju s publikom. Svaki prikaz postaje trenutak pažnje, poruka u pokretu i prilika da se istakne ono što zaista vrijedi vidjeti."
+      }
+    }
+  },
   "nav": {
     "home": "Početna",
     "work": "Radovi",

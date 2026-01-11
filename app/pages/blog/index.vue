@@ -524,43 +524,8 @@ function moveCursor(e: MouseEvent) {
 </script>
 
 <style lang="scss" scoped>
-// ==========================================================================
-// Design Tokens
-// ==========================================================================
-$color-primary: #03120F;
-$color-accent: #0CD459;
-$color-background: #ffffff;
-$color-border: #E0E0E0;
-$color-muted: rgba($color-primary, 0.4);
-
-// ==========================================================================
-// Breakpoints
-// ==========================================================================
-$breakpoint-mobile: 576px;
-$breakpoint-tablet: 768px;
-$breakpoint-desktop: 1024px;
-
-@mixin mobile {
-  @media (max-width: $breakpoint-mobile) {
-    @content;
-  }
-}
-
-@mixin tablet {
-  @media (max-width: $breakpoint-tablet) {
-    @content;
-  }
-}
-
-@mixin desktop {
-  @media (max-width: $breakpoint-desktop) {
-    @content;
-  }
-}
-
-// ==========================================================================
-// Spacing
-// ==========================================================================
+// Variables and mixins are now globally available via nuxt.config.ts
+// Page-specific spacing
 $spacing-page: 2.5rem;
 $spacing-page-mobile: 1rem;
 
@@ -571,6 +536,7 @@ $spacing-page-mobile: 1rem;
   background-color: $color-background;
   min-height: 100dvh;
   padding-bottom: 6rem;
+  contain: layout style;
 
   @include mobile {
     margin-top: 6rem;

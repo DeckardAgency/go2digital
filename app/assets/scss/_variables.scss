@@ -1,0 +1,122 @@
+// ==========================================================================
+// Design Tokens - Centralized CSS Variables
+// ==========================================================================
+
+// SCSS Variables (compile-time)
+// --------------------------------------------------------------------------
+
+// Colors - Light Theme
+$color-primary: #03120F;
+$color-accent: #0CD459;
+$color-background: #ffffff;
+$color-surface: #f5f5f5;
+$color-border: #E5E5E5;
+$color-muted: rgba($color-primary, 0.4);
+
+// Colors - Dark Theme
+$dark-background: #1a1a1a;
+$dark-surface: #2a2a2a;
+$dark-border: #3a3a3a;
+$dark-text: #ffffff;
+$dark-muted: rgba($dark-text, 0.6);
+
+// Breakpoints
+$breakpoint-mobile: 576px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-wide: 1280px;
+
+// Spacing Scale
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-2xl: 3rem;
+
+// Border Radius
+$radius-sm: 0.25rem;
+$radius-md: 0.5rem;
+$radius-lg: 0.75rem;
+$radius-xl: 1rem;
+$radius-full: 999px;
+
+// Typography
+$font-family: 'PP Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+$font-size-xs: 0.625rem;
+$font-size-sm: 0.75rem;
+$font-size-base: 0.875rem;
+$font-size-md: 1rem;
+$font-size-lg: 1.25rem;
+$font-size-xl: 1.5rem;
+$font-size-2xl: 2rem;
+
+// Transitions
+$transition-fast: 0.15s ease;
+$transition-base: 0.2s ease;
+$transition-slow: 0.3s ease;
+
+// Shadows
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+// Z-Index Scale
+$z-dropdown: 100;
+$z-sticky: 200;
+$z-fixed: 500;
+$z-modal-backdrop: 999;
+$z-modal: 1000;
+$z-tooltip: 1100;
+$z-toast: 10000;
+
+// CSS Custom Properties (runtime - for theming)
+// --------------------------------------------------------------------------
+:root {
+  // Colors
+  --color-primary: #{$color-primary};
+  --color-accent: #{$color-accent};
+  --color-background: #{$color-background};
+  --color-surface: #{$color-surface};
+  --color-border: #{$color-border};
+  --color-muted: #{$color-muted};
+  --color-text: #{$color-primary};
+
+  // Spacing
+  --spacing-xs: #{$spacing-xs};
+  --spacing-sm: #{$spacing-sm};
+  --spacing-md: #{$spacing-md};
+  --spacing-lg: #{$spacing-lg};
+  --spacing-xl: #{$spacing-xl};
+  --spacing-2xl: #{$spacing-2xl};
+
+  // Border Radius
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-full: #{$radius-full};
+
+  // Typography
+  --font-family: #{$font-family};
+
+  // Transitions
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+  --transition-slow: #{$transition-slow};
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+}
+
+// Dark theme overrides (can be used with class or media query)
+[data-theme="dark"],
+.theme-dark {
+  --color-background: #{$dark-background};
+  --color-surface: #{$dark-surface};
+  --color-border: #{$dark-border};
+  --color-text: #{$dark-text};
+  --color-muted: #{$dark-muted};
+}

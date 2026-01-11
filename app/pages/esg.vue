@@ -543,39 +543,21 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-// Design tokens
+// Variables and mixins are now globally available via nuxt.config.ts
+// Page-specific design tokens for ESG theme
 $esg-color-background: #063D32;
 $esg-color-accent: #0CD459;
 $esg-color-border: #1B594C;
 $esg-color-border-faint: rgba(#0CD459, 0.2);
 
-$esg-mobile-breakpoint: 576px;
-
-@mixin esg-mobile {
-  @media (max-width: $esg-mobile-breakpoint) {
-    @content;
-  }
-}
-
-@mixin esg-tablet {
-  @media (max-width: 1024px) {
-    @content;
-  }
-}
-
-@mixin esg-desktop-lg {
-  @media (min-width: 1200px) {
-    @content;
-  }
-}
-
 // ESG Page Styles
+// NOTE: Do NOT use `contain: layout` here - it breaks ScrollTrigger pinning
 .esg-page {
   background-color: $esg-color-background;
   min-height: 100dvh;
   color: $esg-color-accent;
 
-  @include esg-mobile {
+  @include mobile {
     padding-top: 6.0625rem;
   }
 
@@ -602,7 +584,7 @@ $esg-mobile-breakpoint: 576px;
     justify-content: space-between;
     align-items: flex-start;
 
-    @include esg-mobile {
+    @include mobile {
       padding: 1.25rem 1rem;
       border-top: 0.0625rem solid #395E57;
       flex-direction: column;
@@ -622,11 +604,11 @@ $esg-mobile-breakpoint: 576px;
     color: $esg-color-accent;
     margin: 0;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       font-size: 17.5rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 5.375rem;
       line-height: 0.85;
       letter-spacing: -0.03em;
@@ -638,7 +620,7 @@ $esg-mobile-breakpoint: 576px;
     align-items: center;
     gap: 0.25rem;
 
-    @include esg-mobile {
+    @include mobile {
       align-self: flex-start;
     }
   }
@@ -647,7 +629,7 @@ $esg-mobile-breakpoint: 576px;
   &__intro-section {
     padding: 8rem 2.5rem 12.5rem 2.5rem;
 
-    @include esg-mobile {
+    @include mobile {
       padding: 2.5rem 1rem 3.75rem 1rem;
     }
   }
@@ -658,7 +640,7 @@ $esg-mobile-breakpoint: 576px;
     gap: 2.5rem;
     margin-bottom: 0;
 
-    @include esg-mobile {
+    @include mobile {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
@@ -680,7 +662,7 @@ $esg-mobile-breakpoint: 576px;
     color: $esg-color-accent;
     margin: 0;
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.875rem;
       opacity: 0.6;
     }
@@ -694,11 +676,11 @@ $esg-mobile-breakpoint: 576px;
     color: $esg-color-accent;
     margin: 0;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       font-size: 3.125rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 1.375rem;
       line-height: 1.1;
     }
@@ -707,7 +689,7 @@ $esg-mobile-breakpoint: 576px;
   &__download-btn {
     margin-top: 7.625rem;
 
-    @include esg-mobile {
+    @include mobile {
       margin-top: 2rem;
     }
   }
@@ -733,7 +715,7 @@ $esg-mobile-breakpoint: 576px;
       flex-shrink: 0;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.875rem;
     }
   }
@@ -751,7 +733,7 @@ $esg-mobile-breakpoint: 576px;
     padding: 1.25rem 2.5rem 18.75rem 2.5rem;
     border-bottom: 0.0625rem solid $esg-color-border-faint;
 
-    @include esg-mobile {
+    @include mobile {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
@@ -767,11 +749,11 @@ $esg-mobile-breakpoint: 576px;
     letter-spacing: -0.02em;
     color: $esg-color-accent;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       font-size: 2rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 1.125rem;
     }
   }
@@ -784,11 +766,11 @@ $esg-mobile-breakpoint: 576px;
     letter-spacing: -0.02em;
     color: $esg-color-accent;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       font-size: 2rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 1.25rem;
     }
   }
@@ -801,12 +783,12 @@ $esg-mobile-breakpoint: 576px;
     color: $esg-color-accent;
     opacity: 0.4;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       max-width: 29rem;
       margin-left: auto;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.875rem;
     }
   }
@@ -818,7 +800,7 @@ $esg-mobile-breakpoint: 576px;
     overflow: hidden;
     background-color: $esg-color-background;
 
-    @include esg-mobile {
+    @include mobile {
       height: auto;
       min-height: unset;
     }
@@ -827,7 +809,7 @@ $esg-mobile-breakpoint: 576px;
   &__mobile-bg {
     display: none;
 
-    @include esg-mobile {
+    @include mobile {
       display: block;
       position: absolute;
       inset: 0;
@@ -847,7 +829,7 @@ $esg-mobile-breakpoint: 576px;
     opacity: 0;
     will-change: transform;
 
-    @include esg-mobile {
+    @include mobile {
       display: none;
     }
   }
@@ -861,7 +843,7 @@ $esg-mobile-breakpoint: 576px;
     clip-path: inset(calc(50% - 10rem) calc(50% - 14.5rem) calc(50% - 10rem) calc(50% - 14.5rem) round 2rem);
     will-change: clip-path;
 
-    @include esg-mobile {
+    @include mobile {
       display: none;
     }
   }
@@ -878,7 +860,7 @@ $esg-mobile-breakpoint: 576px;
     object-fit: cover;
     will-change: transform;
 
-    @include esg-mobile {
+    @include mobile {
       display: none;
     }
   }
@@ -902,7 +884,7 @@ $esg-mobile-breakpoint: 576px;
       pointer-events: auto;
     }
 
-    @include esg-mobile {
+    @include mobile {
       position: relative;
       height: auto;
       padding: 1rem;
@@ -927,7 +909,7 @@ $esg-mobile-breakpoint: 576px;
     transform: translateY(100vh);
     will-change: transform, opacity;
 
-    @include esg-mobile {
+    @include mobile {
       max-width: 100%;
       min-height: 10rem;
       padding: 1rem;
@@ -956,7 +938,7 @@ $esg-mobile-breakpoint: 576px;
       height: 1.5rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       width: 3.5rem;
       height: 3.5rem;
       border-color: $esg-color-border-faint;
@@ -971,7 +953,7 @@ $esg-mobile-breakpoint: 576px;
     color: #FAFAFA;
     margin: 0;
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.875rem;
       color: $esg-color-accent;
     }
@@ -986,7 +968,7 @@ $esg-mobile-breakpoint: 576px;
     flex-direction: column;
     justify-content: center;
 
-    @include esg-mobile {
+    @include mobile {
       padding: 2.5rem 1rem;
     }
   }
@@ -1000,7 +982,7 @@ $esg-mobile-breakpoint: 576px;
     justify-content: space-between;
     align-items: flex-start;
 
-    @include esg-mobile {
+    @include mobile {
       position: relative;
       top: 0;
       left: 0;
@@ -1020,11 +1002,11 @@ $esg-mobile-breakpoint: 576px;
     margin: 0;
     max-width: 28.5rem;
 
-    @include esg-desktop-lg {
+    @include from-wide {
       font-size: 3.125rem;
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 1.5rem;
       max-width: 100%;
     }
@@ -1050,7 +1032,7 @@ $esg-mobile-breakpoint: 576px;
     align-items: center;
     gap: 1.25rem;
 
-    @include esg-mobile {
+    @include mobile {
       width: 100%;
     }
   }
@@ -1065,7 +1047,7 @@ $esg-mobile-breakpoint: 576px;
     align-items: center;
     justify-content: center;
 
-    @include esg-mobile {
+    @include mobile {
       width: 17.5rem;
       height: 17.5rem;
     }
@@ -1131,7 +1113,7 @@ $esg-mobile-breakpoint: 576px;
       transform: scale(1.1);
     }
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.625rem;
       padding: 0.1875rem 0.375rem;
     }
@@ -1142,7 +1124,7 @@ $esg-mobile-breakpoint: 576px;
     max-width: 17.875rem;
     min-height: 5rem;
 
-    @include esg-mobile {
+    @include mobile {
       max-width: 11.25rem;
     }
   }
@@ -1155,7 +1137,7 @@ $esg-mobile-breakpoint: 576px;
     margin: 0 0 1.25rem 0;
     transition: opacity 0.2s ease;
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.875rem;
       margin: 0 0 0.75rem 0;
     }
@@ -1170,7 +1152,7 @@ $esg-mobile-breakpoint: 576px;
     margin: 0;
     transition: opacity 0.2s ease;
 
-    @include esg-mobile {
+    @include mobile {
       font-size: 0.75rem;
     }
   }
@@ -1185,7 +1167,7 @@ $esg-mobile-breakpoint: 576px;
     color: $esg-color-accent;
     text-transform: capitalize;
 
-    @include esg-mobile {
+    @include mobile {
       display: none;
     }
   }

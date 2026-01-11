@@ -289,36 +289,8 @@ function moveCursor(e: MouseEvent) {
 </script>
 
 <style lang="scss" scoped>
-// ==========================================================================
-// Design Tokens
-// ==========================================================================
-$color-primary: #03120F;
-$color-accent: #0CD459;
-$color-background: #ffffff;
-$color-border: #E5E5E5;
-$color-muted: rgba($color-primary, 0.4);
-
-// ==========================================================================
-// Breakpoints
-// ==========================================================================
-$breakpoint-mobile: 576px;
-$breakpoint-tablet: 1024px;
-
-@mixin mobile {
-  @media (max-width: $breakpoint-mobile) {
-    @content;
-  }
-}
-
-@mixin tablet {
-  @media (max-width: $breakpoint-tablet) {
-    @content;
-  }
-}
-
-// ==========================================================================
-// Grid System
-// ==========================================================================
+// Variables and mixins are now globally available via nuxt.config.ts
+// Page-specific grid settings
 $grid-columns: 12;
 $grid-gap: 1.25rem;
 $grid-padding: 2.5rem;
@@ -345,6 +317,7 @@ $grid-padding-mobile: 1rem;
   min-height: 100dvh;
   background-color: $color-background;
   color: $color-primary;
+  contain: layout style;
 
   @include mobile {
     padding-top: 6rem;
