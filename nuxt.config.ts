@@ -4,6 +4,20 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
+  app: {
+    head: {
+      style: [
+        {
+          // Inline critical CSS to hide scrollbar immediately
+          children: `
+            html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+            html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
+          `
+        }
+      ]
+    }
+  },
+
   modules: ['@nuxtjs/i18n'],
 
   i18n: {

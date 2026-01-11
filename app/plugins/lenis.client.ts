@@ -6,12 +6,14 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default defineNuxtPlugin(() => {
   const lenis = new Lenis({
-    lerp: 0.1,
-    wheelMultiplier: 1,
+    lerp: 0.06,
+    duration: 1.2,
+    wheelMultiplier: 0.8,
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    touchMultiplier: 2
+    touchMultiplier: 1.5,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
   })
 
   // Sync Lenis scroll with ScrollTrigger

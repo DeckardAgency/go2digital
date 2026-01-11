@@ -208,4 +208,19 @@ html.is-transitioning .page-wrapper {
 html.is-transitioning {
   overflow: hidden;
 }
+
+/* Force hide scrollbar during transitions */
+html.is-transitioning,
+html.is-transitioning body {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html.is-transitioning::-webkit-scrollbar,
+html.is-transitioning body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 </style>

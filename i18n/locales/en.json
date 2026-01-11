@@ -90,5 +90,20 @@
       "description": "Learn more about our ESG initiatives and sustainable approach to digital advertising.",
       "keywords": "ESG, sustainability, environment, social responsibility, corporate governance, digital advertising"
     }
+  },
+  "lab": {
+    "pageTitle": "Go2Labs - Go2Digital",
+    "breadcrumb": "About Go2Labs",
+    "intro": "Go2Labs is a creative team that comes up with innovative ideas for our digital display network. With technologically advanced solutions, they turn the space into an experience that causes a wow effect - connecting the brand with the public in a completely new way.",
+    "title": "Labs",
+    "filterAll": "All",
+    "noResults": "No results for selected category.",
+    "viewAll": "View all",
+    "viewProject": "View project",
+    "seo": {
+      "title": "Go2Labs - Go2Digital",
+      "description": "Explore our innovative projects and experiments in digital design and technology.",
+      "keywords": "laboratory, innovations, experiments, digital design, technology"
+    }
   }
 }

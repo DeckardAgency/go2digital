@@ -90,5 +90,20 @@
       "description": "Saznajte više o našim ESG inicijativama i održivom pristupu digitalnom oglašavanju.",
       "keywords": "ESG, održivost, okoliš, društvena odgovornost, korporativno upravljanje, digitalno oglašavanje"
     }
+  },
+  "lab": {
+    "pageTitle": "Go2Labs - Go2Digital",
+    "breadcrumb": "O Go2Labsu",
+    "intro": "Go2Labs je kreativni tim koji osmišljava\ninovativne ideje za našu mrežu digitalnih ekrana.\nTehnološki naprednim rješenjima pretvaraju\nprostor u doživljaje koji izazivaju wow efekt –\npovezujući brend s publikom na potpuno novi\nnačin.",
+    "title": "Labs",
+    "filterAll": "Sve",
+    "noResults": "Nema rezultata za odabranu kategoriju.",
+    "viewAll": "Prikaži sve",
+    "viewProject": "Pogledaj projekt",
+    "seo": {
+      "title": "Go2Labs - Go2Digital",
+      "description": "Istražite naše inovativne projekte i eksperimente u digitalnom dizajnu i tehnologiji.",
+      "keywords": "laboratorij, inovacije, eksperimenti, digitalni dizajn, tehnologija"
+    }
   }
 }
