@@ -227,36 +227,59 @@ function destroy() {
 // ==========================================================================
 
 // Component-specific variables
+// --------------------------------------------------------------------------
 $why-bg-color: #03120F;
 $why-border-color: #293331;
 $why-text-color: #FAFAFA;
-$why-number-size-desktop: 17.5rem;
-$why-number-size-tablet: 10rem;
-$why-number-size-mobile: 5.375rem;
+$why-number-opacity: 0.2;
+$why-number-opacity-mobile: 0.3;
+$why-text-opacity: 0.3;
+$why-text-opacity-mobile: 0.4;
+
+// Typography sizes
 $why-headline-size-desktop: 5.375rem;
 $why-headline-size-tablet: 3.5rem;
 $why-headline-size-mobile: 2.625rem;
-$why-dot-size: 0.375rem;
+$why-number-size-desktop: 17.5rem;
+$why-number-size-tablet: 10rem;
+$why-number-size-mobile: 5.375rem;
+$why-title-size-desktop: 3.125rem;
+$why-title-size-tablet: 2rem;
+$why-label-size-mobile: 0.6875rem;
+
+// Layout sizes
+$why-arrow-size-desktop: 9rem;
+$why-arrow-size-tablet: 6rem;
+$why-dot-size: 6px;
+$why-header-padding-top: 16.25rem;
+$why-header-padding-top-desktop: 8rem;
+$why-header-padding-top-tablet: 5rem;
+$why-mobile-bottom-padding: 5rem;
+$why-dots-gap-mobile: 3rem;
+$why-text-max-width: 21.4375rem;
+
+// 3D perspective
+$why-perspective: 250vw;
 
 .why-section {
   position: relative;
   overflow: hidden;
   width: 100%;
   background-color: $why-bg-color;
-  z-index: 30;
+  z-index: $z-sticky;
 
   // ==========================================================================
   // Element: Header
   // ==========================================================================
   &__header {
-    padding: 16.25rem $spacing-2xl $spacing-2xl $spacing-2xl;
+    padding: $why-header-padding-top $spacing-2xl $spacing-2xl;
 
     @include desktop {
-      padding: 8rem $spacing-xl $spacing-xl $spacing-xl;
+      padding: $why-header-padding-top-desktop $spacing-xl $spacing-xl;
     }
 
     @include tablet {
-      padding: 5rem $spacing-lg $spacing-lg $spacing-lg;
+      padding: $why-header-padding-top-tablet $spacing-lg $spacing-lg;
     }
   }
 
@@ -264,8 +287,7 @@ $why-dot-size: 0.375rem;
   // Element: Label
   // ==========================================================================
   &__label {
-    display: flex;
-    align-items: center;
+    @include flex-start;
     gap: $spacing-xs;
     margin-bottom: $spacing-md;
 
@@ -289,7 +311,7 @@ $why-dot-size: 0.375rem;
     text-transform: capitalize;
 
     @include tablet {
-      font-size: 0.6875rem;
+      font-size: $why-label-size-mobile;
     }
   }
 
@@ -330,15 +352,17 @@ $why-dot-size: 0.375rem;
   }
 
   &__slide-content-wrapper {
+    @include gpu-accelerate;
     position: relative;
     width: 100%;
     height: 100dvh;
-    perspective: 250vw;
+    perspective: $why-perspective;
     background-color: $why-bg-color;
   }
 
   &__slide-content {
     @include absolute-fill;
+    @include gpu-accelerate;
     transform-style: preserve-3d;
     transform-origin: 50% 10%;
     display: flex;
@@ -409,7 +433,7 @@ $why-dot-size: 0.375rem;
     line-height: 0.8;
     letter-spacing: -0.06em;
     color: $why-text-color;
-    opacity: 0.2;
+    opacity: $why-number-opacity;
     margin-top: $spacing-2xl;
 
     @include desktop {
@@ -420,7 +444,7 @@ $why-dot-size: 0.375rem;
     @include tablet {
       font-size: $why-number-size-mobile;
       margin: 0;
-      opacity: 0.3;
+      opacity: $why-number-opacity-mobile;
     }
   }
 
@@ -428,7 +452,7 @@ $why-dot-size: 0.375rem;
   // Element: Slide Title
   // ==========================================================================
   &__slide-title {
-    font-size: 3.125rem;
+    font-size: $why-title-size-desktop;
     font-weight: 400;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -436,7 +460,7 @@ $why-dot-size: 0.375rem;
     margin: 0 0 $spacing-xl 0;
 
     @include desktop {
-      font-size: 2rem;
+      font-size: $why-title-size-tablet;
       margin: 0 0 $spacing-lg 0;
     }
 
@@ -507,7 +531,7 @@ $why-dot-size: 0.375rem;
       flex-direction: column;
       justify-content: space-between;
       flex: 1;
-      padding: $spacing-md $spacing-lg 5rem $spacing-lg;
+      padding: $spacing-md $spacing-lg $why-mobile-bottom-padding $spacing-lg;
     }
   }
 
@@ -516,17 +540,17 @@ $why-dot-size: 0.375rem;
   // ==========================================================================
   &__slide-arrow {
     margin-top: auto;
-    width: 9rem;
-    height: 9rem;
+    width: $why-arrow-size-desktop;
+    height: $why-arrow-size-desktop;
 
     @include desktop {
-      width: 6rem;
-      height: 6rem;
+      width: $why-arrow-size-tablet;
+      height: $why-arrow-size-tablet;
     }
   }
 
   // ==========================================================================
-  // Element: Slide Content
+  // Element: Slide Bottom Content
   // ==========================================================================
   &__slide-bottom-content {
     display: contents;
@@ -543,13 +567,13 @@ $why-dot-size: 0.375rem;
     font-weight: 400;
     line-height: 1.3;
     color: $why-text-color;
-    opacity: 0.3;
+    opacity: $why-text-opacity;
     grid-column: 1 / 5;
     margin: 0;
 
     @include tablet {
-      opacity: 0.4;
-      max-width: 21.4375rem;
+      opacity: $why-text-opacity-mobile;
+      max-width: $why-text-max-width;
     }
   }
 
@@ -566,13 +590,14 @@ $why-dot-size: 0.375rem;
     @include tablet {
       align-self: center;
       margin-top: auto;
-      gap: 3rem;
+      gap: $why-dots-gap-mobile;
     }
   }
 
   &__slide-dot {
-    width: 6px;
-    height: 6px;
+    @include gpu-accelerate;
+    width: $why-dot-size;
+    height: $why-dot-size;
     aspect-ratio: 1;
     background-color: $color-accent;
     border-radius: $radius-full;

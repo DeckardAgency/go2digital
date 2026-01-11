@@ -12,6 +12,32 @@
     "headline": "Next-level DOOH advertising, built for modern brands."
   },
   "homepage": {
+    "customImage": {
+      "alt": "Slavonska Avenue digital billboard"
+    },
+    "customSolutions": {
+      "indicator": "Custom Solutions",
+      "title": "We don't believe in one-size-fits-all. Every brand deserves a space that feels made for them. That's why we build custom digital solutions designed to fit your idea, your message, and the way you want people to remember it.",
+      "block1": "Not every idea fits in the same frame. Some need to move, react, or adapt to the moment. That's why we create custom, interactive solutions shaped around the story you want to tell.",
+      "block2": "From large digital displays to subtle interactive moments, every project is a mix of form, function, and experience designed to impact your audience and leave a lasting impression."
+    },
+    "featuredLabs": {
+      "label": "Go2Labs",
+      "title": "Featured Labs",
+      "buttonText": "Request a quote",
+      "description": "From interactive experiences to custom brand activations, it's where we test, create, and invent for the public space.",
+      "items": {
+        "item1": {
+          "subtitle": "Transform static displays into engaging interactive experiences."
+        },
+        "item2": {
+          "subtitle": "Blend digital content with the real world through augmented reality."
+        },
+        "item3": {
+          "subtitle": "Content that adapts in real-time based on data and context."
+        }
+      }
+    },
     "whySection": {
       "card1": {
         "title": "Measurable Impact",

@@ -12,6 +12,32 @@
     "headline": "DOOH oglašavanje sljedeće razine, za brendove današnjice."
   },
   "homepage": {
+    "customImage": {
+      "alt": "Digitalni billboard na Slavonskoj aveniji"
+    },
+    "customSolutions": {
+      "indicator": "Prilagođena Rješenja",
+      "title": "Ne vjerujemo u univerzalna rješenja. Svaki brend zaslužuje individualni pristup. Zato kreiramo personalizirana rješenja usklađena s vašim brendom, idejom i porukom – onako kako želite da vas publika zapamti.",
+      "block1": "Svaki projekt razvijamo u bliskoj suradnji s klijentom, definirajući jasne ciljeve i prepoznajući specifičnosti brenda. Kroz pametan odabir lokacija, kreativne formate i inovativne sadržaje, osiguravamo kampanje koje donose mjerljive rezultate i jačaju prepoznatljivost.",
+      "block2": "Od impozantnih digitalnih ekrana do suptilnih interaktivnih trenutaka, naši projekti spajaju formu, funkcionalnost i doživljaj. Tako stvaramo iskustva koja privlače pažnju, angažiraju publiku i ostavljaju trajan dojam."
+    },
+    "featuredLabs": {
+      "label": "Go2Labs",
+      "title": "Istaknuti projekti",
+      "buttonText": "Zatraži ponudu",
+      "description": "Kreiramo različita rješenja, od interaktivnih iskustva do personaliziranih brend aktivacija. To je prostor u kojem isprobavamo, razvijamo i stvaramo kampanje koje ostavljaju trag.",
+      "items": {
+        "item1": {
+          "subtitle": "Pretvorite statične displeje u angažirajuća interaktivna iskustva."
+        },
+        "item2": {
+          "subtitle": "Spojite digitalni sadržaj sa stvarnim svijetom kroz proširenu stvarnost."
+        },
+        "item3": {
+          "subtitle": "Sadržaj koji se prilagođava u stvarnom vremenu na temelju podataka i konteksta."
+        }
+      }
+    },
     "whySection": {
       "card1": {
         "title": "Mjerljiv učinak",
