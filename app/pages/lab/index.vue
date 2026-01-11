@@ -423,7 +423,7 @@ $grid-padding-mobile: 1rem;
     @include grid-container;
     align-items: end;
     padding-top: 8rem;
-    padding-bottom: 8.75rem;
+    padding-bottom: 5rem;
 
     @include tablet {
       padding-top: 4rem;
@@ -519,6 +519,7 @@ $grid-padding-mobile: 1rem;
   // Element: Title
   // ==========================================================================
   &__title {
+    display: flex;
     font-size: 17.5rem;
     font-weight: 400;
     line-height: 0.8;
@@ -541,6 +542,7 @@ $grid-padding-mobile: 1rem;
   // Element: Count
   // ==========================================================================
   &__count {
+    margin-bottom: auto;
     font-size: 1rem;
     line-height: 1.3;
   }
