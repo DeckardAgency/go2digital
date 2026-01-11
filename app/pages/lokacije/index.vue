@@ -3,13 +3,15 @@
     <!-- Sidebar -->
     <aside class="locations-sidebar" :class="{ 'locations-sidebar--dark': isDarkMode, 'locations-sidebar--scrolled': isScrolled }">
       <!-- Header -->
-      <div class="locations-sidebar__header">
-        <h1 class="locations-sidebar__title">
-          {{ $t('location.title') }}
-          <span class="locations-sidebar__count">({{ totalScreens }})</span>
-        </h1>
+      <div class="locations-sidebar__header" ref="headerRef">
+        <div class="locations-sidebar__title-row">
+          <h1 class="locations-sidebar__title" data-split-text data-split-type="chars" data-split-trigger="none" data-split-stagger="0.02" data-split-duration="0.6">
+            {{ $t('location.title') }}
+          </h1>
+          <span class="locations-sidebar__count" ref="countRef">({{ totalScreens }})</span>
+        </div>
 
-        <div class="locations-sidebar__buttons-wrapper">
+        <div class="locations-sidebar__buttons-wrapper" ref="buttonsRef">
           <button class="locations-sidebar__clear-btn" @click="clearAll" :style="{ display: selectedLocations.size > 0 ? 'block' : 'none' }">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16.111 7.083-.42 10.07a1.667 1.667 0 0 1-1.664 1.597h-7.22a1.666 1.666 0 0 1-1.665-1.598l-.42-10.069M8.75 3.75v-.833c0-.46.373-.834.833-.834h1.667c.46 0 .833.374.833.834v.833M8.75 15.417v-5M12.086 15.417v-5M4.585 3.75H16.25c.92 0 1.667.747 1.667 1.667v1.666h-15V5.417c0-.92.747-1.667 1.667-1.667Z"/></svg>
           </button>
@@ -39,7 +41,7 @@
       </div>
 
       <!-- Filters (Desktop) -->
-      <div class="locations-sidebar__filters">
+      <div class="locations-sidebar__filters" ref="filtersRef">
         <div class="locations-sidebar__filter-group">
           <!-- Cities Dropdown -->
           <div class="custom-select" :class="{ 'custom-select--open': isCityDropdownOpen }">
@@ -94,7 +96,7 @@
       </div>
 
       <!-- Search -->
-      <div class="locations-sidebar__search">
+      <div class="locations-sidebar__search" ref="searchRef">
         <input
           type="text"
           class="locations-sidebar__search-input"
@@ -434,6 +436,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { gsap } from 'gsap'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 // Page meta - hide footer on this page
@@ -444,6 +447,9 @@ definePageMeta({
 useHead({
   title: 'Lokacije - Go2Digital'
 })
+
+// Split text composable
+const { initSplitText, playAnimation } = useSplitText()
 
 // Types
 interface Location {
@@ -478,6 +484,13 @@ const STORAGE_KEY = 'selectedLocations'
 // Refs
 const mapContainer = ref<HTMLElement | null>(null)
 const cardsContainer = ref<HTMLElement | null>(null)
+
+// Animation refs
+const headerRef = ref<HTMLElement | null>(null)
+const countRef = ref<HTMLElement | null>(null)
+const buttonsRef = ref<HTMLElement | null>(null)
+const filtersRef = ref<HTMLElement | null>(null)
+const searchRef = ref<HTMLElement | null>(null)
 
 // Map state
 let map: any = null
@@ -826,7 +839,65 @@ function handleClickOutside(e: MouseEvent) {
 
 watch([filteredLocations], () => { if (map && map.isStyleLoaded()) loadMapData() })
 
-onMounted(async () => { loadFromStorage(); loadFromUrl(); await nextTick(); initializeMap(); document.addEventListener('click', handleClickOutside) })
+onMounted(async () => {
+  loadFromStorage()
+  loadFromUrl()
+  await nextTick()
+  initializeMap()
+  document.addEventListener('click', handleClickOutside)
+
+  // Initialize split text and run entrance animations
+  initSplitText()
+  runEntranceAnimations()
+})
+
+// Entrance animations
+const runEntranceAnimations = () => {
+  const tl = gsap.timeline({ delay: 0.2 })
+
+  // Animate title (split text)
+  const titleEl = document.querySelector('.locations-sidebar__title')
+  if (titleEl) {
+    tl.add(() => playAnimation(titleEl as HTMLElement), 0)
+  }
+
+  // Animate count
+  if (countRef.value) {
+    gsap.set(countRef.value, { opacity: 0, y: 10 })
+    tl.to(countRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.3)
+  }
+
+  // Animate buttons wrapper
+  if (buttonsRef.value) {
+    gsap.set(buttonsRef.value, { opacity: 0, y: 15 })
+    tl.to(buttonsRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.4)
+  }
+
+  // Animate filters
+  if (filtersRef.value) {
+    gsap.set(filtersRef.value, { opacity: 0, y: 15 })
+    tl.to(filtersRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.5)
+  }
+
+  // Animate search
+  if (searchRef.value) {
+    gsap.set(searchRef.value, { opacity: 0, y: 15 })
+    tl.to(searchRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.6)
+  }
+
+  // Animate cards with stagger
+  if (cardsContainer.value) {
+    const cards = cardsContainer.value.querySelectorAll('.location-card')
+    gsap.set(cards, { opacity: 0, y: 30 })
+    tl.to(cards, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.05,
+      ease: 'power2.out'
+    }, 0.7)
+  }
+}
 onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventListener('click', handleClickOutside); if (toastTimeout) clearTimeout(toastTimeout) })
 </script>
 
@@ -863,6 +934,7 @@ $breakpoint-desktop: 1024px;
   &--dark { background-color: $dark-background; border-color: $dark-border;
     .locations-sidebar__header { border-color: $dark-border; }
     .locations-sidebar__title { color: $dark-text; }
+    .locations-sidebar__count { color: rgba($dark-text, 0.6); }
     .locations-sidebar__clear-btn { border-color: $dark-border; color: $dark-text; }
     .locations-sidebar__view-toggle { color: $dark-text; }
     .locations-sidebar__mode-btn { border-color: $dark-border; color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
@@ -877,7 +949,8 @@ $breakpoint-desktop: 1024px;
     .locations-sidebar__empty { color: rgba($dark-text, 0.6); }
   }
   &__header { padding: 1.5rem; border-bottom: 1px solid $color-border; }
-  &__title { font-size: 1.5rem; font-weight: 400; margin: 0 0 1rem; display: flex; align-items: baseline; gap: 0.5rem; }
+  &__title-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem; }
+  &__title { font-size: 1.5rem; font-weight: 400; margin: 0; }
   &__count { font-size: 0.875rem; color: $color-muted; }
   &__buttons-wrapper { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
   &__clear-btn { padding: 0.5rem; border: 1px solid $color-border; border-radius: 0.5rem; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; &:hover { border-color: $color-primary; } }
