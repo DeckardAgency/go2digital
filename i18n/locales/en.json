@@ -105,5 +105,20 @@
       "description": "Explore our innovative projects and experiments in digital design and technology.",
       "keywords": "laboratory, innovations, experiments, digital design, technology"
     }
+  },
+  "blog": {
+    "pageTitle": "Blog - Go2Digital",
+    "title": "Blog",
+    "filterAll": "All",
+    "readMore": "Read more",
+    "noResultsTitle": "No articles found",
+    "noResultsText": "Try selecting a different category or view all articles.",
+    "viewAll": "View all articles",
+    "allLoaded": "All articles loaded",
+    "seo": {
+      "title": "Blog - Go2Digital",
+      "description": "Read our latest articles about digital marketing, design, technology and more.",
+      "keywords": "blog, articles, digital marketing, design, technology"
+    }
   }
 }
