@@ -7,7 +7,25 @@
     "description": "A Zagreb-based digital agency for ambitious brands ready to succeed.",
     "scrollDown": "Scroll Down"
   },
+  "whySection": {
+    "label": "Why Go2Digital",
+    "headline": "Next-level DOOH advertising, built for modern brands."
+  },
   "homepage": {
+    "whySection": {
+      "card1": {
+        "title": "Measurable Impact",
+        "description": "Track, analyze, and optimize every campaign with precise, data-driven performance insights."
+      },
+      "card2": {
+        "title": "Center Stage",
+        "description": "Put your brand front and center on vibrant digital screens in the busiest, most visible locations."
+      },
+      "card3": {
+        "title": "Limitless Reach",
+        "description": "Connect with millions through a nationwide network of premium digital displays in high-traffic locations."
+      }
+    },
     "horizontalScroll": {
       "scrollLabel": "Scroll",
       "panel1": {

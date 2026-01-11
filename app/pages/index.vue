@@ -2,6 +2,7 @@
   <div class="page page--home">
     <HeroSection />
     <HorizontalScrollSection />
+    <WhySection />
     <section class="content">
       <h2>Our Work</h2>
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>

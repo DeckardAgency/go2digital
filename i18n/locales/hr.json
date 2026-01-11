@@ -7,7 +7,25 @@
     "description": "Digitalna agencija iz Zagreba za ambiciozne brendove spremne na uspjeh.",
     "scrollDown": "Skrolaj dolje"
   },
+  "whySection": {
+    "label": "Zašto Go2Digital",
+    "headline": "DOOH oglašavanje sljedeće razine, za brendove današnjice."
+  },
   "homepage": {
+    "whySection": {
+      "card1": {
+        "title": "Mjerljiv učinak",
+        "description": "Prati, analiziraj i optimiziraj svaku kampanju uz precizne podatke."
+      },
+      "card2": {
+        "title": "Središte pažnje",
+        "description": "Postavite svoj brand u središte pažnje na digitalnim ekranima u najfrekventnijim zonama."
+      },
+      "card3": {
+        "title": "Doseg bez granica",
+        "description": "Povežite se s milijunima ljudi putem nacionalne mreže premium digitalnih ekrana sa najvećim dosegom."
+      }
+    },
     "horizontalScroll": {
       "scrollLabel": "Scroll",
       "panel1": {
