@@ -17,13 +17,30 @@ export default defineNuxtPlugin(() => {
   // Sync Lenis scroll with ScrollTrigger
   lenis.on('scroll', ScrollTrigger.update)
 
-  // Use GSAP ticker for Lenis RAF - this ensures proper sync
+  // Use GSAP ticker for Lenis RAF
   gsap.ticker.add((time) => {
     lenis.raf(time * 1000)
   })
 
   // Disable GSAP's lag smoothing to prevent jumps
   gsap.ticker.lagSmoothing(0)
+
+  // Handle route changes
+  const router = useRouter()
+
+  router.beforeEach(() => {
+    // Stop Lenis during navigation
+    lenis.stop()
+    // Kill all ScrollTriggers
+    ScrollTrigger.getAll().forEach(st => st.kill())
+  })
+
+  router.afterEach(() => {
+    // Reset scroll and restart Lenis after navigation
+    window.scrollTo(0, 0)
+    lenis.scrollTo(0, { immediate: true, force: true })
+    lenis.start()
+  })
 
   // Provide lenis instance globally
   return {

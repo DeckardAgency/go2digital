@@ -31,6 +31,64 @@
     }
   },
   "footer": {
-    "rights": "Sva prava pridržana"
+    "rights": "Sva prava pridržana",
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Bez spama, obećavamo. Možete se odjaviti bilo kada.",
+      "disclaimer": "Pretplatom pristajete na primanje marketinških e-mailova",
+      "form": {
+        "placeholder": {
+          "name": "Ime i prezime",
+          "email": "Email"
+        },
+        "button": {
+          "title": "Pretplati se"
+        }
+      }
+    }
+  },
+  "esg": {
+    "pageTitle": "ESG - Go2Digital",
+    "hero": {
+      "label": "ESG Strategija"
+    },
+    "intro": {
+      "small": "Vodeća tvrtka za vanjsko oglašavanje u Hrvatskoj predstavlja novi strateški smjer",
+      "large": "Od 2021. godine ESG kao nova strateška odrednica obuhvaća tri smjera: Go2Green, Činimo dobro i Smart city kroz koje smo podržali brojne incijative.",
+      "downloadReport": "Preuzmi ESG izvještaj"
+    },
+    "pillars": {
+      "pillar1": {
+        "title": "Okoliš",
+        "description": "Smanjujemo ugljični otisak korištenjem energetski učinkovitih digitalnih ekrana i obnovljivih izvora energije."
+      },
+      "pillar2": {
+        "title": "Društvo",
+        "description": "Ulažemo u lokalnu zajednicu kroz edukativne programe, podršku neprofitnim organizacijama i promociju kulturnih događanja."
+      },
+      "pillar3": {
+        "title": "Upravljanje",
+        "description": "Provodimo transparentne poslovne prakse s visokim etičkim standardima i odgovornim korporativnim upravljanjem."
+      }
+    },
+    "cards": {
+      "card1": "Digitalni ekrani omogućuju dinamičan sadržaj bez potrebe za tiskanim materijalima, značajno smanjujući otpad.",
+      "card2": "Zeleni tornjevi s košnicama za pčele i autohtonim biljkama doprinose bioraznolikosti urbanih sredina.",
+      "card3": "HEPA filteri u citylight ekranima pročišćavaju zrak od sitnih čestica i zagađenja iz prometa."
+    },
+    "vision": {
+      "title": "Naša vizija održive budućnosti oglašavanja",
+      "label": "ESG inicijative",
+      "scrollHint": "Skrolaj za više",
+      "diagram": {
+        "title": "Digitalni Ekrani",
+        "description": "Sama srž našeg poslovanja je digitalna i time smanjujemo utjecaj na okoliš i gradimo održiviju budućnost oglašavanja."
+      }
+    },
+    "seo": {
+      "title": "ESG - Go2Digital",
+      "description": "Saznajte više o našim ESG inicijativama i održivom pristupu digitalnom oglašavanju.",
+      "keywords": "ESG, održivost, okoliš, društvena odgovornost, korporativno upravljanje, digitalno oglašavanje"
+    }
   }
 }

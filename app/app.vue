@@ -5,6 +5,7 @@
     <HeroNav />
     <div class="page-wrapper" ref="pageWrapper">
       <NuxtPage />
+      <FooterSection />
     </div>
   </div>
 </template>

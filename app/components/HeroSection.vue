@@ -6,8 +6,8 @@ gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
 
-// Split text composable (for accessing split elements in scroll animation)
-const { getSplitElements } = useSplitText()
+// Split text composable
+const { initSplitText, getSplitElements } = useSplitText()
 
 // Refs
 const sectionRef = ref<HTMLElement | null>(null)
@@ -285,9 +285,30 @@ const handleResize = () => {
 
 // Lifecycle
 onMounted(() => {
-  // Wait for global splitText plugin to process elements (runs at 150ms)
-  setTimeout(() => {
-    // Animate badge dot fade in
+  const { $lenis } = useNuxtApp()
+
+  // Clear cached positions
+  ScrollTrigger.clearScrollMemory()
+
+  // Wait until scroll is at 0 and section is at top of viewport
+  const waitForReady = () => {
+    const sectionTop = sectionRef.value?.getBoundingClientRect().top ?? 0
+
+    if (Math.abs(sectionTop) > 1) {
+      // Section not at top yet, reset and wait
+      window.scrollTo(0, 0)
+      if ($lenis) {
+        $lenis.scrollTo(0, { immediate: true, force: true })
+      }
+      requestAnimationFrame(waitForReady)
+      return
+    }
+
+    // Section is at top, proceed with setup
+    if (sectionRef.value) {
+      initSplitText(sectionRef.value)
+    }
+
     const badgeDot = badgeRef.value?.querySelector('.hero-section__badge-dot')
     if (badgeDot) {
       gsap.fromTo(badgeDot,
@@ -300,11 +321,14 @@ onMounted(() => {
     createAnimation()
     window.addEventListener('resize', handleResize, { passive: true })
 
-    // Refresh ScrollTrigger after everything is set up
-    setTimeout(() => {
-      ScrollTrigger.refresh()
-    }, 100)
-  }, 200)
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh(true)
+    })
+  }
+
+  nextTick(() => {
+    requestAnimationFrame(waitForReady)
+  })
 })
 
 onUnmounted(() => {
@@ -324,6 +348,13 @@ onUnmounted(() => {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
+
+  // Kill any remaining ScrollTriggers for this section
+  ScrollTrigger.getAll().forEach(st => {
+    if (st.trigger === sectionRef.value) {
+      st.kill()
+    }
+  })
 
   // Clear animated elements
   if (mediaRef.value) {

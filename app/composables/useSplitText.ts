@@ -9,6 +9,7 @@ interface SplitTextOptions {
   trigger: 'load' | 'view' | 'none'
   threshold: number
   y: number
+  indent: string | null
 }
 
 const defaultOptions: SplitTextOptions = {
@@ -19,7 +20,8 @@ const defaultOptions: SplitTextOptions = {
   ease: 'power2.out',
   trigger: 'view',
   threshold: 0.1,
-  y: 30
+  y: 30,
+  indent: null
 }
 
 // Parse options from data attributes
@@ -60,11 +62,15 @@ function parseOptions(element: HTMLElement): SplitTextOptions {
     options.y = parseFloat(element.dataset.splitY)
   }
 
+  if (element.dataset.splitIndent) {
+    options.indent = element.dataset.splitIndent
+  }
+
   return options
 }
 
 // Split text into lines, words, or chars
-function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTMLElement[] {
+function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', indent: string | null = null): HTMLElement[] {
   const text = element.textContent?.trim() || ''
   const computedStyle = window.getComputedStyle(element)
 
@@ -84,7 +90,8 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTM
     chars.forEach(char => {
       const span = document.createElement('span')
       span.className = 'split-char'
-      span.style.cssText = 'display:inline-block;'
+      // Add padding-right to prevent clip-path from cutting off characters
+      span.style.cssText = 'display:inline-block;padding-right:0.05em;margin-right:-0.05em;'
       span.textContent = char === ' ' ? '\u00A0' : char
       element.appendChild(span)
       elements.push(span)
@@ -122,6 +129,16 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTM
       // Block elements: detect natural line breaks
       const words = text.split(/\s+/)
 
+      // Parse indent value if provided
+      let indentPx = 0
+      if (indent) {
+        const tempIndent = document.createElement('div')
+        tempIndent.style.cssText = `position:absolute;visibility:hidden;width:${indent};`
+        document.body.appendChild(tempIndent)
+        indentPx = tempIndent.offsetWidth
+        document.body.removeChild(tempIndent)
+      }
+
       // Create temporary container to measure lines
       const temp = document.createElement('div')
       temp.style.cssText = `
@@ -135,6 +152,14 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTM
         line-height:${computedStyle.lineHeight};
       `
 
+      // If we have an indent, add a placeholder span for the first line indent
+      if (indentPx > 0) {
+        const indentSpan = document.createElement('span')
+        indentSpan.style.cssText = `display:inline-block;width:${indentPx}px;`
+        indentSpan.textContent = '\u00A0' // Non-breaking space
+        temp.appendChild(indentSpan)
+      }
+
       // Add words as spans to measure
       words.forEach((word, i) => {
         const span = document.createElement('span')
@@ -145,12 +170,14 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTM
       document.body.appendChild(temp)
 
       // Group words into lines based on their Y position
-      const spans = temp.querySelectorAll('span')
+      // Skip the indent placeholder span if present
+      const allSpans = temp.querySelectorAll('span')
+      const wordSpans = indent ? Array.from(allSpans).slice(1) : Array.from(allSpans)
       const lines: string[][] = []
       let currentLine: string[] = []
       let lastTop = -1
 
-      spans.forEach((span, i) => {
+      wordSpans.forEach((span, i) => {
         const rect = span.getBoundingClientRect()
         if (lastTop !== -1 && rect.top > lastTop + 2) {
           lines.push(currentLine)
@@ -164,10 +191,12 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars'): HTM
       document.body.removeChild(temp)
 
       // Create line elements
-      lines.forEach(lineWords => {
+      lines.forEach((lineWords, index) => {
         const div = document.createElement('div')
         div.className = 'split-line'
-        div.style.cssText = 'display:block;'
+        // Apply indent to first line only
+        const indentStyle = (index === 0 && indent) ? `padding-left:${indent};` : ''
+        div.style.cssText = `display:block;${indentStyle}`
         div.textContent = lineWords.join(' ')
         element.appendChild(div)
         elements.push(div)
@@ -213,7 +242,7 @@ export const useSplitText = () => {
       processedElements.add(element)
 
       const options = parseOptions(element)
-      const splitElements = splitText(element, options.type)
+      const splitElements = splitText(element, options.type, options.indent)
 
       // Set initial state - hidden with clip-path + slight offset
       gsap.set(splitElements, {

@@ -31,6 +31,64 @@
     }
   },
   "footer": {
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "No spam, we promise. You can unsubscribe anytime.",
+      "disclaimer": "By subscribing you agree to receive marketing emails",
+      "form": {
+        "placeholder": {
+          "name": "Full name",
+          "email": "Email"
+        },
+        "button": {
+          "title": "Subscribe"
+        }
+      }
+    }
+  },
+  "esg": {
+    "pageTitle": "ESG - Go2Digital",
+    "hero": {
+      "label": "Environmental, Social & Governance"
+    },
+    "intro": {
+      "small": "Our ESG Policy",
+      "large": "We believe that digital advertising can be sustainable. Through innovative technologies and socially responsible practices, we are building a future where brands can grow without compromising the environment and society.",
+      "downloadReport": "Download ESG Report"
+    },
+    "pillars": {
+      "pillar1": {
+        "title": "Environment",
+        "description": "We reduce our carbon footprint by using energy-efficient digital screens and renewable energy sources."
+      },
+      "pillar2": {
+        "title": "Social",
+        "description": "We invest in the local community through educational programs, support for non-profit organizations, and promotion of cultural events."
+      },
+      "pillar3": {
+        "title": "Governance",
+        "description": "We implement transparent business practices with high ethical standards and responsible corporate governance."
+      }
+    },
+    "cards": {
+      "card1": "Digital screens enable dynamic content without the need for printed materials, significantly reducing waste.",
+      "card2": "Green towers with beehives and native plants contribute to urban biodiversity.",
+      "card3": "HEPA filters in citylight screens purify the air from fine particles and traffic pollution."
+    },
+    "vision": {
+      "title": "Our Vision for a Sustainable Future in Advertising",
+      "label": "ESG Initiatives",
+      "scrollHint": "Scroll for more",
+      "diagram": {
+        "title": "Digital Screens",
+        "description": "The very core of our business is digital, and thus we reduce our environmental impact and build a more sustainable future for advertising."
+      }
+    },
+    "seo": {
+      "title": "ESG - Go2Digital",
+      "description": "Learn more about our ESG initiatives and sustainable approach to digital advertising.",
+      "keywords": "ESG, sustainability, environment, social responsibility, corporate governance, digital advertising"
+    }
   }
 }
