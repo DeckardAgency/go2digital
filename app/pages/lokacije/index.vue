@@ -70,7 +70,7 @@
                 <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <div class="custom-select__dropdown" v-show="isEnvDropdownOpen">
+            <div class="custom-select__dropdown" v-show="isEnvDropdownOpen" data-lenis-prevent>
               <label v-for="env in environments" :key="env.id" class="custom-select__option">
                 <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
                 <span class="custom-select__checkmark"></span>
@@ -286,7 +286,7 @@
       </div>
 
       <!-- Selected Locations List -->
-      <div class="locations-selection-sidebar__content">
+      <div class="locations-selection-sidebar__content" data-lenis-prevent>
         <div class="locations-selection-sidebar__list">
           <template v-if="selectedLocations.size === 0">
             <div class="locations-selection-sidebar__empty">
@@ -388,7 +388,7 @@
         </button>
       </div>
 
-      <div class="locations-filters-modal__content">
+      <div class="locations-filters-modal__content" data-lenis-prevent>
         <!-- Cities Accordion -->
         <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isCitiesAccordionOpen }">
           <button class="locations-filters-modal__section-header" @click="isCitiesAccordionOpen = !isCitiesAccordionOpen">
