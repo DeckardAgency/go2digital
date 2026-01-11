@@ -51,7 +51,7 @@
                 <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-            <div class="custom-select__dropdown" v-show="isCityDropdownOpen">
+            <div class="custom-select__dropdown" v-show="isCityDropdownOpen" data-lenis-prevent>
               <label v-for="city in cities" :key="city.id" class="custom-select__option">
                 <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
                 <span class="custom-select__checkmark"></span>
@@ -150,7 +150,7 @@
       </div>
 
       <!-- Location Cards Grid -->
-      <div class="locations-sidebar__cards" v-show="!isLoading" ref="cardsContainer" @scroll="onCardsScroll">
+      <div class="locations-sidebar__cards" v-show="!isLoading" ref="cardsContainer" @scroll="onCardsScroll" data-lenis-prevent>
         <div
           v-for="location in filteredLocations"
           :key="location.id"
@@ -854,7 +854,7 @@ $breakpoint-desktop: 1024px;
 }
 
 .locations-sidebar {
-  display: flex; flex-direction: column; height: 100dvh; border-right: 1px solid $color-border; background-color: $color-background; position: sticky; top: 0;
+  display: flex; flex-direction: column; height: 100dvh; overflow: hidden; border-right: 1px solid $color-border; background-color: $color-background; position: sticky; top: 0;
   @include tablet { height: auto; min-height: 100dvh; border-right: none; }
   &--dark { background-color: $dark-background; border-color: $dark-border;
     .locations-sidebar__header { border-color: $dark-border; }
@@ -894,7 +894,7 @@ $breakpoint-desktop: 1024px;
   &__tag-close { cursor: pointer; opacity: 0.6; &:hover { opacity: 1; } }
   &__clear-all { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: $color-muted; text-decoration: none; &:hover { color: $color-primary; } }
   &__shimmer { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow: hidden; }
-  &__cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; @include mobile { grid-template-columns: 1fr; } }
+  &__cards { display: grid; grid-template-columns: repeat(2, 1fr); align-items: start; gap: 1rem; padding: 1.5rem; overflow-y: auto; flex: 1; min-height: 0; @include mobile { grid-template-columns: 1fr; } }
   &__empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: $color-muted; }
 }
 
@@ -907,7 +907,7 @@ $breakpoint-desktop: 1024px;
 }
 
 .location-card {
-  position: relative; border: 1px solid $color-border; border-radius: 0.75rem; overflow: hidden; background-color: $color-background; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative; border: 1px solid $color-border; border-radius: 0.75rem; background-color: $color-background; transition: border-color 0.2s ease, box-shadow 0.2s ease;
   &:hover { border-color: $color-primary; }
   &--selected { border-color: $color-accent; .location-card__badge-input { accent-color: $color-accent; } }
   &--active { box-shadow: 0 0 0 2px $color-accent; }
@@ -915,6 +915,7 @@ $breakpoint-desktop: 1024px;
     .location-card__badge { background-color: $dark-surface; }
     .location-card__focus { background-color: $dark-surface; }
     .location-card__image-wrapper { background-color: $dark-background; }
+    .location-card__content { background-color: $dark-surface; }
     .location-card__city, .location-card__type { color: rgba($dark-text, 0.6); }
     .location-card__name { color: $dark-text; }
   }
@@ -923,13 +924,13 @@ $breakpoint-desktop: 1024px;
   &__focus { position: absolute; top: 0.75rem; right: 0.75rem; z-index: 10; width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; background-color: $color-background; border-radius: 50%; cursor: pointer; transition: transform 0.2s ease; &:hover { transform: scale(1.1); } }
   &__focus-icon { &--default { display: block; } &--active { display: none; } .location-card--selected &, .location-card--active & { &--default { display: none; } &--active { display: block; } } }
   &__link { display: block; text-decoration: none; color: inherit; }
-  &__image-wrapper { aspect-ratio: 4 / 3; overflow: hidden; background-color: darken($color-background, 5%); }
+  &__image-wrapper { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 0.65rem 0.65rem 0 0; background-color: darken($color-background, 5%); }
   &__image { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; .location-card:hover & { transform: scale(1.05); } }
-  &__content { padding: 0.75rem; }
+  &__content { padding: 0.75rem; background-color: $color-background; }
   &__meta { display: flex; align-items: center; gap: 0.375rem; margin-bottom: 0.25rem; }
   &__city, &__type { font-size: 0.625rem; color: $color-muted; text-transform: uppercase; }
   &__dot { font-size: 0.5rem; color: $color-muted; }
-  &__name { font-size: 0.875rem; font-weight: 400; line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  &__name { font-size: 0.875rem; font-weight: 400; line-height: 1.3; margin: 0; color: $color-primary; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 }
 
 .location-card-shimmer {
