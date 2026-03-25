@@ -72,6 +72,12 @@ router.beforeEach(async (to, from) => {
   // Skip on initial load
   if (!from.name) return
 
+  // Skip if a custom transition (e.g. location card) is handling it
+  if ((window as any).__skipPageTransition) {
+    (window as any).__skipPageTransition = false
+    return
+  }
+
   // Skip if already animating
   if (isAnimating.value) return
 

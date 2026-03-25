@@ -217,7 +217,7 @@
             </svg>
           </div>
 
-          <a :href="`/lokacije/${location.slug}`" class="location-card__link" target="_blank" @click.stop>
+          <div class="location-card__link" @click.stop="animateToDetail(location, $event)">
             <div class="location-card__image-wrapper">
               <img
                 v-if="location.image"
@@ -237,7 +237,7 @@
               </div>
               <h3 class="location-card__name">{{ location.name }}</h3>
             </div>
-          </a>
+          </div>
         </div>
 
         <!-- Empty State -->
@@ -345,7 +345,7 @@
                   <path d="M13.125 11.625C15.3667 12.1114 16.875 13.0205 16.875 14.0618C16.875 15.6155 13.5171 16.875 9.375 16.875C5.23286 16.875 1.875 15.6155 1.875 14.0618C1.875 13.0205 3.38324 12.1114 5.625 11.625" stroke="#0CD459" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
               </div>
-              <a :href="`/lokacije/${location.slug}`" class="location-card__link" target="_blank">
+              <div class="location-card__link" @click.stop="animateToDetail(location, $event)">
                 <div class="location-card__image-wrapper">
                   <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image">
                 </div>
@@ -359,7 +359,7 @@
                   </div>
                   <h3 class="location-card__name">{{ location.name }}</h3>
                 </div>
-              </a>
+              </div>
             </div>
           </template>
         </div>
@@ -717,6 +717,86 @@ function focusOnLocation(location: Location) {
 }
 
 function openLocationDetail(location: Location) { focusOnLocation(location) }
+
+let isNavigating = false
+
+function animateToDetail(location: Location, event: MouseEvent) {
+  if (isNavigating) return
+  isNavigating = true
+
+  // Find the card and its image
+  const card = (event.target as HTMLElement).closest('.location-card') as HTMLElement
+  if (!card) { navigateTo(`/lokacije/${location.slug}`); return }
+
+  const img = card.querySelector('.location-card__image') as HTMLImageElement
+  if (!img) { navigateTo(`/lokacije/${location.slug}`); return }
+
+  const imgRect = img.getBoundingClientRect()
+
+  // Create a clone of the image for the transition
+  const clone = img.cloneNode(true) as HTMLImageElement
+  clone.style.cssText = `
+    position: fixed;
+    top: ${imgRect.top}px;
+    left: ${imgRect.left}px;
+    width: ${imgRect.width}px;
+    height: ${imgRect.height}px;
+    object-fit: cover;
+    z-index: 10001;
+    pointer-events: none;
+    border-radius: 0.65rem;
+  `
+  document.body.appendChild(clone)
+
+  // Fade out the rest of the page
+  const overlay = document.createElement('div')
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+  `
+  document.body.appendChild(overlay)
+
+  // Animate
+  const tl = gsap.timeline({
+    onComplete: () => {
+      // Store image src for the detail page to pick up
+      sessionStorage.setItem('locationTransitionImage', location.image)
+      sessionStorage.setItem('locationTransitionName', location.name)
+      sessionStorage.setItem('locationTransitionCity', location.city)
+      sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
+
+      // Skip the default page transition — our card animation handles it
+      ;(window as any).__skipPageTransition = true
+      navigateTo(`/lokacije/${location.slug}`)
+
+      // Cleanup after navigation
+      setTimeout(() => {
+        clone.remove()
+        overlay.remove()
+        isNavigating = false
+      }, 100)
+    }
+  })
+
+  tl.to(overlay, {
+    opacity: 1,
+    duration: 0.3,
+    ease: 'power2.inOut'
+  })
+  .to(clone, {
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '50vh',
+    borderRadius: 0,
+    duration: 0.5,
+    ease: 'power3.inOut'
+  }, 0)
+}
 function openSidebar() { isSidebarOpen.value = true }
 function closeSidebar() { isSidebarOpen.value = false }
 
@@ -1267,7 +1347,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     }
   }
 
-  &__link { display: block; text-decoration: none; color: inherit; }
+  &__link { display: block; text-decoration: none; color: inherit; cursor: pointer; }
 
   &__image-wrapper {
     aspect-ratio: 4 / 3;
