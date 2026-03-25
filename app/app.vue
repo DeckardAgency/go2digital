@@ -143,7 +143,7 @@ router.afterEach(async () => {
 
     tl.set(wrapper, {
         scale: 1.1,
-        opacity: 1,
+        opacity: 0,
         y: 50,
         filter: 'blur(4px)'
       })
@@ -170,7 +170,7 @@ router.afterEach(async () => {
         opacity: 1,
         y: 0,
         filter: 'blur(0px)',
-        duration: 0.5,
+        duration: 0.6,
         ease: 'power2.out'
       }, '-=0.4')
       .set(wrapper, { clearProps: 'all' }) // Clear all inline styles to prevent stacking issues

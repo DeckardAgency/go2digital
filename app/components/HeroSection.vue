@@ -158,6 +158,7 @@ const setupInitialState = () => {
   if (mediaRef.value) {
     gsap.set(mediaRef.value, {
       clipPath: insetToClipPath(initial),
+      visibility: 'visible',
       willChange: 'clip-path'
     })
   }
@@ -531,6 +532,8 @@ $font-weight-regular: 400;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    // Hide until JS sets the exact calculated clip-path
+    visibility: hidden;
   }
 
   &__media-video {

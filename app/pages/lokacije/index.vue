@@ -40,6 +40,9 @@
         </div>
       </div>
 
+      <!-- Collapsible toolbar (hides on scroll) -->
+      <div class="locations-sidebar__toolbar" :class="{ 'locations-sidebar__toolbar--collapsed': isScrolled }">
+
       <!-- Filters (Desktop) -->
       <div class="locations-sidebar__filters" ref="filtersRef">
         <div class="locations-sidebar__filter-group">
@@ -47,40 +50,53 @@
           <div class="custom-select" :class="{ 'custom-select--open': isCityDropdownOpen }">
             <button class="custom-select__trigger" @click="toggleCityDropdown">
               <span class="custom-select__label">
-                {{ selectedCities.length > 0 ? `${$t('location.filters.cities')} (${selectedCities.length})` : $t('location.filters.cities') }}
+                {{ selectedCities.length === 1 ? getCityName(selectedCities[0]) : selectedCities.length > 1 ? `${$t('location.filters.cities')} (${selectedCities.length})` : $t('location.filters.cities') }}
               </span>
-              <svg class="custom-select__arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg class="custom-select__icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+                <circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/>
               </svg>
             </button>
-            <div class="custom-select__dropdown" v-show="isCityDropdownOpen" data-lenis-prevent>
-              <label v-for="city in cities" :key="city.id" class="custom-select__option">
-                <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
-                <span class="custom-select__checkmark"></span>
-                <span>{{ city.name }}</span>
-              </label>
-            </div>
           </div>
 
           <!-- Environments Dropdown -->
           <div class="custom-select" :class="{ 'custom-select--open': isEnvDropdownOpen }">
             <button class="custom-select__trigger" @click="toggleEnvDropdown">
               <span class="custom-select__label">
-                {{ selectedEnvironments.length > 0 ? `${$t('location.filters.environments')} (${selectedEnvironments.length})` : $t('location.filters.environments') }}
+                {{ selectedEnvironments.length === 1 ? getEnvironmentName(selectedEnvironments[0]) : selectedEnvironments.length > 1 ? `${$t('location.filters.environments')} (${selectedEnvironments.length})` : $t('location.filters.environments') }}
               </span>
-              <svg class="custom-select__arrow" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg class="custom-select__icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+                <circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/>
               </svg>
             </button>
-            <div class="custom-select__dropdown" v-show="isEnvDropdownOpen" data-lenis-prevent>
-              <label v-for="env in environments" :key="env.id" class="custom-select__option">
-                <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
-                <span class="custom-select__checkmark"></span>
-                <span>{{ env.name }}</span>
-              </label>
-            </div>
           </div>
         </div>
+
+        <!-- Shared dropdown panel below triggers -->
+        <Transition name="dropdown">
+          <div class="custom-select__dropdown" v-if="isCityDropdownOpen" data-lenis-prevent>
+            <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
+              <span>All {{ $t('location.filters.cities') }}</span>
+            </button>
+            <label v-for="city in cities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
+              <span>{{ city.name }}</span>
+              <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
+            </label>
+          </div>
+        </Transition>
+
+        <Transition name="dropdown">
+          <div class="custom-select__dropdown" v-if="isEnvDropdownOpen" data-lenis-prevent>
+            <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
+              <span>All {{ $t('location.filters.environments') }}</span>
+            </button>
+            <label v-for="env in environments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
+              <span>{{ env.name }}</span>
+              <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
+            </label>
+          </div>
+        </Transition>
       </div>
 
       <!-- Mobile Buttons Row -->
@@ -139,6 +155,8 @@
         </a>
       </div>
 
+      </div><!-- end toolbar -->
+
       <!-- Shimmer Loader -->
       <div class="locations-sidebar__shimmer" v-show="isLoading">
         <div v-for="i in 6" :key="i" class="location-card-shimmer">
@@ -152,7 +170,15 @@
       </div>
 
       <!-- Location Cards Grid -->
-      <div class="locations-sidebar__cards" v-show="!isLoading" ref="cardsContainer" @scroll="onCardsScroll" data-lenis-prevent>
+      <TransitionGroup
+        tag="div"
+        name="card"
+        class="locations-sidebar__cards"
+        v-show="!isLoading"
+        ref="cardsContainer"
+        @scroll="onCardsScroll"
+        data-lenis-prevent
+      >
         <div
           v-for="location in filteredLocations"
           :key="location.id"
@@ -215,10 +241,10 @@
         </div>
 
         <!-- Empty State -->
-        <div v-if="filteredLocations.length === 0 && !isLoading" class="locations-sidebar__empty">
+        <div v-if="filteredLocations.length === 0 && !isLoading" key="empty" class="locations-sidebar__empty">
           <p>{{ $t('location.noResults') }}</p>
         </div>
-      </div>
+      </TransitionGroup>
     </aside>
 
     <!-- Map View -->
@@ -483,7 +509,7 @@ const STORAGE_KEY = 'selectedLocations'
 
 // Refs
 const mapContainer = ref<HTMLElement | null>(null)
-const cardsContainer = ref<HTMLElement | null>(null)
+const cardsContainer = ref<any>(null)
 
 // Animation refs
 const headerRef = ref<HTMLElement | null>(null)
@@ -620,6 +646,24 @@ function toggleEnvDropdown() {
   if (isEnvDropdownOpen.value) isCityDropdownOpen.value = false
 }
 
+function toggleAllCities() {
+  if (selectedCities.value.length === cities.value.length) {
+    selectedCities.value = []
+  } else {
+    selectedCities.value = cities.value.map(c => c.id)
+  }
+  applyFilters()
+}
+
+function toggleAllEnvironments() {
+  if (selectedEnvironments.value.length === environments.value.length) {
+    selectedEnvironments.value = []
+  } else {
+    selectedEnvironments.value = environments.value.map(e => e.id)
+  }
+  applyFilters()
+}
+
 function applyFilters() { updateMapMarkers() }
 function handleSearch() { applyFilters() }
 
@@ -751,7 +795,16 @@ function applyModalFilters() {
   applyFilters()
 }
 
-function onCardsScroll(e: Event) { const target = e.target as HTMLElement; isScrolled.value = target.scrollTop > 10 }
+function onCardsScroll(e: Event) {
+  const target = e.target as HTMLElement
+  const scrolled = target.scrollTop > 10
+  if (scrolled && !isScrolled.value) {
+    // Close dropdowns when toolbar collapses
+    isCityDropdownOpen.value = false
+    isEnvDropdownOpen.value = false
+  }
+  isScrolled.value = scrolled
+}
 
 function saveToStorage() {
   try { const data = Array.from(selectedLocations.value.values()); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) }
@@ -834,7 +887,7 @@ function resetMapView() {
 
 function handleClickOutside(e: MouseEvent) {
   const target = e.target as HTMLElement
-  if (!target.closest('.custom-select')) { isCityDropdownOpen.value = false; isEnvDropdownOpen.value = false }
+  if (!target.closest('.custom-select') && !target.closest('.custom-select__dropdown')) { isCityDropdownOpen.value = false; isEnvDropdownOpen.value = false }
 }
 
 watch([filteredLocations], () => { if (map && map.isStyleLoaded()) loadMapData() })
@@ -886,8 +939,9 @@ const runEntranceAnimations = () => {
   }
 
   // Animate cards with stagger
-  if (cardsContainer.value) {
-    const cards = cardsContainer.value.querySelectorAll('.location-card')
+  const cardsEl = cardsContainer.value?.$el || cardsContainer.value
+  if (cardsEl) {
+    const cards = cardsEl.querySelectorAll('.location-card')
     gsap.set(cards, { opacity: 0, y: 30 })
     tl.to(cards, {
       opacity: 1,
@@ -906,15 +960,15 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
 .locations-page {
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: 520px 1fr;
   min-height: 100dvh;
   background-color: $color-background;
   contain: layout style;
 
-  @include desktop { grid-template-columns: 350px 1fr; }
+  @include desktop { grid-template-columns: 420px 1fr; }
   @include tablet { grid-template-columns: 1fr; }
 
-  &--grid-view { @include tablet { .locations-sidebar { display: block; } .locations-map { display: none; } } }
+  &--grid-view { @include tablet { .locations-sidebar { display: flex; } .locations-map { display: none; } } }
   &--map-view { @include tablet { .locations-sidebar { display: none; } .locations-map { display: block; } } }
   &--dark { background-color: $dark-background; }
 }
@@ -955,6 +1009,22 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     .locations-sidebar__empty { color: $dark-muted; }
   }
 
+  // Collapsible toolbar
+  &__toolbar {
+    overflow: hidden;
+    max-height: 500px;
+    opacity: 1;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    border-bottom: 1px solid $color-border;
+
+    &--collapsed {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      border-bottom-color: transparent;
+    }
+  }
+
   // Elements
   &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; }
   &__title-row { display: flex; align-items: baseline; gap: $spacing-sm; margin-bottom: $spacing-md; }
@@ -984,7 +1054,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     transition: all $transition-base;
     &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; }
   }
-  &__filters { padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; @include tablet { display: none; } }
+  &__filters { padding: $spacing-lg; border-bottom: 1px solid $color-border; position: relative; z-index: $z-dropdown; @include tablet { display: none; } }
   &__filter-group { display: flex; gap: $spacing-lg; }
   &__mobile-buttons { display: none; padding: $spacing-md $spacing-lg; gap: $spacing-lg; border-bottom: 1px solid $color-border; @include tablet { display: flex; } }
   &__collection-btn,
@@ -1000,7 +1070,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
   }
   &__collection-btn-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__search { display: flex; gap: $spacing-sm; padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__search { display: flex; gap: $spacing-sm; padding: $spacing-lg; border-bottom: 1px solid $color-border; }
   &__search-input {
     flex: 1;
     padding: 0.75rem $spacing-md;
@@ -1023,21 +1093,24 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     transition: opacity $transition-base;
     &:hover { opacity: 0.9; }
   }
-  &__active-filters { display: flex; flex-wrap: wrap; gap: $spacing-sm; padding: $spacing-md $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: $spacing-sm; padding: $spacing-lg; border-bottom: none; }
   &__tag {
     display: inline-flex;
     align-items: center;
-    gap: $spacing-sm;
-    padding: 0.375rem 0.75rem;
-    border: 1px solid $color-border;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    background-color: rgba($color-primary, 0.1);
+    border: none;
     border-radius: $radius-full;
     font-size: $font-size-sm;
+    font-weight: 500;
   }
-  &__tag-close { cursor: pointer; opacity: 0.6; transition: opacity $transition-fast; &:hover { opacity: 1; } }
+  &__tag-close { cursor: pointer; opacity: 0.5; font-size: 0.875rem; transition: opacity $transition-fast; &:hover { opacity: 1; } }
   &__clear-all {
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
+    margin-left: auto;
     font-size: $font-size-sm;
     color: $color-muted;
     text-decoration: none;
@@ -1054,7 +1127,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     overflow-y: auto;
     flex: 1;
     min-height: 0;
-    contain: strict;
     @include mobile { grid-template-columns: 1fr; }
   }
   &__empty { grid-column: 1 / -1; text-align: center; padding: $spacing-xl; color: $color-muted; }
@@ -1069,32 +1141,34 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     @include flex-between;
     padding: 0.625rem $spacing-md;
     border: 1px solid $color-border;
-    border-radius: $radius-md;
+    border-radius: $radius-full;
     background: transparent;
     font-size: $font-size-sm;
     font-family: inherit;
     cursor: pointer;
     transition: border-color $transition-base;
     &:hover { border-color: $color-primary; }
+    .custom-select--open & { border-color: $color-primary; }
     .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; }
   }
 
-  &__arrow {
-    transition: transform $transition-base;
-    .custom-select--open & { transform: rotate(180deg); }
+  &__icon {
+    flex-shrink: 0;
   }
 
   &__dropdown {
     position: absolute;
-    top: calc(100% + $spacing-sm);
-    left: 0;
-    right: 0;
-    max-height: 200px;
+    left: $spacing-lg;
+    right: $spacing-lg;
+    top: 100%;
+    max-height: 320px;
     overflow-y: auto;
     background-color: $color-background;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     box-shadow: $shadow-md;
+    margin-top: $spacing-sm;
+    padding: $spacing-sm 0;
     z-index: $z-dropdown;
     .locations-sidebar--dark & { background-color: $dark-surface; border-color: $dark-border; }
   }
@@ -1102,14 +1176,29 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__option {
     display: flex;
     align-items: center;
-    gap: $spacing-lg;
-    padding: 0.75rem $spacing-md;
+    justify-content: space-between;
+    padding: 0.875rem $spacing-lg;
     font-size: $font-size-base;
     cursor: pointer;
     transition: background-color $transition-base;
+    border: none;
+    background: none;
+    width: 100%;
+    font-family: inherit;
+    text-align: left;
     &:hover { background-color: rgba($color-primary, 0.05); }
     .locations-sidebar--dark & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } }
-    input { accent-color: $color-accent; }
+    input { accent-color: $color-accent; width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
+
+    &--selected {
+      background-color: rgba($color-primary, 0.05);
+    }
+
+    &--all {
+      background-color: rgba($color-primary, 0.04);
+      font-weight: 500;
+      .locations-sidebar--dark & { background-color: rgba($dark-text, 0.08); }
+    }
   }
 }
 
@@ -1480,6 +1569,41 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     &--clear { border: 1px solid $color-border; background: transparent; &:hover { border-color: $color-primary; } }
     &--apply { border: none; background-color: $color-primary; color: $color-background; &:hover { opacity: 0.9; } }
   }
+}
+
+// Card list transition
+.card-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.card-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.card-enter-from {
+  opacity: 0;
+  transform: scale(0.95) translateY(10px);
+}
+.card-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.card-move {
+  transition: transform 0.3s ease;
+}
+
+// Dropdown transition
+.dropdown-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.dropdown-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.dropdown-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 </style>
 
