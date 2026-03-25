@@ -19,9 +19,16 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      script: [
+        {
+          // Block rendering immediately — hide everything until loader mounts
+          innerHTML: `document.documentElement.style.visibility='hidden';document.documentElement.style.background='#ffffff';`,
+          tagPosition: 'head'
+        }
+      ],
       style: [
         {
-          // Inline critical CSS to hide scrollbar immediately
+          // Inline critical CSS: hide scrollbar + ensure white background
           children: `
             html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
             html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }

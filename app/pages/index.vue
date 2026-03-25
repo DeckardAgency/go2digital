@@ -32,6 +32,7 @@ useHead({
 </script>
 
 <style scoped lang="scss">
+@use "sass:color";
 // Variables and mixins are now globally available via nuxt.config.ts
 
 // NOTE: Do NOT use `contain: layout` here - it breaks ScrollTrigger pinning in HeroSection
@@ -66,7 +67,7 @@ useHead({
     transition: background $transition-slow;
 
     @include hover {
-      background: lighten($dark-surface, 10%);
+      background: color.adjust($dark-surface, $lightness: 10%);
     }
   }
 }

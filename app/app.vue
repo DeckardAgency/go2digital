@@ -1,5 +1,6 @@
 <template>
   <div ref="appRoot">
+    <PageLoader v-if="showLoader" @complete="onLoaderComplete" />
     <NuxtRouteAnnouncer />
     <MobileNav />
     <HeroNav />
@@ -21,6 +22,13 @@ let transitionOverlay: HTMLElement | null = null
 const router = useRouter()
 const route = useRoute()
 const { isMenuOpen, closeMenu } = useNavigation()
+
+// Page loader - show on all pages on initial load
+const showLoader = ref(true)
+
+function onLoaderComplete() {
+  showLoader.value = false
+}
 
 // Show footer by default, unless page meta explicitly sets showFooter: false
 const showFooter = computed(() => route.meta.showFooter !== false)
