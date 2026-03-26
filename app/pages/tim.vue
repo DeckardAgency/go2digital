@@ -1,0 +1,43 @@
+<template>
+  <div class="page page--tim">
+    <section class="tim-hero">
+      <div class="tim-hero__container">
+        <h1 class="tim-hero__title">{{ t('nav.about') }}</h1>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup lang="ts">
+const { t } = useI18n()
+
+useHead({
+  title: `${t('nav.about')} - Go2Digital`
+})
+</script>
+
+<style scoped lang="scss">
+.page--tim {
+  min-height: 100vh;
+}
+
+.tim-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 120px 24px 80px;
+
+  &__container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700;
+    color: var(--color-text, #fff);
+  }
+}
+</style>

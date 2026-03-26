@@ -1,79 +1,139 @@
 <template>
-  <div class="page page--single-lab">
-    <section class="hero">
-      <span class="tag">Lab Experiment</span>
-      <h1>{{ slug }}</h1>
-    </section>
-    <section class="content">
-      <p>This is a detailed view of the lab experiment. Here you can explore the methodology, findings, and interactive demos of our research.</p>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisi vel consectetur interdum, nisl nunc egestas nunc, vitae tincidunt nisl nunc euismod nunc.</p>
-      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.</p>
-      <div class="links">
-        <NuxtLink to="/lab">Back to Labs</NuxtLink>
-        <NuxtLink to="/">Back to Home</NuxtLink>
+  <div class="lab-detail">
+    <!-- Hero Image -->
+    <div class="lab-detail__hero">
+      <img v-if="heroImage" :src="heroImage" :alt="title" class="lab-detail__hero-image">
+      <div class="lab-detail__hero-overlay">
+        <div class="lab-detail__hero-content">
+          <span v-if="meta" class="lab-detail__category">{{ meta }}</span>
+          <h1 class="lab-detail__title">{{ title }}</h1>
+        </div>
+      </div>
+      <button class="lab-detail__back" @click="goBack">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Svi projekti
+      </button>
+    </div>
+
+    <!-- Content -->
+    <section class="lab-detail__content">
+      <div class="lab-detail__body">
+        <p>This is a detailed view of the lab experiment. Here you can explore the methodology, findings, and interactive demos of our research.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisi vel consectetur interdum.</p>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { getCardTransitionData, goBackWithTransition } from '~/composables/useCardTransition'
+
 const route = useRoute()
 const slug = route.params.slug as string
+const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
-useHead({
-  title: `${slug} - Go2Labs`
+const heroImage = ref('')
+const title = ref(formattedSlug)
+const meta = ref('')
+
+onMounted(() => {
+  const data = getCardTransitionData()
+  if (data.image) heroImage.value = data.image
+  if (data.title) title.value = data.title
+  if (data.meta) meta.value = data.meta
 })
+
+function goBack() {
+  goBackWithTransition('/lab', slug, heroImage.value)
+}
+
+useHead({ title: `${formattedSlug} - Go2Labs` })
+definePageMeta({ showFooter: false })
 </script>
 
-<style scoped>
-.page--single-lab {
+<style scoped lang="scss">
+.lab-detail {
   min-height: 100vh;
-  padding: 6rem 2rem 2rem;
-  background: #0d1117;
-  color: #fff;
+  background-color: $color-background;
 }
 
-.hero {
-  text-align: center;
-  padding: 4rem 0;
+.lab-detail__hero {
+  position: relative;
+  height: 50vh;
+  min-height: 320px;
+  overflow: hidden;
+  margin: 0 $spacing-2xl;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  @include tablet { margin: 0 $spacing-lg; }
+  @include mobile { margin: 0; border-radius: 0; }
 }
 
-.tag {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background: #58a6ff;
-  color: #0d1117;
-  border-radius: 2rem;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+.lab-detail__hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.hero h1 {
-  font-size: 3rem;
-  text-transform: capitalize;
-}
-
-.content {
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.8;
-}
-
-.content p {
-  margin-bottom: 1.5rem;
-}
-
-.links {
+.lab-detail__hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  align-items: flex-end;
 }
 
-.links a {
-  padding: 0.75rem 1.5rem;
-  background: #161b22;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0.5rem;
+.lab-detail__hero-content {
+  padding: $spacing-xl $spacing-2xl;
+  color: #ffffff;
+  @include tablet { padding: $spacing-lg; }
+}
+
+.lab-detail__category {
+  display: inline-block;
+  font-size: $font-size-sm;
+  opacity: 0.8;
+  margin-bottom: $spacing-sm;
+}
+
+.lab-detail__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.lab-detail__back {
+  position: absolute;
+  top: $spacing-lg;
+  left: $spacing-lg;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: none;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  color: $color-primary;
+  cursor: pointer;
+  transition: background $transition-base;
+  z-index: 1;
+  &:hover { background: #ffffff; }
+}
+
+.lab-detail__content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: $spacing-2xl;
+  @include tablet { padding: $spacing-lg; }
+}
+
+.lab-detail__body {
+  line-height: 1.9;
+  p { margin-bottom: $spacing-lg; }
 }
 </style>

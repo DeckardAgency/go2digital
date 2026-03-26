@@ -1,94 +1,144 @@
 <template>
-  <div class="page page--single-blog">
-    <article>
-      <header class="hero">
-        <span class="date">January 5, 2026</span>
-        <h1>{{ formattedSlug }}</h1>
-        <p class="author">By Go2Digital Team</p>
-      </header>
-      <section class="content">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <h2>Key Takeaways</h2>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-        <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-        <div class="links">
-          <NuxtLink to="/blog">Back to Articles</NuxtLink>
-          <NuxtLink to="/">Back to Home</NuxtLink>
+  <div class="blog-detail">
+    <!-- Hero Image -->
+    <div class="blog-detail__hero">
+      <img v-if="heroImage" :src="heroImage" :alt="title" class="blog-detail__hero-image">
+      <div class="blog-detail__hero-overlay">
+        <div class="blog-detail__hero-content">
+          <span v-if="meta" class="blog-detail__category">{{ meta }}</span>
+          <h1 class="blog-detail__title">{{ title }}</h1>
         </div>
-      </section>
+      </div>
+      <button class="blog-detail__back" @click="goBack">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Svi članci
+      </button>
+    </div>
+
+    <!-- Content -->
+    <article class="blog-detail__content">
+      <div class="blog-detail__body">
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <h2>Key Takeaways</h2>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+      </div>
     </article>
   </div>
 </template>
 
 <script setup lang="ts">
+import { getCardTransitionData, goBackWithTransition } from '~/composables/useCardTransition'
+
 const route = useRoute()
 const slug = route.params.slug as string
 const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
-useHead({
-  title: `${formattedSlug} - Blog`
+const heroImage = ref('')
+const title = ref(formattedSlug)
+const meta = ref('')
+
+onMounted(() => {
+  const data = getCardTransitionData()
+  if (data.image) heroImage.value = data.image
+  if (data.title) title.value = data.title
+  if (data.meta) meta.value = data.meta
 })
+
+function goBack() {
+  goBackWithTransition('/blog', slug, heroImage.value)
+}
+
+useHead({ title: `${formattedSlug} - Blog` })
+definePageMeta({ showFooter: false })
 </script>
 
-<style scoped>
-.page--single-blog {
+<style scoped lang="scss">
+.blog-detail {
   min-height: 100vh;
-  padding: 6rem 2rem 2rem;
-  background: #1a0a0a;
-  color: #fff;
+  background-color: $color-background;
 }
 
-.hero {
-  text-align: center;
-  padding: 4rem 0;
-  max-width: 800px;
-  margin: 0 auto;
+.blog-detail__hero {
+  position: relative;
+  width: 100%;
+  height: 50vh;
+  min-height: 320px;
+  overflow: hidden;
+  margin: 0 $spacing-2xl;
+  width: calc(100% - #{$spacing-2xl} * 2);
+  border-radius: 0 0 $radius-lg $radius-lg;
+  @include tablet { margin: 0 $spacing-lg; width: calc(100% - #{$spacing-lg} * 2); }
+  @include mobile { margin: 0; width: 100%; border-radius: 0; }
 }
 
-.date {
-  color: #ff6b6b;
-  font-size: 0.875rem;
+.blog-detail__hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.hero h1 {
-  font-size: 2.5rem;
-  margin: 1rem 0;
-  line-height: 1.3;
+.blog-detail__hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+  display: flex;
+  align-items: flex-end;
 }
 
-.author {
-  opacity: 0.7;
+.blog-detail__hero-content {
+  padding: $spacing-xl $spacing-2xl;
+  color: #ffffff;
+  @include tablet { padding: $spacing-lg; }
 }
 
-.content {
+.blog-detail__category {
+  display: inline-block;
+  font-size: $font-size-sm;
+  opacity: 0.8;
+  margin-bottom: $spacing-sm;
+}
+
+.blog-detail__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.blog-detail__back {
+  position: absolute;
+  top: $spacing-lg;
+  left: $spacing-lg;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: none;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  color: $color-primary;
+  cursor: pointer;
+  transition: background $transition-base;
+  z-index: 1;
+  &:hover { background: #ffffff; }
+}
+
+.blog-detail__content {
   max-width: 700px;
   margin: 0 auto;
+  padding: $spacing-2xl;
+  @include tablet { padding: $spacing-lg; }
+}
+
+.blog-detail__body {
   line-height: 1.9;
-}
-
-.content p {
-  margin-bottom: 1.5rem;
-}
-
-.content h2 {
-  margin: 2rem 0 1rem;
-  color: #ff6b6b;
-}
-
-.links {
-  display: flex;
-  gap: 1rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid #3a2a2a;
-}
-
-.links a {
-  padding: 0.75rem 1.5rem;
-  background: #2a1a1a;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 0.5rem;
+  p { margin-bottom: $spacing-lg; }
+  h2 { margin: $spacing-2xl 0 $spacing-md; font-size: $font-size-xl; font-weight: 400; }
 }
 </style>

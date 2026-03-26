@@ -42,7 +42,7 @@
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
-            <NuxtLink :to="`/blog/${article.slug}`" class="article-card__link">
+            <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
                   :src="article.image"
@@ -64,7 +64,7 @@
                   <span class="article-card__category-text">{{ article.category }}</span>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </article>
           <article
             v-for="article in row.large"
@@ -73,7 +73,7 @@
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
-            <NuxtLink :to="`/blog/${article.slug}`" class="article-card__link">
+            <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
                   :src="article.image"
@@ -95,7 +95,7 @@
                   <span class="article-card__category-text">{{ article.category }}</span>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </article>
         </div>
 
@@ -108,7 +108,7 @@
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
-            <NuxtLink :to="`/blog/${article.slug}`" class="article-card__link">
+            <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
                   :src="article.image"
@@ -130,7 +130,7 @@
                   <span class="article-card__category-text">{{ article.category }}</span>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </article>
         </div>
 
@@ -143,7 +143,7 @@
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
-            <NuxtLink :to="`/blog/${article.slug}`" class="article-card__link">
+            <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
                   :src="article.image"
@@ -165,7 +165,7 @@
                   <span class="article-card__category-text">{{ article.category }}</span>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </article>
         </div>
 
@@ -178,7 +178,7 @@
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
-            <NuxtLink :to="`/blog/${article.slug}`" class="article-card__link">
+            <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
                   :src="article.image"
@@ -200,7 +200,7 @@
                   <span class="article-card__category-text">{{ article.category }}</span>
                 </div>
               </div>
-            </NuxtLink>
+            </div>
           </article>
         </div>
       </template>
@@ -227,6 +227,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
+import { animateCardToDetail } from '~/composables/useCardTransition'
 
 useHead({
   title: 'Blog - Go2Digital'
@@ -473,6 +474,16 @@ onUnmounted(() => {
     gsap.killTweensOf(cursor)
   }
 })
+
+function onCardClick(article: any, event: MouseEvent) {
+  animateCardToDetail(event, {
+    slug: article.slug,
+    basePath: '/blog',
+    image: article.image,
+    title: article.title,
+    meta: article.category
+  }, '.article-card', '.article-card__image')
+}
 
 // Custom cursor handlers
 function onCardHover(e: MouseEvent) {
@@ -776,6 +787,7 @@ $spacing-page-mobile: 1rem;
     flex-direction: column;
     gap: 2rem;
     text-decoration: none;
+    cursor: pointer;
     color: inherit;
     cursor: none;
 
@@ -795,7 +807,7 @@ $spacing-page-mobile: 1rem;
     position: relative;
     border-radius: 1.5rem;
     overflow: hidden;
-    background-color: darken($color-background, 5%);
+    background-color: $color-surface;
   }
 
   // ==========================================================================

@@ -21,6 +21,76 @@
       "block1": "Svaki projekt razvijamo u bliskoj suradnji s klijentom, definirajući jasne ciljeve i prepoznajući specifičnosti brenda. Kroz pametan odabir lokacija, kreativne formate i inovativne sadržaje, osiguravamo kampanje koje donose mjerljive rezultate i jačaju prepoznatljivost.",
       "block2": "Od impozantnih digitalnih ekrana do suptilnih interaktivnih trenutaka, naši projekti spajaju formu, funkcionalnost i doživljaj. Tako stvaramo iskustva koja privlače pažnju, angažiraju publiku i ostavljaju trajan dojam."
     },
+    "interactiveDisplay": {
+      "title": "Digitalni\nekrani",
+      "badge": "Premium DOOH Mreža",
+      "specsTitle": "Specifikacije ekrana",
+      "indicatorText": "O TEHNOLOGIJI",
+      "description": "Naši premium digitalni ekrani pružaju neusporedivu kvalitetu prikaza s visokom rezolucijom, punim pokretom i širokim kutom gledanja – osiguravajući da vaša poruka bude viđena jasno, dan i noć.",
+      "downloadSpecs": "Preuzmi specifikacije",
+      "specs": [
+        { "label": "Rezolucija", "value": "Full HD / 4K" },
+        { "label": "Osvjetljenje", "value": "5000+ nita" },
+        { "label": "Kut gledanja", "value": "178°" },
+        { "label": "Životni vijek", "value": "100.000+ sati" },
+        { "label": "Pokret", "value": "Full Motion" },
+        { "label": "Povezivost", "value": "4G / WiFi" }
+      ],
+      "features": [
+        { "title": "Visoka vidljivost", "description": "Ekrani s visokim osvjetljenjem vidljivi i po danu, s automatskim podešavanjem osvjetljenja za optimalnu potrošnju energije." },
+        { "title": "Dinamički sadržaj", "description": "Prilagodite poruku u stvarnom vremenu prema dobu dana, vremenskim uvjetima ili ciljnoj publici za maksimalan učinak." },
+        { "title": "Inteligentno praćenje", "description": "Napredna analitika i praćenje prikazivanja u stvarnom vremenu za potpunu transparentnost vaše kampanje." },
+        { "title": "Održivo rješenje", "description": "Energetski učinkoviti LED ekrani s niskim ugljičnim otiskom i mogućnošću napajanja iz obnovljivih izvora energije." }
+      ]
+    },
+    "humanFocused": {
+      "indicator": "Fokus na ljude",
+      "title": "Stvaramo kampanje koje povezuju brendove s ljudima na značajan način.",
+      "blockLeft": "Svaki ekran je prilika za stvaranje trenutka koji rezonira s publikom.",
+      "blockRight": "Naš pristup stavlja ljude u središte svakog projekta. Kombinirajući kreativnost s podacima, osiguravamo da svaka kampanja dopre do prave publike u pravom trenutku."
+    },
+    "textAnimation": {
+      "word1": "Vidljivost",
+      "word2": "Inovacija",
+      "word3": "Rezultati"
+    },
+    "billboard": {
+      "title": "Vaš brend zaslužuje najbolju poziciju u gradu.",
+      "subtitle": "Premium lokacije",
+      "description": "Strateški pozicionirani digitalni ekrani na najfrekventnijim lokacijama osiguravaju maksimalnu vidljivost vašeg brenda.",
+      "buttonText": "Zatraži ponudu",
+      "imageAlt": "Go2Digital billboard na Radničkoj cesti"
+    },
+    "tracking": {
+      "title": "Praćenje i analitika u stvarnom vremenu.",
+      "buttonText": "Saznaj više",
+      "features": [
+        { "title": "Prikazi u stvarnom vremenu", "description": "Pratite koliko puta je vaš oglas prikazan sa sekundnom preciznošću." },
+        { "title": "Dokaz prikazivanja", "description": "Automatski generirani izvještaji s fotografijama kao dokaz emitiranja." },
+        { "title": "Analiza publike", "description": "Detaljni podaci o demografiji i ponašanju publike na svakoj lokaciji." },
+        { "title": "Optimizacija kampanje", "description": "Prilagodite kampanju u hodu na temelju performansi i podataka." },
+        { "title": "ROI izvještaji", "description": "Mjerite povrat investicije s preciznim metrikama i benchmarkovima." }
+      ]
+    },
+    "cube": {
+      "title": "Digitalni\ncitylight",
+      "badge": "Inovativni format",
+      "description": "Citylight formati pružaju izvanrednu vidljivost na pješačkim zonama i u trgovačkim centrima, s punim pokretnim sadržajem koji privlači pažnju prolaznika.",
+      "specsTitle": "Specifikacije citylight-a",
+      "downloadSpecs": "Preuzmi specifikacije",
+      "specs": [
+        { "label": "Format", "value": "Citylight / Totem" },
+        { "label": "Rezolucija", "value": "Full HD" },
+        { "label": "Osvjetljenje", "value": "2500 nita" },
+        { "label": "Pokret", "value": "Full Motion" },
+        { "label": "Ekran", "value": "55\" / 75\"" },
+        { "label": "Zaštita", "value": "Kaljeno staklo" }
+      ],
+      "features": [
+        { "title": "Pješačke zone", "description": "Pozicionirani na najfrekventnijim pješačkim lokacijama za maksimalan kontakt s publikom." },
+        { "title": "Indoor & Outdoor", "description": "Dostupni u indoor i outdoor varijantama, prilagođeni specifičnostima svake lokacije." }
+      ]
+    },
     "featuredLabs": {
       "label": "Go2Labs",
       "title": "Istaknuti projekti",

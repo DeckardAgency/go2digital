@@ -124,6 +124,9 @@ router.beforeEach(async (to, from) => {
           ease: 'power4.inOut'
         }, '<0.15') // Start white overlay 0.15s after animations begin
     }
+
+    // Hide wrapper at the end so new page content is invisible when Vue swaps the component
+    tl.set(wrapper, { opacity: 0 })
   })
 })
 

@@ -60,7 +60,7 @@
         @mouseenter="onLabHover"
         @mouseleave="onLabLeave"
       >
-        <NuxtLink :to="`/lab/${lab.slug}`" class="lab-card__link" aria-label="View project">
+        <div class="lab-card__link" @click="onCardClick(lab, $event)">
           <h2 class="lab-card__title">{{ lab.shortTitle || lab.title }}</h2>
           <p class="lab-card__description">{{ lab.subtitle }}</p>
           <ul class="lab-card__tags">
@@ -77,7 +77,7 @@
               loading="lazy"
             >
           </figure>
-        </NuxtLink>
+        </div>
       </article>
 
       <!-- Empty State -->
@@ -101,6 +101,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
+import { animateCardToDetail } from '~/composables/useCardTransition'
 
 useHead({
   title: 'Go2Labs - Go2Digital'
@@ -239,6 +240,16 @@ onUnmounted(() => {
 })
 
 // Custom cursor handlers
+function onCardClick(lab: any, event: MouseEvent) {
+  animateCardToDetail(event, {
+    slug: lab.slug,
+    basePath: '/lab',
+    image: lab.image,
+    title: lab.title,
+    meta: lab.categories?.[0]?.title || ''
+  }, '.lab-card', '.lab-card__media img')
+}
+
 function onLabHover(e: MouseEvent) {
   isCursorVisible.value = true
   const cursor = labCursor.value

@@ -189,6 +189,7 @@
             'location-card--dark': isDarkMode
           }"
           :data-location-id="location.id"
+          :data-slug="location.slug"
           :data-lat="location.lat"
           :data-lng="location.lng"
           :data-screens="location.screens"
@@ -526,7 +527,7 @@ const focusedLocationId = ref<string | null>(null)
 
 // UI State
 const isSidebarOpen = ref(false)
-const isLoading = ref(false)
+const isLoading = computed(() => !locData.value)
 const isScrolled = ref(false)
 const currentMobileView = ref('grid')
 
@@ -555,46 +556,79 @@ let toastTimeout: number | null = null
 const selectedLocations = ref<Map<string, Location>>(new Map())
 
 // Mockup Cities
-const cities = ref<City[]>([
-  { id: '1', name: 'Zagreb' },
-  { id: '2', name: 'Split' },
-  { id: '3', name: 'Rijeka' },
-  { id: '4', name: 'Osijek' },
-  { id: '5', name: 'Zadar' },
-  { id: '6', name: 'Dubrovnik' },
-  { id: '7', name: 'Pula' },
-  { id: '8', name: 'Varaždin' }
-])
+const CDN_BASE = 'https://cdn.go2digital.hr'
 
-// Mockup Environments
-const environments = ref<Environment[]>([
-  { id: '1', name: 'Shopping centar' },
-  { id: '2', name: 'Ulica' },
-  { id: '3', name: 'Javni prijevoz' },
-  { id: '4', name: 'Benzinska postaja' },
-  { id: '5', name: 'Poslovni centar' },
-  { id: '6', name: 'Sportski objekti' }
-])
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/č/g, 'c').replace(/ć/g, 'c').replace(/š/g, 's').replace(/ž/g, 'z').replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
 
-// Mockup Locations
-const locations = ref<Location[]>([
-  { id: '1', slug: 'arena-centar-zagreb', externalId: 'LOC001', name: 'Arena Centar Zagreb', city: 'Zagreb', environments: ['Shopping centar'], lat: 45.7769, lng: 15.9821, image: 'https://picsum.photos/seed/loc1/400/300', screens: 12 },
-  { id: '2', slug: 'city-center-one-split', externalId: 'LOC002', name: 'City Center One Split', city: 'Split', environments: ['Shopping centar'], lat: 43.5147, lng: 16.4435, image: 'https://picsum.photos/seed/loc2/400/300', screens: 8 },
-  { id: '3', slug: 'tower-center-rijeka', externalId: 'LOC003', name: 'Tower Center Rijeka', city: 'Rijeka', environments: ['Shopping centar'], lat: 45.3271, lng: 14.4422, image: 'https://picsum.photos/seed/loc3/400/300', screens: 6 },
-  { id: '4', slug: 'avenue-mall-osijek', externalId: 'LOC004', name: 'Avenue Mall Osijek', city: 'Osijek', environments: ['Shopping centar'], lat: 45.5550, lng: 18.6955, image: 'https://picsum.photos/seed/loc4/400/300', screens: 10 },
-  { id: '5', slug: 'city-galleria-zadar', externalId: 'LOC005', name: 'City Galleria Zadar', city: 'Zadar', environments: ['Shopping centar'], lat: 44.1194, lng: 15.2314, image: 'https://picsum.photos/seed/loc5/400/300', screens: 5 },
-  { id: '6', slug: 'dubrovnik-sun-gardens', externalId: 'LOC006', name: 'Sun Gardens Dubrovnik', city: 'Dubrovnik', environments: ['Poslovni centar'], lat: 42.6507, lng: 18.0944, image: 'https://picsum.photos/seed/loc6/400/300', screens: 4 },
-  { id: '7', slug: 'max-city-pula', externalId: 'LOC007', name: 'Max City Pula', city: 'Pula', environments: ['Shopping centar'], lat: 44.8666, lng: 13.8496, image: 'https://picsum.photos/seed/loc7/400/300', screens: 7 },
-  { id: '8', slug: 'lumini-varazdin', externalId: 'LOC008', name: 'Lumini Varaždin', city: 'Varaždin', environments: ['Shopping centar'], lat: 46.3057, lng: 16.3366, image: 'https://picsum.photos/seed/loc8/400/300', screens: 3 },
-  { id: '9', slug: 'ban-jelacic-square', externalId: 'LOC009', name: 'Trg bana Jelačića', city: 'Zagreb', environments: ['Ulica'], lat: 45.8131, lng: 15.9775, image: 'https://picsum.photos/seed/loc9/400/300', screens: 15 },
-  { id: '10', slug: 'riva-split', externalId: 'LOC010', name: 'Riva Split', city: 'Split', environments: ['Ulica'], lat: 43.5081, lng: 16.4402, image: 'https://picsum.photos/seed/loc10/400/300', screens: 9 },
-  { id: '11', slug: 'korzo-rijeka', externalId: 'LOC011', name: 'Korzo Rijeka', city: 'Rijeka', environments: ['Ulica'], lat: 45.3269, lng: 14.4428, image: 'https://picsum.photos/seed/loc11/400/300', screens: 6 },
-  { id: '12', slug: 'glavni-kolodvor-zagreb', externalId: 'LOC012', name: 'Glavni kolodvor Zagreb', city: 'Zagreb', environments: ['Javni prijevoz'], lat: 45.8049, lng: 15.9788, image: 'https://picsum.photos/seed/loc12/400/300', screens: 20 },
-  { id: '13', slug: 'ina-benzinska-ilica', externalId: 'LOC013', name: 'INA Benzinska Ilica', city: 'Zagreb', environments: ['Benzinska postaja'], lat: 45.8100, lng: 15.9500, image: 'https://picsum.photos/seed/loc13/400/300', screens: 2 },
-  { id: '14', slug: 'eurotower-zagreb', externalId: 'LOC014', name: 'Eurotower Zagreb', city: 'Zagreb', environments: ['Poslovni centar'], lat: 45.8073, lng: 15.9746, image: 'https://picsum.photos/seed/loc14/400/300', screens: 8 },
-  { id: '15', slug: 'arena-zagreb', externalId: 'LOC015', name: 'Arena Zagreb', city: 'Zagreb', environments: ['Sportski objekti'], lat: 45.7743, lng: 15.9896, image: 'https://picsum.photos/seed/loc15/400/300', screens: 25 },
-  { id: '16', slug: 'spaladium-arena', externalId: 'LOC016', name: 'Spaladium Arena', city: 'Split', environments: ['Sportski objekti'], lat: 43.5244, lng: 16.4658, image: 'https://picsum.photos/seed/loc16/400/300', screens: 18 }
-])
+function resolveImageUrl(url: string): string {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${CDN_BASE}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
+function parseLocData(data: any[]) {
+  const allLocations: Location[] = []
+  const cityMap = new Map<string, City>()
+  const envMap = new Map<string, Environment>()
+
+  for (const cityData of data) {
+    const cityId = String(cityData.city_id)
+    const cityName = cityData.name
+
+    if (!cityMap.has(cityId)) {
+      cityMap.set(cityId, { id: cityId, name: cityName })
+    }
+
+    for (const totem of cityData.totems) {
+      const envName = totem.postbuy_category || 'other'
+      if (!envMap.has(envName)) {
+        envMap.set(envName, { id: envName, name: envName })
+      }
+
+      const firstImage = totem.images?.[0]
+      const imageUrl = resolveImageUrl(firstImage?.main || firstImage?.large || firstImage?.thumbnail || '')
+
+      allLocations.push({
+        id: String(totem.totem_id),
+        slug: toSlug(totem.name),
+        externalId: String(totem.totem_id),
+        name: totem.name,
+        city: cityName,
+        environments: [envName],
+        lat: totem.location?.[0] || 0,
+        lng: totem.location?.[1] || 0,
+        image: imageUrl,
+        screens: totem.screens || 1
+      })
+    }
+  }
+
+  return {
+    locations: allLocations,
+    cities: Array.from(cityMap.values()),
+    environments: Array.from(envMap.values())
+  }
+}
+
+// Fetch on both server and client to avoid hydration mismatch
+const { data: locData } = await useFetch<any[]>('https://cdn.go2digital.hr/loc.json', {
+  key: 'locations-data'
+})
+
+const parsedData = computed(() => {
+  if (!locData.value) return { locations: [], cities: [], environments: [] }
+  return parseLocData(locData.value)
+})
+
+const locations = computed(() => parsedData.value.locations)
+const cities = computed(() => parsedData.value.cities)
+const environments = computed(() => parsedData.value.environments)
 
 // Computed
 const filteredLocations = computed(() => {
@@ -718,6 +752,121 @@ function focusOnLocation(location: Location) {
 
 function openLocationDetail(location: Location) { focusOnLocation(location) }
 
+function playReturnAnimation(slug: string, imageSrc: string) {
+  // Immediately make all elements visible — skip entrance animations
+  initSplitText()
+
+  const allAnimTargets = [countRef.value, buttonsRef.value, filtersRef.value, searchRef.value]
+  allAnimTargets.forEach(el => { if (el) gsap.set(el, { opacity: 1, y: 0 }) })
+
+  // Make all split text elements visible immediately
+  document.querySelectorAll('[data-split-text]').forEach(el => {
+    el.classList.add('split-text-ready')
+    const splits = el.querySelectorAll('[style]')
+    splits.forEach(s => {
+      gsap.set(s, { clipPath: 'none', y: 0, opacity: 1 })
+    })
+  })
+
+  // Make all cards visible immediately
+  const cardsEl = cardsContainer.value?.$el || cardsContainer.value
+  if (cardsEl) {
+    const cards = cardsEl.querySelectorAll('.location-card')
+    gsap.set(cards, { opacity: 1, y: 0 })
+  }
+
+  // Create a clone matching the detail page hero (with padding and rounded corners)
+  const clone = document.createElement('img')
+  clone.src = imageSrc
+  clone.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 3rem;
+    width: calc(100vw - 6rem);
+    height: 35vh;
+    object-fit: cover;
+    z-index: 10001;
+    pointer-events: none;
+    border-radius: 0 0 0.75rem 0.75rem;
+  `
+  document.body.appendChild(clone)
+
+  // White overlay behind the clone
+  const overlay = document.createElement('div')
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 10000;
+    opacity: 1;
+    pointer-events: none;
+  `
+  document.body.appendChild(overlay)
+
+  // Wait for cards to render, then find the target card
+  requestAnimationFrame(() => {
+    const targetCard = document.querySelector(`.location-card[data-slug="${slug}"]`) as HTMLElement
+    let targetImg: HTMLElement | null = null
+
+    if (targetCard) {
+      targetImg = targetCard.querySelector('.location-card__image') as HTMLElement
+
+      // Scroll the card into view if needed
+      if (cardsEl && targetCard) {
+        const cardRect = targetCard.getBoundingClientRect()
+        const containerRect = cardsEl.getBoundingClientRect()
+        if (cardRect.top < containerRect.top || cardRect.bottom > containerRect.bottom) {
+          targetCard.scrollIntoView({ block: 'center' })
+        }
+      }
+    }
+
+    // Get target position
+    requestAnimationFrame(() => {
+      let targetRect: DOMRect
+
+      if (targetImg) {
+        targetRect = targetImg.getBoundingClientRect()
+      } else {
+        // Fallback: center of sidebar
+        targetRect = new DOMRect(150, window.innerHeight / 2 - 80, 220, 165)
+      }
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          clone.remove()
+          overlay.remove()
+        }
+      })
+
+      // Fade out overlay
+      tl.to(overlay, {
+        opacity: 0,
+        duration: 0.4,
+        ease: 'power2.inOut'
+      })
+
+      // Shrink image to the card position
+      tl.to(clone, {
+        top: targetRect.top,
+        left: targetRect.left,
+        width: targetRect.width,
+        height: targetRect.height,
+        borderRadius: '0.65rem',
+        duration: 0.5,
+        ease: 'power3.inOut'
+      }, 0)
+
+      // Fade out the clone at the end
+      tl.to(clone, {
+        opacity: 0,
+        duration: 0.15,
+        ease: 'power2.in'
+      }, 0.45)
+    })
+  })
+}
+
 let isNavigating = false
 
 function animateToDetail(location: Location, event: MouseEvent) {
@@ -789,10 +938,10 @@ function animateToDetail(location: Location, event: MouseEvent) {
   })
   .to(clone, {
     top: 0,
-    left: 0,
-    width: '100vw',
-    height: '50vh',
-    borderRadius: 0,
+    left: '3rem',
+    width: 'calc(100vw - 6rem)',
+    height: '35vh',
+    borderRadius: '0 0 0.75rem 0.75rem',
     duration: 0.5,
     ease: 'power3.inOut'
   }, 0)
@@ -979,9 +1128,20 @@ onMounted(async () => {
   initializeMap()
   document.addEventListener('click', handleClickOutside)
 
-  // Initialize split text and run entrance animations
-  initSplitText()
-  runEntranceAnimations()
+  // Check if returning from a detail page
+  const returnSlug = sessionStorage.getItem('locationReturnSlug')
+  const returnImage = sessionStorage.getItem('locationReturnImage')
+  sessionStorage.removeItem('locationReturnSlug')
+  sessionStorage.removeItem('locationReturnImage')
+
+  if (returnSlug && returnImage) {
+    await nextTick()
+    playReturnAnimation(returnSlug, returnImage)
+  } else {
+    // Initialize split text and run entrance animations
+    initSplitText()
+    runEntranceAnimations()
+  }
 })
 
 // Entrance animations
@@ -1106,8 +1266,8 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   // Elements
-  &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; }
-  &__title-row { display: flex; align-items: baseline; gap: $spacing-sm; margin-bottom: $spacing-md; }
+  &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; display: flex; align-items: center; justify-content: space-between; gap: $spacing-md; }
+  &__title-row { display: flex; align-items: baseline; gap: $spacing-sm; }
   &__title { font-size: $font-size-xl; font-weight: 400; margin: 0; }
   &__count { font-size: $font-size-base; color: $color-muted; }
   &__buttons-wrapper { display: flex; align-items: center; gap: $spacing-lg; flex-wrap: wrap; }

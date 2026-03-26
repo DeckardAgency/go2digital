@@ -379,13 +379,22 @@ onUnmounted(() => {
       <div ref="mediaRef" class="hero-section__media">
         <video
           ref="videoRef"
-          class="hero-section__media-video"
+          class="hero-section__media-video hero-section__media-video--desktop"
           autoplay
           muted
           loop
           playsinline
         >
-          <source src="/videos/home-hero.mp4" type="video/mp4">
+          <source src="/videos/home-hero-desktop.mp4" type="video/mp4">
+        </video>
+        <video
+          class="hero-section__media-video hero-section__media-video--mobile"
+          autoplay
+          muted
+          loop
+          playsinline
+        >
+          <source src="/videos/home-hero-mobile.mp4" type="video/mp4">
         </video>
       </div>
     </div>
@@ -540,6 +549,15 @@ $font-weight-regular: 400;
     width: 100%;
     height: 100%;
     object-fit: cover;
+
+    &--desktop {
+      @include tablet { display: none; }
+    }
+
+    &--mobile {
+      display: none;
+      @include tablet { display: block; }
+    }
   }
 
   // Content Layer - 12 Column Grid

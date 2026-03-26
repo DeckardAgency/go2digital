@@ -21,6 +21,76 @@
       "block1": "Not every idea fits in the same frame. Some need to move, react, or adapt to the moment. That's why we create custom, interactive solutions shaped around the story you want to tell.",
       "block2": "From large digital displays to subtle interactive moments, every project is a mix of form, function, and experience designed to impact your audience and leave a lasting impression."
     },
+    "interactiveDisplay": {
+      "title": "Digital\nscreens",
+      "badge": "Premium DOOH Network",
+      "specsTitle": "Screen Specifications",
+      "indicatorText": "ABOUT THE TECHNOLOGY",
+      "description": "Our premium digital screens deliver unparalleled display quality with high resolution, full motion, and wide viewing angles – ensuring your message is seen clearly, day and night.",
+      "downloadSpecs": "Download specifications",
+      "specs": [
+        { "label": "Resolution", "value": "Full HD / 4K" },
+        { "label": "Brightness", "value": "5000+ nits" },
+        { "label": "Viewing Angle", "value": "178°" },
+        { "label": "Lifespan", "value": "100,000+ hours" },
+        { "label": "Motion", "value": "Full Motion" },
+        { "label": "Connectivity", "value": "4G / WiFi" }
+      ],
+      "features": [
+        { "title": "High Visibility", "description": "High-brightness screens visible even in daylight, with automatic brightness adjustment for optimal energy consumption." },
+        { "title": "Dynamic Content", "description": "Adapt your message in real-time based on time of day, weather conditions, or target audience for maximum impact." },
+        { "title": "Intelligent Tracking", "description": "Advanced analytics and real-time display monitoring for complete campaign transparency." },
+        { "title": "Sustainable Solution", "description": "Energy-efficient LED screens with low carbon footprint and renewable energy powering options." }
+      ]
+    },
+    "humanFocused": {
+      "indicator": "Human Focused",
+      "title": "We create campaigns that connect brands with people in meaningful ways.",
+      "blockLeft": "Every screen is an opportunity to create a moment that resonates with the audience.",
+      "blockRight": "Our approach puts people at the center of every project. By combining creativity with data, we ensure that every campaign reaches the right audience at the right time."
+    },
+    "textAnimation": {
+      "word1": "Visibility",
+      "word2": "Innovation",
+      "word3": "Results"
+    },
+    "billboard": {
+      "title": "Your brand deserves the best position in the city.",
+      "subtitle": "Premium Locations",
+      "description": "Strategically positioned digital screens at the most frequented locations ensure maximum visibility for your brand.",
+      "buttonText": "Request a Quote",
+      "imageAlt": "Go2Digital billboard on Radnička Road"
+    },
+    "tracking": {
+      "title": "Real-time tracking and analytics.",
+      "buttonText": "Learn More",
+      "features": [
+        { "title": "Real-time Displays", "description": "Track how many times your ad was shown with second-by-second precision." },
+        { "title": "Proof of Display", "description": "Automatically generated reports with photos as proof of broadcast." },
+        { "title": "Audience Analysis", "description": "Detailed data on demographics and audience behavior at each location." },
+        { "title": "Campaign Optimization", "description": "Adjust your campaign on the fly based on performance and data." },
+        { "title": "ROI Reports", "description": "Measure return on investment with precise metrics and benchmarks." }
+      ]
+    },
+    "cube": {
+      "title": "Digital\ncitylight",
+      "badge": "Innovative Format",
+      "description": "Citylight formats provide outstanding visibility in pedestrian zones and shopping centers, with full motion content that captures the attention of passersby.",
+      "specsTitle": "Citylight Specifications",
+      "downloadSpecs": "Download specifications",
+      "specs": [
+        { "label": "Format", "value": "Citylight / Totem" },
+        { "label": "Resolution", "value": "Full HD" },
+        { "label": "Brightness", "value": "2500 nits" },
+        { "label": "Motion", "value": "Full Motion" },
+        { "label": "Screen", "value": "55\" / 75\"" },
+        { "label": "Protection", "value": "Tempered Glass" }
+      ],
+      "features": [
+        { "title": "Pedestrian Zones", "description": "Positioned at the most frequented pedestrian locations for maximum audience contact." },
+        { "title": "Indoor & Outdoor", "description": "Available in indoor and outdoor variants, adapted to the specifics of each location." }
+      ]
+    },
     "featuredLabs": {
       "label": "Go2Labs",
       "title": "Featured Labs",
