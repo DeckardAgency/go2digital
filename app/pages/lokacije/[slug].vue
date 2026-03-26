@@ -345,6 +345,10 @@ function setupEntranceAnimation() {
 function setupScrollAnimation() {
   if (!heroRef.value || !imageWrapperRef.value) return
 
+  // Set initial clipPath so elements can be clipped on scroll
+  const clipTargets = [titleRef.value, specsRef.value, actionsRef.value].filter(Boolean)
+  gsap.set(clipTargets, { clipPath: 'inset(0 0 0 0)' })
+
   heroTimeline = gsap.timeline({
     scrollTrigger: {
       trigger: heroRef.value,
@@ -366,42 +370,76 @@ function setupScrollAnimation() {
     ease: 'power2.inOut'
   }, 0)
 
-  // Fade out and slide down title
+  // Clip-path hide title (same style as homepage hero)
   if (titleRef.value) {
     heroTimeline.to(titleRef.value, {
-      opacity: 0,
-      y: 30,
+      clipPath: 'inset(100% 0 0 0)',
       duration: 0.4,
-      ease: 'power2.in'
-    }, 0)
-  }
-
-  // Fade out specs
-  if (specsRef.value) {
-    heroTimeline.to(specsRef.value, {
-      opacity: 0,
-      y: 20,
-      duration: 0.35,
       ease: 'power2.in'
     }, 0.05)
   }
 
-  // Fade out actions
+  // Clip-path hide specs with stagger
+  if (specsRef.value) {
+    const specs = specsRef.value.querySelectorAll('.location-detail__spec')
+    heroTimeline.to(specs, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.4,
+      stagger: 0.02,
+      ease: 'power2.in'
+    }, 0.08)
+  }
+
+  // Clip-path hide actions
   if (actionsRef.value) {
     heroTimeline.to(actionsRef.value, {
-      opacity: 0,
-      y: 15,
-      duration: 0.3,
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.4,
       ease: 'power2.in'
-    }, 0.1)
+    }, 0.11)
   }
 }
 
 function goBack() {
   sessionStorage.setItem('locationReturnSlug', slug)
   sessionStorage.setItem('locationReturnImage', heroImage.value)
-  ;(window as any).__skipPageTransition = true
-  navigateTo('/lokacije')
+
+  // Clip-path hide elements before navigating (same as scroll animation)
+  const targets = [titleRef.value, specsRef.value, actionsRef.value].filter(Boolean)
+  gsap.set(targets, { clipPath: 'inset(0 0 0 0)' })
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      ;(window as any).__skipPageTransition = true
+      navigateTo('/lokacije')
+    }
+  })
+
+  if (titleRef.value) {
+    tl.to(titleRef.value, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.3,
+      ease: 'power2.in'
+    }, 0)
+  }
+
+  if (specsRef.value) {
+    const specs = specsRef.value.querySelectorAll('.location-detail__spec')
+    tl.to(specs, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.3,
+      stagger: 0.02,
+      ease: 'power2.in'
+    }, 0.03)
+  }
+
+  if (actionsRef.value) {
+    tl.to(actionsRef.value, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.3,
+      ease: 'power2.in'
+    }, 0.06)
+  }
 }
 
 function shareLocation() {
