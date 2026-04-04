@@ -16,6 +16,7 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const logoRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
 const badgeRef = ref<HTMLElement | null>(null)
+const badgeDotRef = ref<HTMLElement | null>(null) // #6: dedicated ref instead of querySelector
 const badgeTextRef = ref<HTMLElement | null>(null)
 const headingRef = ref<HTMLElement | null>(null)
 const descriptionRef = ref<HTMLElement | null>(null)
@@ -24,6 +25,7 @@ const scrollTextRef = ref<HTMLElement | null>(null)
 // Animation state
 let timeline: gsap.core.Timeline | null = null
 let scrollTriggerInstance: ScrollTrigger | null = null
+const prefersReducedMotion = ref(false)
 
 // Figma dimensions
 const figmaWidth = 1512
@@ -43,8 +45,15 @@ const mobileWindowConfig = {
 
 const mobileBreakpoint = 768
 
+// #9: Named constants for layout offsets
+const CONTENT_PADDING = 40
+const NAV_HEIGHT = 100
+
 // Helpers
 const isMobile = () => window.innerWidth < mobileBreakpoint
+
+// #12: Round clip-path values to 1 decimal to avoid sub-pixel rendering issues
+const roundPx = (v: number) => Math.round(v * 10) / 10
 
 const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'initial') => {
   const vw = window.innerWidth
@@ -60,10 +69,10 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
       const verticalPadding = (vh - windowHeight) / 2
 
       return {
-        top: verticalPadding,
-        right: horizontalPadding,
-        bottom: verticalPadding,
-        left: horizontalPadding,
+        top: roundPx(verticalPadding),
+        right: roundPx(horizontalPadding),
+        bottom: roundPx(verticalPadding),
+        left: roundPx(horizontalPadding),
         borderRadius: mobileWindowConfig.borderRadius
       }
     } else {
@@ -75,10 +84,10 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
       const windowRight = windowConfig.right * scale
 
       return {
-        top: windowTop,
-        right: windowRight,
-        bottom: vh - windowTop - windowHeight,
-        left: vw - windowRight - windowWidth,
+        top: roundPx(windowTop),
+        right: roundPx(windowRight),
+        bottom: roundPx(vh - windowTop - windowHeight),
+        left: roundPx(vw - windowRight - windowWidth),
         borderRadius: windowConfig.borderRadius
       }
     }
@@ -90,11 +99,11 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
       const verticalPadding = (vh - windowHeight) / 2
 
       return {
-        top: verticalPadding,
+        top: roundPx(verticalPadding),
         right: 0,
-        bottom: verticalPadding,
+        bottom: roundPx(verticalPadding),
         left: 0,
-        borderRadius: 0 // Remove radius during width expansion
+        borderRadius: 0
       }
     } else {
       const scale = vw / figmaWidth
@@ -103,11 +112,11 @@ const getClipPathInset = (state: 'initial' | 'expandedWidth' | 'fullscreen' = 'i
       const windowTop = windowConfig.top * scale
 
       return {
-        top: windowTop,
+        top: roundPx(windowTop),
         right: 0,
-        bottom: vh - windowTop - windowHeight,
+        bottom: roundPx(vh - windowTop - windowHeight),
         left: 0,
-        borderRadius: 0 // Remove radius during width expansion
+        borderRadius: 0
       }
     }
   }
@@ -133,12 +142,12 @@ const setVideoWindowBoundaries = () => {
   const vh = window.innerHeight
   const mobile = isMobile()
   const maxWindowHeight = vh * 0.5
-  const contentGap = 40
+  const contentGap = mobile ? 24 : 40 // #10: responsive content gap
 
   if (mobile) {
     const windowHeight = Math.min(mobileWindowConfig.height, maxWindowHeight)
     const videoWindowBottom = vh / 2 + windowHeight / 2
-    sectionRef.value.style.setProperty('--video-window-bottom', `${videoWindowBottom}px`)
+    // #5: removed dead --video-window-bottom variable
     sectionRef.value.style.setProperty('--content-start-y', `${videoWindowBottom + contentGap}px`)
   } else {
     const scale = vw / figmaWidth
@@ -146,7 +155,7 @@ const setVideoWindowBoundaries = () => {
     const windowHeight = Math.min(scaledHeight, maxWindowHeight)
     const windowTop = windowConfig.top * scale
     const videoWindowBottom = windowTop + windowHeight
-    const containerOffset = 40 + 100
+    const containerOffset = CONTENT_PADDING + NAV_HEIGHT // #9: named constants
     const contentPaddingTop = Math.max(0, videoWindowBottom + contentGap - containerOffset)
     sectionRef.value.style.setProperty('--content-start-y', `${contentPaddingTop}px`)
   }
@@ -163,9 +172,7 @@ const setupInitialState = () => {
     })
   }
 
-  if (videoRef.value) {
-    gsap.set(videoRef.value, { willChange: 'transform' })
-  }
+  // #4: removed willChange: 'transform' on videoRef — video never gets transform animations
 
   setVideoWindowBoundaries()
 }
@@ -234,7 +241,6 @@ const createAnimation = () => {
     const splitEls = getSplitElements(el)
 
     if (splitEls && splitEls.length > 0) {
-      // Reverse of the reveal animation - clip from top, move up
       timeline!.to(splitEls, {
         clipPath: 'inset(100% 0 0 0)',
         y: -30,
@@ -245,10 +251,9 @@ const createAnimation = () => {
     }
   })
 
-  // Hide badge dot with scale
-  const badgeDot = badgeRef.value?.querySelector('.hero-section__badge-dot')
-  if (badgeDot) {
-    timeline.to(badgeDot, {
+  // Hide badge dot with scale (#6: using ref)
+  if (badgeDotRef.value) {
+    timeline.to(badgeDotRef.value, {
       scale: 0,
       opacity: 0,
       duration: 0.3,
@@ -267,19 +272,14 @@ const createAnimation = () => {
   }
 }
 
-// Resize handler
+// #3: Debounced resize handler — single timeout for both state + refresh
 let resizeTimeout: ReturnType<typeof setTimeout> | null = null
-let rafId: number | null = null
 
 const handleResize = () => {
-  if (rafId) cancelAnimationFrame(rafId)
-
-  rafId = requestAnimationFrame(() => {
-    setupInitialState()
-  })
-
   if (resizeTimeout) clearTimeout(resizeTimeout)
+
   resizeTimeout = setTimeout(() => {
+    setupInitialState()
     scrollTriggerInstance?.refresh()
   }, 150)
 }
@@ -288,15 +288,24 @@ const handleResize = () => {
 onMounted(() => {
   const { $lenis } = useNuxtApp()
 
+  // #1: Check reduced motion preference
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
   // Clear cached positions
   ScrollTrigger.clearScrollMemory()
 
-  // Wait until scroll is at 0 and section is at top of viewport
-  const waitForReady = () => {
-    const sectionTop = sectionRef.value?.getBoundingClientRect().top ?? 0
+  // #2: Wait until scroll is at 0, with max iteration guard
+  let waitAttempts = 0
+  const MAX_WAIT_ATTEMPTS = 30
 
-    if (Math.abs(sectionTop) > 1) {
-      // Section not at top yet, reset and wait
+  const waitForReady = () => {
+    // Guard: component may have unmounted during wait
+    if (!sectionRef.value) return
+
+    const sectionTop = sectionRef.value.getBoundingClientRect().top
+
+    if (Math.abs(sectionTop) > 1 && waitAttempts < MAX_WAIT_ATTEMPTS) {
+      waitAttempts++
       window.scrollTo(0, 0)
       if ($lenis) {
         $lenis.scrollTo(0, { immediate: true, force: true })
@@ -305,14 +314,32 @@ onMounted(() => {
       return
     }
 
-    // Section is at top, proceed with setup
+    // Section is at top (or max attempts reached), proceed with setup
     if (sectionRef.value) {
       initSplitText(sectionRef.value)
     }
 
-    const badgeDot = badgeRef.value?.querySelector('.hero-section__badge-dot')
-    if (badgeDot) {
-      gsap.fromTo(badgeDot,
+    // #1: If reduced motion, show everything immediately and skip animations
+    if (prefersReducedMotion.value) {
+      setupInitialState()
+      // Set media to fullscreen immediately
+      if (mediaRef.value) {
+        gsap.set(mediaRef.value, {
+          clipPath: insetToClipPath(getClipPathInset('fullscreen')),
+          visibility: 'visible'
+        })
+      }
+      // Badge dot visible immediately
+      if (badgeDotRef.value) {
+        gsap.set(badgeDotRef.value, { opacity: 1, scale: 1 })
+      }
+      window.addEventListener('resize', handleResize, { passive: true })
+      return
+    }
+
+    // #6: Badge dot animation using ref
+    if (badgeDotRef.value) {
+      gsap.fromTo(badgeDotRef.value,
         { opacity: 0, scale: 0 },
         { opacity: 1, scale: 1, duration: 0.4, delay: 0.15, ease: 'back.out(2)' }
       )
@@ -334,7 +361,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   // Clear pending timers
-  if (rafId) cancelAnimationFrame(rafId)
   if (resizeTimeout) clearTimeout(resizeTimeout)
 
   window.removeEventListener('resize', handleResize)
@@ -350,25 +376,18 @@ onUnmounted(() => {
     scrollTriggerInstance = null
   }
 
-  // Kill any remaining ScrollTriggers for this section
-  ScrollTrigger.getAll().forEach(st => {
-    if (st.trigger === sectionRef.value) {
-      st.kill()
-    }
-  })
+  // #7: Removed redundant ScrollTrigger.getAll() loop
 
   // Clear animated elements
   if (mediaRef.value) {
     gsap.set(mediaRef.value, { clearProps: 'all' })
   }
 
-  if (videoRef.value) {
-    gsap.set(videoRef.value, { clearProps: 'all' })
-  }
-
   if (logoRef.value) {
     gsap.set(logoRef.value, { clearProps: 'all' })
   }
+
+  // #15: Removed videoRef clearProps — no longer setting willChange on it
 })
 </script>
 
@@ -384,6 +403,7 @@ onUnmounted(() => {
           muted
           loop
           playsinline
+          preload="metadata"
         >
           <source src="/videos/home-hero-desktop.mp4" type="video/mp4">
         </video>
@@ -393,6 +413,7 @@ onUnmounted(() => {
           muted
           loop
           playsinline
+          preload="metadata"
         >
           <source src="/videos/home-hero-mobile.mp4" type="video/mp4">
         </video>
@@ -437,7 +458,7 @@ onUnmounted(() => {
         <!-- Middle Column - Badge, Heading, Description -->
         <div class="hero-section__middle">
           <div ref="badgeRef" class="hero-section__badge">
-            <span class="hero-section__badge-dot"></span>
+            <span ref="badgeDotRef" class="hero-section__badge-dot"></span>
             <span
               ref="badgeTextRef"
               class="hero-section__badge-text"
@@ -494,34 +515,22 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
-// Variables
-$color-light: #ffffff;
-$color-text: #03120F;
-$font-family-primary: 'PP Neue Montreal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-$font-weight-regular: 400;
+// #11: Removed duplicate $color-light, $color-text, $font-family-primary, $font-weight-regular
+// Now using global $color-background, $color-primary, $font-family from _variables.scss
 
-// Rem function
+// Rem function (kept — not available globally)
 @function rem($px) {
   @return #{calc($px / 16)}rem;
 }
 
-// Responsive mixin
-@mixin responsive($breakpoint) {
-  @if $breakpoint == 'tablet' {
-    @media (max-width: 1024px) { @content; }
-  } @else if $breakpoint == 'mobile' {
-    @media (max-width: 768px) { @content; }
-  } @else if $breakpoint == 'extra-small' {
-    @media (max-width: 480px) { @content; }
-  }
-}
+// #11: Removed local @mixin responsive — using global @include desktop / @include tablet
 
 .hero-section {
   position: relative;
   width: 100%;
   height: 100dvh;
   min-height: 100dvh;
-  background-color: $color-light;
+  background-color: $color-background;
 
   // Media Container (Video Background)
   &__media-container {
@@ -543,6 +552,8 @@ $font-weight-regular: 400;
     overflow: hidden;
     // Hide until JS sets the exact calculated clip-path
     visibility: hidden;
+    // #13: Fallback background so there's no white flash before video loads
+    background-color: $color-primary;
   }
 
   &__media-video {
@@ -572,12 +583,12 @@ $font-weight-regular: 400;
     height: 100dvh;
     padding: rem(40);
 
-    @include responsive('tablet') {
+    @include desktop {
       padding: rem(24);
       gap: rem(16);
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       padding: rem(16);
       grid-template-rows: auto 1fr auto;
     }
@@ -588,11 +599,11 @@ $font-weight-regular: 400;
     grid-column: 1 / 3;
     grid-row: 1;
 
-    @include responsive('tablet') {
+    @include desktop {
       grid-column: 1 / 4;
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       grid-column: 1 / 6;
     }
 
@@ -617,14 +628,14 @@ $font-weight-regular: 400;
     align-content: start;
     padding-top: rem(60);
 
-    @include responsive('tablet') {
+    @include desktop {
       gap: rem(16);
       padding-top: rem(40);
       align-content: space-between;
       height: 100%;
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       padding-top: rem(20);
     }
   }
@@ -634,7 +645,7 @@ $font-weight-regular: 400;
     grid-column: 1 / 6;
     padding-top: var(--content-start-y, rem(312));
 
-    @include responsive('tablet') {
+    @include desktop {
       grid-column: 1 / -1;
       padding-top: 0;
       order: 1;
@@ -642,19 +653,19 @@ $font-weight-regular: 400;
   }
 
   &__title {
-    font-family: $font-family-primary;
+    font-family: $font-family;
     font-size: rem(50);
-    font-weight: $font-weight-regular;
+    font-weight: 400;
     line-height: 1;
     letter-spacing: -0.02em;
-    color: $color-text;
+    color: $color-primary;
     margin: 0;
 
-    @include responsive('tablet') {
+    @include desktop {
       font-size: rem(40);
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       margin-top: 2rem;
       font-size: rem(32);
     }
@@ -668,7 +679,7 @@ $font-weight-regular: 400;
     align-content: start;
     padding-top: var(--content-start-y, rem(312));
 
-    @include responsive('tablet') {
+    @include desktop {
       grid-column: 1 / -1;
       padding-top: 0;
       gap: rem(16);
@@ -677,7 +688,7 @@ $font-weight-regular: 400;
       padding-bottom: rem(40);
     }
 
-    @include responsive('mobile') {
+    @include tablet {
       grid-column: 1 / -1;
       padding-top: 0;
       gap: rem(16);
@@ -697,43 +708,43 @@ $font-weight-regular: 400;
     width: rem(6);
     height: rem(6);
     opacity: 0; // Hidden initially, animated in via JS
-    background-color: $color-text;
+    background-color: $color-primary;
     border-radius: 50%;
   }
 
   &__badge-text {
-    font-family: $font-family-primary;
+    font-family: $font-family;
     font-size: rem(12);
-    font-weight: $font-weight-regular;
+    font-weight: 400;
     line-height: 1.3;
-    color: $color-text;
+    color: $color-primary;
   }
 
   &__heading {
-    font-family: $font-family-primary;
+    font-family: $font-family;
     font-size: rem(16);
-    font-weight: $font-weight-regular;
+    font-weight: 400;
     line-height: 1.3;
-    color: $color-text;
+    color: $color-primary;
     margin: 2.375rem 0 0 0;
     max-width: rem(343);
 
-    @include responsive('extra-small') {
+    @media (max-width: 480px) {
       margin: 0;
     }
   }
 
   &__description {
-    font-family: $font-family-primary;
+    font-family: $font-family;
     font-size: rem(16);
-    font-weight: $font-weight-regular;
+    font-weight: 400;
     line-height: 1.3;
-    color: $color-text;
+    color: $color-primary;
     opacity: 0.4;
     margin: 0.938rem 0 0 0;
     max-width: rem(331);
 
-    @include responsive('extra-small') {
+    @media (max-width: 480px) {
       margin: 0;
     }
   }
@@ -744,7 +755,7 @@ $font-weight-regular: 400;
     justify-self: end;
     padding-top: var(--content-start-y, rem(312));
 
-    @include responsive('tablet') {
+    @include desktop {
       display: none;
     }
   }
@@ -755,19 +766,19 @@ $font-weight-regular: 400;
   }
 
   &__scroll-text {
-    font-family: $font-family-primary;
+    font-family: $font-family;
     font-size: rem(12);
-    font-weight: $font-weight-regular;
+    font-weight: 400;
     line-height: 1.3;
-    color: $color-text;
+    color: $color-primary;
     text-transform: capitalize;
   }
 }
 
-// Accessibility
+// #1: Accessibility — reduced motion
 @media (prefers-reduced-motion: reduce) {
   .hero-section__media-video {
-    // Pause video for reduced motion preference
+    animation: none;
   }
 }
 </style>
