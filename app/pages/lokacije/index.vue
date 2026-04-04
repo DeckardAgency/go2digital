@@ -617,8 +617,9 @@ function parseLocData(data: any[]) {
 }
 
 // Fetch on both server and client to avoid hydration mismatch
-const { data: locData } = await useFetch<any[]>('https://cdn.go2digital.hr/loc.json', {
-  key: 'locations-data'
+const { data: locData } = useFetch<any[]>('https://cdn.go2digital.hr/loc.json', {
+  key: 'locations-data',
+  lazy: true
 })
 
 const parsedData = computed(() => {
