@@ -89,11 +89,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { HomepageFeaturedLabItem } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 const { t } = useI18n()
 
-// Mock data - replace with API call or CMS integration
-const labItems = computed(() => [
+const { data: featuredLabItems } = await useApi<HomepageFeaturedLabItem[]>('/api/homepage_featured_lab_items')
+
+// Default fallback items
+const defaultItems = [
   {
     title: 'Interactive Billboard',
     slug: 'interactive-billboard',
@@ -115,7 +119,20 @@ const labItems = computed(() => [
     categories: ['Real-time', 'Data-driven'],
     image: '/images/lab-item-3.jpg'
   }
-])
+]
+
+const labItems = computed(() => {
+  if (featuredLabItems.value && featuredLabItems.value.length > 0) {
+    return featuredLabItems.value.map((item, index) => ({
+      title: item.title ?? defaultItems[index]?.title ?? '',
+      slug: item.slug ?? defaultItems[index]?.slug ?? '',
+      subtitle: item.subtitle ?? defaultItems[index]?.subtitle ?? '',
+      categories: item.categories ?? defaultItems[index]?.categories ?? [],
+      image: resolveMediaUrl(item.image, 'medium') || defaultItems[index]?.image || ''
+    }))
+  }
+  return defaultItems
+})
 </script>
 
 <style lang="scss" scoped>

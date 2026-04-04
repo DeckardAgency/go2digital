@@ -30,7 +30,7 @@ const { t, tm, rt } = useI18n()
 const featureIcons = ['Ⓐ', 'Ⓑ', 'Ⓒ', 'Ⓓ']
 
 const features = computed(() => {
-  const raw = tm('homepage.interactiveDisplay.features')
+  const raw = (tm as any)('homepage.interactiveDisplay.features')
   if (Array.isArray(raw)) {
     return raw.map((f: any, i: number) => ({
       icon: featureIcons[i] || `${i + 1}`,

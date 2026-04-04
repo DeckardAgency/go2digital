@@ -10,11 +10,11 @@
             data-split-type="lines"
             data-split-trigger="view"
             data-split-duration="1.2"
-          >{{ $t('homepage.interactiveDisplay.title') }}</h2>
+          >{{ displayProduct?.title ?? $t('homepage.interactiveDisplay.title') }}</h2>
           <span class="interactive-display__number" aria-hidden="true">2</span>
           <div class="interactive-display__badge">
             <span class="interactive-display__badge-dot" aria-hidden="true"></span>
-            <span class="interactive-display__badge-text">{{ $t('homepage.interactiveDisplay.badge') }}</span>
+            <span class="interactive-display__badge-text">{{ displayProduct?.badge ?? $t('homepage.interactiveDisplay.badge') }}</span>
           </div>
         </div>
 
@@ -32,7 +32,7 @@
 
         <!-- Specifications -->
         <div class="interactive-display__specs">
-          <h3 class="interactive-display__specs-title">{{ $t('homepage.interactiveDisplay.specsTitle') }}</h3>
+          <h3 class="interactive-display__specs-title">{{ displayProduct?.specsTitle ?? $t('homepage.interactiveDisplay.specsTitle') }}</h3>
           <dl class="interactive-display__specs-list">
             <div
               v-for="spec in specs"
@@ -52,8 +52,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
+import type { HomepageProduct } from '~/types/api'
 
 const { tm, rt } = useI18n()
+
+const { data: displayProducts } = await useApi<HomepageProduct[]>('/api/homepage_products?productType=display')
+const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
 
 const sectionRef = ref<HTMLElement | null>(null)
 const panelsRef = ref<HTMLElement | null>(null)
@@ -64,7 +68,12 @@ let timeline: gsap.core.Timeline | null = null
 const prefersReducedMotion = ref(false)
 
 const specs = computed(() => {
-  const raw = tm('homepage.interactiveDisplay.specs')
+  // Use API data if available
+  if (displayProduct.value?.specs && displayProduct.value.specs.length > 0) {
+    return displayProduct.value.specs
+  }
+  // Fallback to i18n
+  const raw = (tm as any)('homepage.interactiveDisplay.specs')
   if (Array.isArray(raw)) {
     return raw.map((s: any) => ({
       label: rt(s.label),
@@ -126,8 +135,9 @@ onMounted(async () => {
 
     // Pause/resume when off-screen to save CPU/GPU
     if (sectionRef.value) {
-      visibilityObserver = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) timeline?.play()
+      visibilityObserver = new IntersectionObserver((entries) => {
+        const entry = entries[0]
+        if (entry?.isIntersecting) timeline?.play()
         else timeline?.pause()
       }, { threshold: 0 })
       visibilityObserver.observe(sectionRef.value)

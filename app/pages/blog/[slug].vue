@@ -2,56 +2,78 @@
   <div class="blog-detail">
     <!-- Hero Image -->
     <div class="blog-detail__hero">
-      <img v-if="heroImage" :src="heroImage" :alt="title" class="blog-detail__hero-image">
+      <img v-if="displayImage" :src="displayImage" :alt="displayTitle" class="blog-detail__hero-image">
       <div class="blog-detail__hero-overlay">
         <div class="blog-detail__hero-content">
-          <span v-if="meta" class="blog-detail__category">{{ meta }}</span>
-          <h1 class="blog-detail__title">{{ title }}</h1>
+          <span v-if="displayMeta" class="blog-detail__category">{{ displayMeta }}</span>
+          <h1 class="blog-detail__title">{{ displayTitle }}</h1>
         </div>
       </div>
       <button class="blog-detail__back" @click="goBack">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Svi članci
+        {{ $t('blog.viewAll') }}
       </button>
     </div>
 
     <!-- Content -->
-    <article class="blog-detail__content">
-      <div class="blog-detail__body">
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-        <h2>Key Takeaways</h2>
-        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
-      </div>
+    <article v-if="body" class="blog-detail__content">
+      <div class="blog-detail__body" v-html="body"></div>
     </article>
   </div>
 </template>
 
 <script setup lang="ts">
 import { getCardTransitionData, goBackWithTransition } from '~/composables/useCardTransition'
+import type { BlogPost } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 const route = useRoute()
 const slug = route.params.slug as string
 const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
-const heroImage = ref('')
-const title = ref(formattedSlug)
-const meta = ref('')
+// Fetch post from API by slug
+const { data: postsData } = await useApi<BlogPost[]>('/api/blog_posts', {
+  query: { slug, status: 'published' }
+})
+
+const post = computed(() => postsData.value?.[0] ?? null)
+
+// API-sourced values (SSR-available)
+const heroImage = computed(() =>
+  resolveMediaUrl(post.value?.image, 'large') || `https://picsum.photos/seed/${slug}/800/700`
+)
+const title = computed(() => post.value?.title ?? formattedSlug)
+const meta = computed(() => {
+  const cat = post.value?.category
+  if (cat && typeof cat === 'object') return cat.name || cat.slug
+  return ''
+})
+const body = computed(() => post.value?.body ?? '')
+
+// Override with transition data for smooth animation (client-side only)
+const transitionImage = ref('')
+const transitionTitle = ref('')
+const transitionMeta = ref('')
 
 onMounted(() => {
   const data = getCardTransitionData()
-  if (data.image) heroImage.value = data.image
-  if (data.title) title.value = data.title
-  if (data.meta) meta.value = data.meta
+  if (data.image) transitionImage.value = data.image
+  if (data.title) transitionTitle.value = data.title
+  if (data.meta) transitionMeta.value = data.meta
 })
 
+// Use transition data if available (for animation), otherwise API data
+const displayImage = computed(() => transitionImage.value || heroImage.value)
+const displayTitle = computed(() => transitionTitle.value || title.value)
+const displayMeta = computed(() => transitionMeta.value || meta.value)
+
 function goBack() {
-  goBackWithTransition('/blog', slug, heroImage.value)
+  goBackWithTransition('/blog', slug, displayImage.value)
 }
 
-useHead({ title: `${formattedSlug} - Blog` })
+useHead({ title: computed(() => `${title.value} - Blog`) })
 definePageMeta({ showFooter: false })
 </script>
 

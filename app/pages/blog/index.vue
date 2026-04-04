@@ -24,7 +24,7 @@
           @click="filterByCategory(category.slug)"
         >
           <span v-if="selectedCategory === category.slug" class="blog__filter-dot"></span>
-          <span class="blog__filter-text">{{ category.title }}</span>
+          <span class="blog__filter-text">{{ category.name }}</span>
         </button>
       </nav>
     </header>
@@ -45,7 +45,7 @@
             <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
-                  :src="article.image"
+                  :src="getArticleImage(article)"
                   :alt="article.title"
                   class="article-card__image"
                   loading="lazy"
@@ -61,7 +61,7 @@
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ article.category }}</span>
+                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@
             <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
-                  :src="article.image"
+                  :src="getArticleImage(article)"
                   :alt="article.title"
                   class="article-card__image"
                   loading="lazy"
@@ -92,7 +92,7 @@
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ article.category }}</span>
+                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@
             <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
-                  :src="article.image"
+                  :src="getArticleImage(article)"
                   :alt="article.title"
                   class="article-card__image"
                   loading="lazy"
@@ -127,7 +127,7 @@
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ article.category }}</span>
+                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -146,7 +146,7 @@
             <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
-                  :src="article.image"
+                  :src="getArticleImage(article)"
                   :alt="article.title"
                   class="article-card__image"
                   loading="lazy"
@@ -162,7 +162,7 @@
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ article.category }}</span>
+                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -181,7 +181,7 @@
             <div class="article-card__link" @click="onCardClick(article, $event)">
               <div class="article-card__image-wrap">
                 <img
-                  :src="article.image"
+                  :src="getArticleImage(article)"
                   :alt="article.title"
                   class="article-card__image"
                   loading="lazy"
@@ -197,7 +197,7 @@
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ article.category }}</span>
+                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -228,156 +228,58 @@
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { animateCardToDetail } from '~/composables/useCardTransition'
+import type { BlogPost, BlogCategory } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 useHead({
   title: 'Blog - Go2Digital'
 })
 
+const { locale, t } = useI18n()
+
 // Custom cursor ref
 const blogCursor = ref<HTMLElement | null>(null)
-
-// Categories
-const categories = [
-  { slug: '', title: 'Sve' },
-  { slug: 'marketing', title: 'Marketing' },
-  { slug: 'design', title: 'Design' },
-  { slug: 'technology', title: 'Technology' },
-  { slug: 'news', title: 'News' }
-]
 
 // Selected category
 const selectedCategory = ref('')
 
-// Mockup articles data
-const articles = ref([
-  {
-    id: 1,
-    title: 'The Future of Digital Marketing in 2025',
-    slug: 'future-digital-marketing-2025',
-    image: 'https://picsum.photos/seed/blog1/800/700',
-    date: '2025-01-10',
-    author: 'Go2Digital',
-    category: 'Marketing'
-  },
-  {
-    id: 2,
-    title: 'How AI is Transforming Creative Design',
-    slug: 'ai-transforming-creative-design',
-    image: 'https://picsum.photos/seed/blog2/800/700',
-    date: '2025-01-08',
-    author: 'Go2Digital',
-    category: 'Design'
-  },
-  {
-    id: 3,
-    title: 'Building Sustainable Digital Campaigns',
-    slug: 'sustainable-digital-campaigns',
-    image: 'https://picsum.photos/seed/blog3/800/700',
-    date: '2025-01-05',
-    author: 'Go2Digital',
-    category: 'Marketing'
-  },
-  {
-    id: 4,
-    title: 'The Rise of Interactive DOOH Advertising',
-    slug: 'interactive-dooh-advertising',
-    image: 'https://picsum.photos/seed/blog4/1400/700',
-    date: '2025-01-03',
-    author: 'Go2Digital',
-    category: 'Technology'
-  },
-  {
-    id: 5,
-    title: 'Brand Identity Trends for the New Year',
-    slug: 'brand-identity-trends',
-    image: 'https://picsum.photos/seed/blog5/800/700',
-    date: '2024-12-28',
-    author: 'Go2Digital',
-    category: 'Design'
-  },
-  {
-    id: 6,
-    title: 'Maximizing ROI with Programmatic Advertising',
-    slug: 'maximizing-roi-programmatic',
-    image: 'https://picsum.photos/seed/blog6/800/700',
-    date: '2024-12-25',
-    author: 'Go2Digital',
-    category: 'Marketing'
-  },
-  {
-    id: 7,
-    title: 'Go2Digital Wins Excellence Award',
-    slug: 'go2digital-excellence-award',
-    image: 'https://picsum.photos/seed/blog7/800/700',
-    date: '2024-12-20',
-    author: 'Go2Digital',
-    category: 'News'
-  },
-  {
-    id: 8,
-    title: 'UX Design Best Practices for 2025',
-    slug: 'ux-design-best-practices',
-    image: 'https://picsum.photos/seed/blog8/800/700',
-    date: '2024-12-18',
-    author: 'Go2Digital',
-    category: 'Design'
-  },
-  {
-    id: 9,
-    title: 'The Power of Data-Driven Creativity',
-    slug: 'data-driven-creativity',
-    image: 'https://picsum.photos/seed/blog9/800/700',
-    date: '2024-12-15',
-    author: 'Go2Digital',
-    category: 'Technology'
-  },
-  {
-    id: 10,
-    title: 'New Partnership Announcement',
-    slug: 'new-partnership-announcement',
-    image: 'https://picsum.photos/seed/blog10/800/700',
-    date: '2024-12-12',
-    author: 'Go2Digital',
-    category: 'News'
-  },
-  {
-    id: 11,
-    title: 'Creating Memorable Brand Experiences',
-    slug: 'memorable-brand-experiences',
-    image: 'https://picsum.photos/seed/blog11/800/700',
-    date: '2024-12-10',
-    author: 'Go2Digital',
-    category: 'Marketing'
-  },
-  {
-    id: 12,
-    title: 'Motion Design in Digital Advertising',
-    slug: 'motion-design-advertising',
-    image: 'https://picsum.photos/seed/blog12/800/700',
-    date: '2024-12-08',
-    author: 'Go2Digital',
-    category: 'Design'
-  },
-  {
-    id: 13,
-    title: 'Smart City Integration for OOH Media',
-    slug: 'smart-city-ooh-integration',
-    image: 'https://picsum.photos/seed/blog13/800/700',
-    date: '2024-12-05',
-    author: 'Go2Digital',
-    category: 'Technology'
-  }
-])
+// Fetch categories from API
+const { data: categoriesData } = await useApi<BlogCategory[]>('/api/blog_categories')
 
-// Filtered articles based on selected category
-const filteredArticles = computed(() => {
-  if (!selectedCategory.value) {
-    return articles.value
-  }
-  return articles.value.filter(article =>
-    article.category.toLowerCase() === selectedCategory.value.toLowerCase()
-  )
+const categories = computed(() => {
+  const all = { id: '', slug: '', sortOrder: 0, locale: locale.value, name: t('blog.filterAll') }
+  return [all, ...(categoriesData.value ?? [])]
 })
+
+// Fetch blog posts from API — re-fetches when category or locale changes
+const categoryQuery = computed(() => {
+  const query: Record<string, any> = { status: 'published', itemsPerPage: 50 }
+  if (selectedCategory.value) {
+    query['category.slug'] = selectedCategory.value
+  }
+  return query
+})
+
+const { data: postsData } = await useApi<BlogPost[]>('/api/blog_posts', {
+  query: categoryQuery
+})
+
+// Articles from API
+const filteredArticles = computed(() => postsData.value ?? [])
+
+// Helper to get article image URL
+function getArticleImage(article: BlogPost): string {
+  return resolveMediaUrl(article.image, 'large') || `https://picsum.photos/seed/${article.slug}/800/700`
+}
+
+// Helper to get category display name
+function getCategoryName(article: BlogPost): string {
+  if (article.category && typeof article.category === 'object') {
+    return article.category.name || article.category.slug
+  }
+  return ''
+}
+
 
 // Generate layout rows from filtered articles
 const layoutRows = computed(() => {
@@ -437,10 +339,11 @@ function filterByCategory(slug: string) {
   selectedCategory.value = slug
 }
 
-// Format date
+// Format date using current locale
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', {
+  const loc = locale.value === 'hr' ? 'hr-HR' : 'en-US'
+  return date.toLocaleDateString(loc, {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
@@ -475,13 +378,13 @@ onUnmounted(() => {
   }
 })
 
-function onCardClick(article: any, event: MouseEvent) {
+function onCardClick(article: BlogPost, event: MouseEvent) {
   animateCardToDetail(event, {
     slug: article.slug,
     basePath: '/blog',
-    image: article.image,
+    image: getArticleImage(article),
     title: article.title,
-    meta: article.category
+    meta: getCategoryName(article)
   }, '.article-card', '.article-card__image')
 }
 

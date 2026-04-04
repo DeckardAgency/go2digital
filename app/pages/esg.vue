@@ -20,7 +20,7 @@
           data-split-duration="0.4"
           data-split-delay="0.3"
           data-split-stagger="0.03"
-        >{{ $t('esg.hero.label') }}</span>
+        >{{ esgContent?.heroLabel ?? $t('esg.hero.label') }}</span>
       </div>
     </section>
 
@@ -34,7 +34,7 @@
             data-split-type="lines"
             data-split-duration="0.5"
             data-split-stagger="0.08"
-          >{{ $t('esg.intro.small') }}</p>
+          >{{ esgContent?.introSmall ?? $t('esg.intro.small') }}</p>
         </div>
         <div class="esg-page__intro-right">
           <p
@@ -44,7 +44,7 @@
             data-split-duration="0.6"
             data-split-stagger="0.1"
             data-split-indent="11.25rem"
-          >{{ $t('esg.intro.large') }}</p>
+          >{{ esgContent?.introLarge ?? $t('esg.intro.large') }}</p>
 
           <div class="esg-page__download-btn">
             <a href="#" class="esg-page__action-link">
@@ -53,7 +53,7 @@
                 <path d="M5.83203 8.33334L9.9987 12.5L14.1654 8.33334" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M10 12.5V2.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              <span>{{ $t('esg.intro.downloadReport') }}</span>
+              <span>{{ esgContent?.downloadReportLabel ?? $t('esg.intro.downloadReport') }}</span>
             </a>
           </div>
         </div>
@@ -62,22 +62,14 @@
 
     <!-- Pillars Section -->
     <section class="esg-page__pillars">
-      <div class="esg-page__pillar">
-        <div class="esg-page__pillar-number">01</div>
-        <div class="esg-page__pillar-title">{{ $t('esg.pillars.pillar1.title') }}</div>
-        <div class="esg-page__pillar-desc">{{ $t('esg.pillars.pillar1.description') }}</div>
-      </div>
-
-      <div class="esg-page__pillar">
-        <div class="esg-page__pillar-number">02</div>
-        <div class="esg-page__pillar-title">{{ $t('esg.pillars.pillar2.title') }}</div>
-        <div class="esg-page__pillar-desc">{{ $t('esg.pillars.pillar2.description') }}</div>
-      </div>
-
-      <div class="esg-page__pillar">
-        <div class="esg-page__pillar-number">03</div>
-        <div class="esg-page__pillar-title">{{ $t('esg.pillars.pillar3.title') }}</div>
-        <div class="esg-page__pillar-desc">{{ $t('esg.pillars.pillar3.description') }}</div>
+      <div
+        v-for="(pillar, index) in (esgPillars ?? [])"
+        :key="pillar.id"
+        class="esg-page__pillar"
+      >
+        <div class="esg-page__pillar-number">{{ String(index + 1).padStart(2, '0') }}</div>
+        <div class="esg-page__pillar-title">{{ pillar.title }}</div>
+        <div class="esg-page__pillar-desc">{{ pillar.description }}</div>
       </div>
     </section>
 
@@ -115,7 +107,7 @@
               <path d="M22.9332 14.0503L20.8563 5.05028C20.6468 4.14282 19.8388 3.5 18.9075 3.5H6.0895C5.15819 3.5 4.35014 4.14282 4.14072 5.05028L2.0638 14.0503C1.77459 15.3035 2.72641 16.5 4.01258 16.5H20.9844C22.2706 16.5 23.2224 15.3035 22.9332 14.0503Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ $t('esg.cards.card1') }}</p>
+          <p class="esg-page__card-text">{{ esgCards?.[0]?.text ?? $t('esg.cards.card1') }}</p>
         </div>
 
         <div ref="card2" class="esg-page__card">
@@ -125,7 +117,7 @@
               <path d="M10.5 22.5C12.2072 22.5 13.8977 22.1637 15.4749 21.5104C17.0521 20.8571 18.4852 19.8996 19.6924 18.6924C20.8996 17.4852 21.8571 16.0521 22.5104 14.4749C23.1637 12.8977 23.5 11.2072 23.5 9.5V2.5C20.0522 2.5 16.7456 3.86964 14.3076 6.30761C11.8696 8.74558 10.5 12.0522 10.5 15.5V22.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ $t('esg.cards.card2') }}</p>
+          <p class="esg-page__card-text">{{ esgCards?.[1]?.text ?? $t('esg.cards.card2') }}</p>
         </div>
 
         <div ref="card3" class="esg-page__card">
@@ -135,7 +127,7 @@
               <path d="M15.5 7.5H22.5V14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ $t('esg.cards.card3') }}</p>
+          <p class="esg-page__card-text">{{ esgCards?.[2]?.text ?? $t('esg.cards.card3') }}</p>
         </div>
       </div>
     </section>
@@ -143,7 +135,7 @@
     <!-- Vision Section -->
     <section ref="visionSection" class="esg-page__vision">
       <div class="esg-page__vision-header">
-        <h2 class="esg-page__vision-title">{{ $t('esg.vision.title') }}</h2>
+        <h2 class="esg-page__vision-title">{{ $t('esg.vision.title') }}</h2><!-- vision title stays in i18n -->
         <div class="esg-page__vision-label">
           <span class="esg-page__bullet"></span>
           <span class="esg-page__label-text">{{ $t('esg.vision.label') }}</span>
@@ -177,15 +169,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { EsgPageContent, EsgPillar, EsgCard, EsgVisionBadge } from '~/types/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 useHead({
   title: 'ESG - Go2Digital'
 })
+
+// Fetch ESG data from API
+const { data: esgContent } = await useApi<EsgPageContent>('/api/singletons/esg-page-content')
+const { data: esgPillars } = await useApi<EsgPillar[]>('/api/esg_pillars')
+const { data: esgCards } = await useApi<EsgCard[]>('/api/esg_cards')
+const { data: esgBadges } = await useApi<EsgVisionBadge[]>('/api/esg_vision_badges')
 
 // Asset URLs (dynamic to avoid Vite static analysis)
 const videoUrl = '/videos/esg-video-bg.mp4'
@@ -214,21 +213,15 @@ let visionTimeline: gsap.core.Timeline | null = null
 let visionScrollTrigger: ScrollTrigger | null = null
 let lastActiveBadge = 0
 
-// Badge content for vision section
-const badgeContent = {
-  1: {
-    title: 'Digitalni Ekrani',
-    desc: 'Sama srž našeg poslovanja je digitalna i time smanjujemo utjecaj na okoliš i gradimo održiviju budućnost oglašavanja.'
-  },
-  2: {
-    title: 'Zeleni Tornjevi',
-    desc: 'Zeleni tornjevi su lokacije na kojima smo postavili košnice za pčele i autohtone hrvatske biljke čime doprinosimo održivosti okoliša u blizini naših ekrana.'
-  },
-  3: {
-    title: 'Čišćenje Zraka',
-    desc: 'Naši citylight ekrani imaju integrirane HEPA filtere koji uklanjaju sitne čestice prašine, peludi i zagađenja iz prometa te pomažu stvaranju zdravijeg i ugodnijeg urbanog okruženja.'
+// Badge content for vision section — from API with hardcoded fallback
+const badgeContent = computed(() => {
+  const badges = esgBadges.value ?? []
+  return {
+    1: { title: badges[0]?.title ?? 'Digitalni Ekrani', desc: badges[0]?.description ?? '' },
+    2: { title: badges[1]?.title ?? 'Zeleni Tornjevi', desc: badges[1]?.description ?? '' },
+    3: { title: badges[2]?.title ?? 'Čišćenje Zraka', desc: badges[2]?.description ?? '' },
   }
-}
+})
 
 /**
  * Initialize video section scroll animation with mask reveal

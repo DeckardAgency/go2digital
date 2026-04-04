@@ -10,23 +10,46 @@
 
       <!-- Navigation Links (Hidden by default, shown when menu is active) -->
       <div class="hero-nav__links" id="hero-nav-links">
-        <NuxtLink to="/" class="hero-nav__link" data-hover-animate>Homepage</NuxtLink>
-        <NuxtLink to="/lab" class="hero-nav__link" data-hover-animate>Go2Labs</NuxtLink>
-        <NuxtLink to="/blog" class="hero-nav__link" data-hover-animate>Articles</NuxtLink>
-        <NuxtLink to="/kontakt" class="hero-nav__link" data-hover-animate>Contact</NuxtLink>
-        <NuxtLink to="/esg" class="hero-nav__link" data-hover-animate>ESG</NuxtLink>
+        <NuxtLink
+          v-for="item in mainNavItems"
+          :key="item.url"
+          :to="localePath(item.url)"
+          class="hero-nav__link"
+          data-hover-animate
+        >{{ item.label }}</NuxtLink>
       </div>
 
       <!-- Locations Button (Always visible) -->
-      <NuxtLink to="/lokacije" class="hero-nav__locations" data-hover-animate>
-        <span class="hero-nav__locations-text">Locations</span>
+      <NuxtLink :to="localePath('/lokacije')" class="hero-nav__locations" data-hover-animate>
+        <span class="hero-nav__locations-text">{{ $t('location.title') }}</span>
       </NuxtLink>
     </div>
   </nav>
 </template>
 
 <script setup lang="ts">
+import type { NavigationItem } from '~/types/api'
+
 const { isMenuOpen, toggleMenu } = useNavigation()
+const localePath = useLocalePath()
+
+// Fetch main navigation from API
+const { data: navData } = await useApi<NavigationItem[]>('/api/navigation_items', {
+  query: { group: 'main' }
+})
+
+const mainNavItems = computed(() => {
+  if (navData.value?.length) {
+    return navData.value.map(item => ({ url: item.url, label: item.label }))
+  }
+  return [
+    { url: '/', label: 'Homepage' },
+    { url: '/lab', label: 'Go2Labs' },
+    { url: '/blog', label: 'Articles' },
+    { url: '/kontakt', label: 'Contact' },
+    { url: '/esg', label: 'ESG' }
+  ]
+})
 const isHidden = ref(false)
 let lastScrollY = 0
 

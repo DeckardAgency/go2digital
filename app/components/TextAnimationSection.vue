@@ -1,9 +1,9 @@
 <template>
   <section class="text-animation" ref="sectionRef">
     <div class="text-animation__container" ref="containerRef">
-      <p class="text-animation__word text-animation__word--primary" ref="word1Ref">{{ $t('homepage.textAnimation.word1') }}</p>
-      <p class="text-animation__word text-animation__word--secondary" ref="word2Ref">{{ $t('homepage.textAnimation.word2') }}</p>
-      <p class="text-animation__word text-animation__word--tertiary" ref="word3Ref">{{ $t('homepage.textAnimation.word3') }}</p>
+      <p class="text-animation__word text-animation__word--primary" ref="word1Ref">{{ textAnim?.word1 ?? $t('homepage.textAnimation.word1') }}</p>
+      <p class="text-animation__word text-animation__word--secondary" ref="word2Ref">{{ textAnim?.word2 ?? $t('homepage.textAnimation.word2') }}</p>
+      <p class="text-animation__word text-animation__word--tertiary" ref="word3Ref">{{ textAnim?.word3 ?? $t('homepage.textAnimation.word3') }}</p>
     </div>
   </section>
 </template>
@@ -12,6 +12,9 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { HomepageTextAnimation } from '~/types/api'
+
+const { data: textAnim } = await useApi<HomepageTextAnimation>('/api/singletons/homepage-text-animation')
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -44,21 +47,24 @@ onMounted(async () => {
   requestAnimationFrame(() => {
     if (!containerRef.value || !word1Ref.value || !word2Ref.value || !word3Ref.value) return
 
-    const words = [word1Ref.value, word2Ref.value, word3Ref.value]
+    const w1 = word1Ref.value
+    const w2 = word2Ref.value
+    const w3 = word3Ref.value
+    const words = [w1, w2, w3]
 
     // #4: If reduced motion, show first word visible, skip animations
     if (prefersReducedMotion.value) {
-      gsap.set(words[0], { opacity: 1, y: 0 })
-      gsap.set(words[1], { opacity: 0 })
-      gsap.set(words[2], { opacity: 0 })
+      gsap.set(w1, { opacity: 1, y: 0 })
+      gsap.set(w2, { opacity: 0 })
+      gsap.set(w3, { opacity: 0 })
       window.addEventListener('resize', handleResize, { passive: true })
       return
     }
 
     // Initial state: only first word visible
-    gsap.set(words[0], { opacity: 1, y: 0 })
-    gsap.set(words[1], { opacity: 0, y: '5vh' })
-    gsap.set(words[2], { opacity: 0, y: '5vh' })
+    gsap.set(w1, { opacity: 1, y: 0 })
+    gsap.set(w2, { opacity: 0, y: '5vh' })
+    gsap.set(w3, { opacity: 0, y: '5vh' })
 
     const mobile = isMobile()
 
@@ -76,14 +82,14 @@ onMounted(async () => {
 
     // Word 1 → Word 2
     timeline
-      .to(words[0], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-      .fromTo(words[1], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
+      .to(w1, { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
+      .fromTo(w2, { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
       .to({}, { duration: 0.2 }) // hold
 
     // Word 2 → Word 3
     timeline
-      .to(words[1], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-      .fromTo(words[2], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
+      .to(w2, { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
+      .fromTo(w3, { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
       .to({}, { duration: 0.3 }) // #11: longer hold so last word lingers
 
     window.addEventListener('resize', handleResize, { passive: true })

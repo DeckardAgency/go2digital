@@ -3,11 +3,17 @@
     <div class="rentals-image__inner">
       <div class="rentals-image__placeholder"></div>
       <div class="rentals-image__overlay">
-        <span class="rentals-image__text">RENTALS</span>
+        <span class="rentals-image__text">{{ rentalsImage?.text ?? 'RENTALS' }}</span>
       </div>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import type { HomepageRentalsImage } from '~/types/api'
+
+const { data: rentalsImage } = await useApi<HomepageRentalsImage>('/api/singletons/homepage-rentals-image')
+</script>
 
 <style scoped lang="scss">
 .rentals-image {

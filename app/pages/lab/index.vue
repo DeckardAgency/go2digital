@@ -34,7 +34,7 @@
           @click="filterByCategory(category.slug)"
         >
           <span v-if="selectedCategory === category.slug" class="lab__filter-dot"></span>
-          <span>{{ category.title }}</span>
+          <span>{{ category.name }}</span>
         </button>
       </nav>
 
@@ -65,14 +65,14 @@
           <p class="lab-card__description">{{ lab.subtitle }}</p>
           <ul class="lab-card__tags">
             <li
-              v-for="cat in lab.categories"
+              v-for="cat in getLabCategoryNames(lab)"
               :key="cat.slug"
               class="lab-card__tag"
-            >{{ cat.title }}</li>
+            >{{ cat.name }}</li>
           </ul>
           <figure class="lab-card__media">
             <img
-              :src="lab.image"
+              :src="getLabImage(lab)"
               :alt="lab.title"
               loading="lazy"
             >
@@ -102,107 +102,59 @@
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { animateCardToDetail } from '~/composables/useCardTransition'
+import type { LabProject, LabCategory } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 useHead({
   title: 'Go2Labs - Go2Digital'
 })
 
+const { locale, t } = useI18n()
+
 // Custom cursor ref
 const labCursor = ref<HTMLElement | null>(null)
-
-// Categories
-const categories = [
-  { slug: '', title: 'Sve' },
-  { slug: 'web', title: 'Web' },
-  { slug: 'mobile', title: 'Mobile' },
-  { slug: 'branding', title: 'Branding' },
-  { slug: 'ai', title: 'AI' }
-]
 
 // Selected category
 const selectedCategory = ref('')
 
-// Mockup lab data
-const labs = ref([
-  {
-    id: 1,
-    title: 'AI-Powered Analytics Dashboard',
-    shortTitle: 'AI Analytics',
-    subtitle: 'Real-time data visualization with machine learning insights',
-    slug: 'ai-analytics-dashboard',
-    image: 'https://picsum.photos/seed/lab1/800/600',
-    categories: [
-      { slug: 'ai', title: 'AI' },
-      { slug: 'web', title: 'Web' }
-    ]
-  },
-  {
-    id: 2,
-    title: 'E-Commerce Mobile Experience',
-    shortTitle: 'Mobile Shop',
-    subtitle: 'Native iOS and Android shopping application with AR features',
-    slug: 'mobile-shop',
-    image: 'https://picsum.photos/seed/lab2/800/600',
-    categories: [
-      { slug: 'mobile', title: 'Mobile' }
-    ]
-  },
-  {
-    id: 3,
-    title: 'Brand Identity System',
-    shortTitle: 'Brand System',
-    subtitle: 'Complete visual identity including logo, typography, and guidelines',
-    slug: 'brand-identity',
-    image: 'https://picsum.photos/seed/lab3/800/600',
-    categories: [
-      { slug: 'branding', title: 'Branding' }
-    ]
-  },
-  {
-    id: 4,
-    title: 'Interactive Web Platform',
-    shortTitle: 'Web Platform',
-    subtitle: 'Modern web application with real-time collaboration features',
-    slug: 'web-platform',
-    image: 'https://picsum.photos/seed/lab4/800/600',
-    categories: [
-      { slug: 'web', title: 'Web' }
-    ]
-  },
-  {
-    id: 5,
-    title: 'Smart City IoT Dashboard',
-    shortTitle: 'IoT Dashboard',
-    subtitle: 'Connected city infrastructure monitoring and management',
-    slug: 'iot-dashboard',
-    image: 'https://picsum.photos/seed/lab5/800/600',
-    categories: [
-      { slug: 'ai', title: 'AI' },
-      { slug: 'web', title: 'Web' }
-    ]
-  },
-  {
-    id: 6,
-    title: 'Fitness Tracking App',
-    shortTitle: 'Fitness App',
-    subtitle: 'Health and wellness mobile application with wearable integration',
-    slug: 'fitness-app',
-    image: 'https://picsum.photos/seed/lab6/800/600',
-    categories: [
-      { slug: 'mobile', title: 'Mobile' }
-    ]
-  }
-])
+// Fetch categories from API
+const { data: categoriesData } = await useApi<LabCategory[]>('/api/lab_categories')
 
-// Filtered labs based on selected category
-const filteredLabs = computed(() => {
-  if (!selectedCategory.value) {
-    return labs.value
-  }
-  return labs.value.filter(lab =>
-    lab.categories.some(cat => cat.slug === selectedCategory.value)
-  )
+const categories = computed(() => {
+  const all = { id: '', slug: '', sortOrder: 0, locale: locale.value, name: t('lab.filterAll') }
+  return [all, ...(categoriesData.value ?? [])]
 })
+
+// Fetch lab projects from API — re-fetches when category changes
+const categoryQuery = computed(() => {
+  const query: Record<string, any> = { status: 'published', itemsPerPage: 50 }
+  if (selectedCategory.value) {
+    query['categories.slug'] = selectedCategory.value
+  }
+  return query
+})
+
+const { data: labsData } = await useApi<LabProject[]>('/api/lab_projects', {
+  query: categoryQuery
+})
+
+const filteredLabs = computed(() => labsData.value ?? [])
+
+// Helper to get lab image URL
+function getLabImage(lab: LabProject): string {
+  return resolveMediaUrl(lab.image, 'large') || `https://picsum.photos/seed/${lab.slug}/800/600`
+}
+
+// Helper to get category display name for lab
+function getLabCategoryNames(lab: LabProject): Array<{ slug: string; name: string }> {
+  if (Array.isArray(lab.categories)) {
+    return lab.categories.map(cat => ({
+      slug: cat.slug,
+      name: (cat as any).name || cat.slug
+    }))
+  }
+  return []
+}
 
 // Filter by category
 function filterByCategory(slug: string) {
@@ -240,13 +192,14 @@ onUnmounted(() => {
 })
 
 // Custom cursor handlers
-function onCardClick(lab: any, event: MouseEvent) {
+function onCardClick(lab: LabProject, event: MouseEvent) {
+  const cats = getLabCategoryNames(lab)
   animateCardToDetail(event, {
     slug: lab.slug,
     basePath: '/lab',
-    image: lab.image,
+    image: getLabImage(lab),
     title: lab.title,
-    meta: lab.categories?.[0]?.title || ''
+    meta: cats[0]?.name || ''
   }, '.lab-card', '.lab-card__media img')
 }
 

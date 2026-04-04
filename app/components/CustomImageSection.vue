@@ -4,16 +4,16 @@
       <picture>
         <source
           media="(min-width: 768px)"
-          srcset="/images/G2D_HomepagePhoto_Slavonska.jpg"
+          :srcset="desktopImageSrc"
         >
         <source
           media="(max-width: 767px)"
-          srcset="/images/G2D_HomepagePhoto_Slavonska_mobile.jpg"
+          :srcset="mobileImageSrc"
         >
         <img
           ref="imageRef"
-          src="/images/G2D_HomepagePhoto_Slavonska_mobile.jpg"
-          :alt="$t('homepage.customImage.alt')"
+          :src="mobileImageSrc"
+          :alt="customImage?.alt ?? $t('homepage.customImage.alt')"
           class="custom-image__image"
           loading="lazy"
           @load="onImageLoad"
@@ -24,11 +24,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type { HomepageCustomImage } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const { data: customImage } = await useApi<HomepageCustomImage>('/api/singletons/homepage-custom-image')
+
+const desktopImageSrc = computed(() =>
+  resolveMediaUrl(customImage.value?.desktopImage, 'large') || '/images/G2D_HomepagePhoto_Slavonska.jpg'
+)
+const mobileImageSrc = computed(() =>
+  resolveMediaUrl(customImage.value?.mobileImage, 'medium') || '/images/G2D_HomepagePhoto_Slavonska_mobile.jpg'
+)
 
 // Template refs
 const sectionRef = ref<HTMLElement | null>(null)

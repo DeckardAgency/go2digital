@@ -74,37 +74,40 @@ import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from 'vue-i18n'
+import type { HomepagePanel } from '~/types/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
 const { scrollTo } = useLenis()
 
+const { data: panelsData } = await useApi<HomepagePanel[]>('/api/homepage_panels')
+
 // Panel data
 const panels = computed(() => [
   {
-    title: t('homepage.horizontalScroll.panel1.title'),
-    tag: t('homepage.horizontalScroll.panel1.tag'),
-    description: t('homepage.horizontalScroll.panel1.description'),
-    statValue: '2.5M'
+    title: panelsData.value?.[0]?.title ?? t('homepage.horizontalScroll.panel1.title'),
+    tag: panelsData.value?.[0]?.tag ?? t('homepage.horizontalScroll.panel1.tag'),
+    description: panelsData.value?.[0]?.description ?? t('homepage.horizontalScroll.panel1.description'),
+    statValue: panelsData.value?.[0]?.statValue ?? '2.5M'
   },
   {
-    title: t('homepage.horizontalScroll.panel2.title'),
-    tag: t('homepage.horizontalScroll.panel2.tag'),
-    description: t('homepage.horizontalScroll.panel2.description'),
-    statValue: '460'
+    title: panelsData.value?.[1]?.title ?? t('homepage.horizontalScroll.panel2.title'),
+    tag: panelsData.value?.[1]?.tag ?? t('homepage.horizontalScroll.panel2.tag'),
+    description: panelsData.value?.[1]?.description ?? t('homepage.horizontalScroll.panel2.description'),
+    statValue: panelsData.value?.[1]?.statValue ?? '460'
   },
   {
-    title: t('homepage.horizontalScroll.panel3.title'),
-    tag: t('homepage.horizontalScroll.panel3.tag'),
-    description: t('homepage.horizontalScroll.panel3.description'),
-    statValue: '50'
+    title: panelsData.value?.[2]?.title ?? t('homepage.horizontalScroll.panel3.title'),
+    tag: panelsData.value?.[2]?.tag ?? t('homepage.horizontalScroll.panel3.tag'),
+    description: panelsData.value?.[2]?.description ?? t('homepage.horizontalScroll.panel3.description'),
+    statValue: panelsData.value?.[2]?.statValue ?? '50'
   },
   {
-    title: t('homepage.horizontalScroll.panel4.title'),
-    tag: t('homepage.horizontalScroll.panel4.tag'),
-    description: t('homepage.horizontalScroll.panel4.description'),
-    statValue: '28'
+    title: panelsData.value?.[3]?.title ?? t('homepage.horizontalScroll.panel4.title'),
+    tag: panelsData.value?.[3]?.tag ?? t('homepage.horizontalScroll.panel4.tag'),
+    description: panelsData.value?.[3]?.description ?? t('homepage.horizontalScroll.panel4.description'),
+    statValue: panelsData.value?.[3]?.statValue ?? '28'
   }
 ])
 

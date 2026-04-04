@@ -3,7 +3,7 @@
     <div class="custom-solutions__indicator">
       <span class="custom-solutions__indicator-dot"></span>
       <span class="custom-solutions__indicator-text">
-        {{ $t('homepage.customSolutions.indicator') }}
+        {{ customSolution?.indicator ?? $t('homepage.customSolutions.indicator') }}
       </span>
     </div>
 
@@ -17,20 +17,20 @@
         data-split-stagger="0.10"
         data-split-indent="30%"
       >
-        {{ $t('homepage.customSolutions.title') }}
+        {{ customSolution?.title ?? $t('homepage.customSolutions.title') }}
       </h2>
     </header>
 
     <div class="custom-solutions__content">
       <div class="custom-solutions__block custom-solutions__block--left">
         <p class="custom-solutions__block-text">
-          {{ $t('homepage.customSolutions.block1') }}
+          {{ customSolution?.block1 ?? $t('homepage.customSolutions.block1') }}
         </p>
       </div>
 
       <div class="custom-solutions__block custom-solutions__block--right">
         <p class="custom-solutions__block-text">
-          {{ $t('homepage.customSolutions.block2') }}
+          {{ customSolution?.block2 ?? $t('homepage.customSolutions.block2') }}
         </p>
       </div>
     </div>
@@ -38,6 +38,9 @@
 </template>
 
 <script setup lang="ts">
+import type { HomepageCustomSolution } from '~/types/api'
+
+const { data: customSolution } = await useApi<HomepageCustomSolution>('/api/singletons/homepage-custom-solution')
 </script>
 
 <style lang="scss" scoped>

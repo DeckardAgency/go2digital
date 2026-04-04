@@ -35,10 +35,22 @@
 </template>
 
 <script setup lang="ts">
+import type { HomepageTrackingFeature } from '~/types/api'
+
 const { tm, rt } = useI18n()
 
+const { data: trackingFeatures } = await useApi<HomepageTrackingFeature[]>('/api/homepage_tracking_features')
+
 const features = computed(() => {
-  const raw = tm('homepage.tracking.features')
+  // Use API data if available
+  if (trackingFeatures.value && trackingFeatures.value.length > 0) {
+    return trackingFeatures.value.map(f => ({
+      title: f.title ?? '',
+      description: f.description ?? ''
+    }))
+  }
+  // Fallback to i18n
+  const raw = (tm as any)('homepage.tracking.features')
   if (Array.isArray(raw)) {
     return raw.map((f: any) => ({
       title: rt(f.title),

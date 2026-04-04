@@ -4,7 +4,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+import type { HomepageHero } from '~/types/api'
+
 const { t } = useI18n()
+
+const { data: hero } = await useApi<HomepageHero>('/api/singletons/homepage-hero')
 
 // Split text composable
 const { initSplitText, getSplitElements } = useSplitText()
@@ -452,7 +456,7 @@ onUnmounted(() => {
             data-split-trigger="load"
             data-split-duration="0.5"
             data-split-delay="0.1"
-          >{{ t('hero.titleLine1') }}<br/>{{ t('hero.titleLine2') }}</h1>
+          >{{ hero?.titleLine1 ?? t('hero.titleLine1') }}<br/>{{ hero?.titleLine2 ?? t('hero.titleLine2') }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
@@ -467,7 +471,7 @@ onUnmounted(() => {
               data-split-trigger="load"
               data-split-duration="0.5"
               data-split-delay="0.15"
-            >{{ t('hero.kicker') }}</span>
+            >{{ hero?.kicker ?? t('hero.kicker') }}</span>
           </div>
 
           <h2
@@ -478,7 +482,7 @@ onUnmounted(() => {
             data-split-duration="0.5"
             data-split-delay="0.2"
           >
-            {{ t('hero.heading') }}
+            {{ hero?.heading ?? t('hero.heading') }}
           </h2>
 
           <p
@@ -489,7 +493,7 @@ onUnmounted(() => {
             data-split-duration="0.5"
             data-split-delay="0.25"
           >
-            {{ t('hero.description') }}
+            {{ hero?.description ?? t('hero.description') }}
           </p>
         </div>
 
@@ -505,7 +509,7 @@ onUnmounted(() => {
               data-split-duration="0.5"
               data-split-delay="0.3"
             >
-              {{ t('hero.scrollDown') }}
+              {{ hero?.scrollDownLabel ?? t('hero.scrollDown') }}
             </span>
           </div>
         </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { gsap } from 'gsap'
+import type { NavigationItem, SocialLink, ContactInfo } from '~/types/api'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -24,42 +25,56 @@ const marqueeOptions = {
   direction: 'left' as const
 }
 
-// Navigation links
-const navLinks = [
-  { name: 'nav.home', path: '/' },
-  { name: 'nav.lab', path: '/lab' },
-  { name: 'nav.blog', path: '/blog' },
-  { name: 'nav.about', path: '/tim' },
-  { name: 'nav.contact', path: '/kontakt' }
-]
+// Fetch navigation, social links, and contact info from API
+const { data: navData } = await useApi<NavigationItem[]>('/api/navigation_items', {
+  query: { group: 'footer' }
+})
+const { data: socialData } = await useApi<SocialLink[]>('/api/social_links')
+const { data: contactData } = await useApi<ContactInfo[]>('/api/contact_infos')
 
-// Social links
-const socialLinks = [
-  { name: 'LinkedIn', url: '#' },
-  { name: 'Instagram', url: '#' },
-  { name: 'Facebook', url: '#' },
-  { name: 'TikTok', url: '#' }
-]
-
-// Contact info
-const contactInfo = [
-  {
-    label: 'E-mail',
-    value: 'sales@go2digital.com',
-    href: 'mailto:sales@go2digital.com'
-  },
-  {
-    label: 'Phone',
-    value: '+385 1 483 9192',
-    href: 'tel:+38514839192'
-  },
-  {
-    label: 'Location',
-    value: 'Radnička cesta 52, 10 000 Zagreb',
-    href: 'https://www.google.com/maps/dir/?api=1&destination=Radnička+cesta+52,+10000+Zagreb,+Croatia',
-    external: true
+// Navigation links — from API with fallback
+const navLinks = computed(() => {
+  if (navData.value?.length) {
+    return navData.value.map(item => ({ name: item.label, path: item.url }))
   }
-]
+  return [
+    { name: t('nav.home'), path: '/' },
+    { name: t('nav.lab'), path: '/lab' },
+    { name: t('nav.blog'), path: '/blog' },
+    { name: t('nav.about'), path: '/tim' },
+    { name: t('nav.contact'), path: '/kontakt' }
+  ]
+})
+
+// Social links — from API with fallback
+const socialLinks = computed(() => {
+  if (socialData.value?.length) {
+    return socialData.value.map(link => ({ name: link.platform, url: link.url }))
+  }
+  return [
+    { name: 'LinkedIn', url: '#' },
+    { name: 'Instagram', url: '#' },
+    { name: 'Facebook', url: '#' },
+    { name: 'TikTok', url: '#' }
+  ]
+})
+
+// Contact info — from API with fallback
+const contactInfo = computed(() => {
+  if (contactData.value?.length) {
+    return contactData.value.map(info => ({
+      label: info.key.charAt(0).toUpperCase() + info.key.slice(1),
+      value: info.value,
+      href: info.href ?? undefined,
+      external: info.isExternal
+    }))
+  }
+  return [
+    { label: 'E-mail', value: 'sales@go2digital.com', href: 'mailto:sales@go2digital.com', external: false },
+    { label: 'Phone', value: '+385 1 483 9192', href: 'tel:+38514839192', external: false },
+    { label: 'Location', value: 'Radnička cesta 52, 10 000 Zagreb', href: 'https://www.google.com/maps/dir/?api=1&destination=Radnička+cesta+52,+10000+Zagreb,+Croatia', external: true }
+  ]
+})
 
 // Marquee functions
 const setupMarquee = () => {
@@ -152,8 +167,9 @@ onMounted(() => {
 
     // Pause/resume marquee when off-screen to save CPU
     if (eventTitleRef.value) {
-      visibilityObserver = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting && !isPaused) marqueeTimeline?.play()
+      visibilityObserver = new IntersectionObserver((entries) => {
+        const entry = entries[0]
+        if (entry?.isIntersecting && !isPaused) marqueeTimeline?.play()
         else marqueeTimeline?.pause()
       }, { threshold: 0 })
       visibilityObserver.observe(eventTitleRef.value)
@@ -186,7 +202,7 @@ onUnmounted(() => {
           <ul class="footer__nav-list">
             <li v-for="link in navLinks" :key="link.path" class="footer__nav-item">
               <NuxtLink :to="link.path" class="footer__link">
-                {{ t(link.name) }}
+                {{ link.name }}
               </NuxtLink>
             </li>
           </ul>

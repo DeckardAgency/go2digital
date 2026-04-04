@@ -2,54 +2,79 @@
   <div class="lab-detail">
     <!-- Hero Image -->
     <div class="lab-detail__hero">
-      <img v-if="heroImage" :src="heroImage" :alt="title" class="lab-detail__hero-image">
+      <img v-if="displayImage" :src="displayImage" :alt="displayTitle" class="lab-detail__hero-image">
       <div class="lab-detail__hero-overlay">
         <div class="lab-detail__hero-content">
-          <span v-if="meta" class="lab-detail__category">{{ meta }}</span>
-          <h1 class="lab-detail__title">{{ title }}</h1>
+          <span v-if="displayMeta" class="lab-detail__category">{{ displayMeta }}</span>
+          <h1 class="lab-detail__title">{{ displayTitle }}</h1>
         </div>
       </div>
       <button class="lab-detail__back" @click="goBack">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
           <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Svi projekti
+        {{ $t('lab.viewAll') }}
       </button>
     </div>
 
     <!-- Content -->
-    <section class="lab-detail__content">
-      <div class="lab-detail__body">
-        <p>This is a detailed view of the lab experiment. Here you can explore the methodology, findings, and interactive demos of our research.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisi vel consectetur interdum.</p>
-      </div>
+    <section v-if="body" class="lab-detail__content">
+      <div class="lab-detail__body" v-html="body"></div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { getCardTransitionData, goBackWithTransition } from '~/composables/useCardTransition'
+import type { LabProject } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 const route = useRoute()
 const slug = route.params.slug as string
 const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
-const heroImage = ref('')
-const title = ref(formattedSlug)
-const meta = ref('')
+// Fetch project from API by slug
+const { data: projectsData } = await useApi<LabProject[]>('/api/lab_projects', {
+  query: { slug, status: 'published' }
+})
+
+const project = computed(() => projectsData.value?.[0] ?? null)
+
+// API-sourced values
+const heroImage = computed(() =>
+  resolveMediaUrl(project.value?.image, 'large') || `https://picsum.photos/seed/${slug}/800/600`
+)
+const title = computed(() => project.value?.title ?? formattedSlug)
+const meta = computed(() => {
+  const cats = project.value?.categories
+  if (Array.isArray(cats) && cats.length > 0) {
+    return (cats[0] as any).name || cats[0].slug
+  }
+  return ''
+})
+const body = computed(() => project.value?.body ?? '')
+
+// Transition data for animation
+const transitionImage = ref('')
+const transitionTitle = ref('')
+const transitionMeta = ref('')
 
 onMounted(() => {
   const data = getCardTransitionData()
-  if (data.image) heroImage.value = data.image
-  if (data.title) title.value = data.title
-  if (data.meta) meta.value = data.meta
+  if (data.image) transitionImage.value = data.image
+  if (data.title) transitionTitle.value = data.title
+  if (data.meta) transitionMeta.value = data.meta
 })
 
+const displayImage = computed(() => transitionImage.value || heroImage.value)
+const displayTitle = computed(() => transitionTitle.value || title.value)
+const displayMeta = computed(() => transitionMeta.value || meta.value)
+
 function goBack() {
-  goBackWithTransition('/lab', slug, heroImage.value)
+  goBackWithTransition('/lab', slug, displayImage.value)
 }
 
-useHead({ title: `${formattedSlug} - Go2Labs` })
+useHead({ title: computed(() => `${title.value} - Go2Labs`) })
 definePageMeta({ showFooter: false })
 </script>
 

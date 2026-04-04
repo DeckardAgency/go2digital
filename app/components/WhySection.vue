@@ -12,7 +12,7 @@
           data-split-y="80"
           data-split-stagger="0.10"
         >
-          {{ $t('whySection.label') }}
+          {{ whySection?.label ?? $t('whySection.label') }}
         </span>
       </div>
 
@@ -25,7 +25,7 @@
         data-split-y="80"
         data-split-stagger="0.10"
       >
-        {{ $t('whySection.headline') }}
+        {{ whySection?.headline ?? $t('whySection.headline') }}
       </h1>
     </div>
 
@@ -84,33 +84,44 @@ import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from 'vue-i18n'
+import type { HomepageWhySection, HomepageWhyCard } from '~/types/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
 
+const { data: whySection } = await useApi<HomepageWhySection>('/api/singletons/homepage-why-section')
+const { data: whyCards } = await useApi<HomepageWhyCard[]>('/api/homepage_why_cards')
+
 const mobileBreakpoint = 768
 const isMobile = () => window.innerWidth < mobileBreakpoint
+
+// Default dot patterns as fallback
+const defaultDots = [
+  [0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+  [0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
+  [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+]
 
 // Slide data with dot patterns
 const slides = computed(() => [
   {
     number: '(01)',
-    title: t('homepage.whySection.card1.title'),
-    description: t('homepage.whySection.card1.description'),
-    dots: [0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1]
+    title: whyCards.value?.[0]?.title ?? t('homepage.whySection.card1.title'),
+    description: whyCards.value?.[0]?.description ?? t('homepage.whySection.card1.description'),
+    dots: whyCards.value?.[0]?.dotPattern ?? defaultDots[0]
   },
   {
     number: '(02)',
-    title: t('homepage.whySection.card2.title'),
-    description: t('homepage.whySection.card2.description'),
-    dots: [0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0]
+    title: whyCards.value?.[1]?.title ?? t('homepage.whySection.card2.title'),
+    description: whyCards.value?.[1]?.description ?? t('homepage.whySection.card2.description'),
+    dots: whyCards.value?.[1]?.dotPattern ?? defaultDots[1]
   },
   {
     number: '(03)',
-    title: t('homepage.whySection.card3.title'),
-    description: t('homepage.whySection.card3.description'),
-    dots: [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+    title: whyCards.value?.[2]?.title ?? t('homepage.whySection.card3.title'),
+    description: whyCards.value?.[2]?.description ?? t('homepage.whySection.card3.description'),
+    dots: whyCards.value?.[2]?.dotPattern ?? defaultDots[2]
   }
 ])
 

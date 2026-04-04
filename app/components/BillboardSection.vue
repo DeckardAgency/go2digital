@@ -1,6 +1,6 @@
 <template>
   <section class="billboard-section">
-    <div class="billboard-section__image-wrapper" role="img" :aria-label="$t('homepage.billboard.imageAlt')">
+    <div class="billboard-section__image-wrapper" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
       <div class="billboard-section__image"></div>
     </div>
     <div class="billboard-section__content">
@@ -11,9 +11,9 @@
           data-split-type="lines"
           data-split-trigger="view"
           data-split-duration="1.2"
-        >{{ $t('homepage.billboard.title') }}</h2>
+        >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
         <NuxtLink to="/kontakt" class="billboard-section__button">
-          <span class="billboard-section__button-text">{{ $t('homepage.billboard.buttonText') }}</span>
+          <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
           <span class="billboard-section__button-icon" aria-hidden="true">
             <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -22,12 +22,18 @@
         </NuxtLink>
       </div>
       <div class="billboard-section__footer">
-        <h3 class="billboard-section__subtitle">{{ $t('homepage.billboard.subtitle') }}</h3>
-        <p class="billboard-section__description">{{ $t('homepage.billboard.description') }}</p>
+        <h3 class="billboard-section__subtitle">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
+        <p class="billboard-section__description">{{ billboard?.description ?? $t('homepage.billboard.description') }}</p>
       </div>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import type { HomepageBillboard } from '~/types/api'
+
+const { data: billboard } = await useApi<HomepageBillboard>('/api/singletons/homepage-billboard')
+</script>
 
 <style scoped lang="scss">
 // Component-specific color for dark section text

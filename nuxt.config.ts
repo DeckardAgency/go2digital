@@ -2,6 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://api.go2digital.hr'
+    }
+  },
   css: ['~/assets/scss/main.scss'],
 
   vite: {
@@ -29,7 +35,7 @@ export default defineNuxtConfig({
       style: [
         {
           // Inline critical CSS: hide scrollbar + ensure white background
-          children: `
+          innerHTML: `
             html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
             html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
           `
@@ -46,7 +52,6 @@ export default defineNuxtConfig({
       { code: 'en', language: 'en-US', file: 'en.json', name: 'English' }
     ],
     defaultLocale: 'hr',
-    lazy: true,
     strategy: 'prefix_except_default',
     detectBrowserLanguage: {
       useCookie: true,

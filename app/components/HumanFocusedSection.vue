@@ -2,21 +2,27 @@
   <section class="human-focused">
     <div class="human-focused__indicator">
       <span class="human-focused__indicator-dot"></span>
-      <span class="human-focused__indicator-text">{{ $t('homepage.humanFocused.indicator') }}</span>
+      <span class="human-focused__indicator-text">{{ humanFocused?.indicator ?? $t('homepage.humanFocused.indicator') }}</span>
     </div>
     <header class="human-focused__header">
-      <h2 class="human-focused__title">{{ $t('homepage.humanFocused.title') }}</h2>
+      <h2 class="human-focused__title">{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
     </header>
     <div class="human-focused__content">
       <div class="human-focused__block human-focused__block--left">
-        <h3 class="human-focused__block-heading">{{ $t('homepage.humanFocused.blockLeft') }}</h3>
+        <h3 class="human-focused__block-heading">{{ humanFocused?.blockLeft ?? $t('homepage.humanFocused.blockLeft') }}</h3>
       </div>
       <div class="human-focused__block human-focused__block--right">
-        <p class="human-focused__block-text">{{ $t('homepage.humanFocused.blockRight') }}</p>
+        <p class="human-focused__block-text">{{ humanFocused?.blockRight ?? $t('homepage.humanFocused.blockRight') }}</p>
       </div>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import type { HomepageHumanFocused } from '~/types/api'
+
+const { data: humanFocused } = await useApi<HomepageHumanFocused>('/api/singletons/homepage-human-focused')
+</script>
 
 <style scoped lang="scss">
 .human-focused {

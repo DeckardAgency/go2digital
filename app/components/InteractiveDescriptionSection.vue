@@ -2,13 +2,20 @@
   <section class="interactive">
     <div class="interactive__indicator">
       <span class="interactive__indicator-dot"></span>
-      <span class="interactive__indicator-text">{{ $t('homepage.interactiveDisplay.indicatorText') }}</span>
+      <span class="interactive__indicator-text">{{ displayProduct?.indicatorText ?? $t('homepage.interactiveDisplay.indicatorText') }}</span>
     </div>
     <header class="interactive__header">
-      <h2 class="interactive__title">{{ $t('homepage.interactiveDisplay.description') }}</h2>
+      <h2 class="interactive__title">{{ displayProduct?.description ?? $t('homepage.interactiveDisplay.description') }}</h2>
     </header>
   </section>
 </template>
+
+<script setup lang="ts">
+import type { HomepageProduct } from '~/types/api'
+
+const { data: displayProducts } = await useApi<HomepageProduct[]>('/api/homepage_products?productType=display')
+const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
+</script>
 
 <style scoped lang="scss">
 .interactive {

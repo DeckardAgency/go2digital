@@ -1,5 +1,5 @@
 <template>
-  <section class="cube-section">
+  <section ref="sectionRef" class="cube-section">
     <div class="cube-section__hero">
       <div class="cube-section__container">
         <!-- Header -->
@@ -10,11 +10,11 @@
             data-split-type="lines"
             data-split-trigger="view"
             data-split-duration="1.2"
-          >{{ $t('homepage.cube.title') }}</h2>
+          >{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</h2>
           <span class="cube-section__number" aria-hidden="true">1</span>
           <div class="cube-section__badge">
             <span class="cube-section__badge-dot" aria-hidden="true"></span>
-            <span class="cube-section__badge-text">{{ $t('homepage.cube.badge') }}</span>
+            <span class="cube-section__badge-text">{{ cubeProduct?.badge ?? $t('homepage.cube.badge') }}</span>
           </div>
         </div>
 
@@ -35,7 +35,7 @@
 
         <!-- Specifications -->
         <div class="cube-section__specs">
-          <h3 class="cube-section__specs-title">{{ $t('homepage.cube.specsTitle') }}</h3>
+          <h3 class="cube-section__specs-title">{{ cubeProduct?.specsTitle ?? $t('homepage.cube.specsTitle') }}</h3>
           <dl class="cube-section__specs-list">
             <div v-for="spec in specs" :key="spec.label" class="cube-section__spec-item">
               <dt class="cube-section__spec-label">{{ spec.label }}</dt>
@@ -51,10 +51,10 @@
   <section class="cube-description">
     <div class="cube-description__indicator">
       <span class="cube-description__indicator-dot" aria-hidden="true"></span>
-      <span class="cube-description__indicator-text">{{ $t('homepage.cube.title') }}</span>
+      <span class="cube-description__indicator-text">{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</span>
     </div>
     <header class="cube-description__header">
-      <h2 class="cube-description__title">{{ $t('homepage.cube.description') }}</h2>
+      <h2 class="cube-description__title">{{ cubeProduct?.description ?? $t('homepage.cube.description') }}</h2>
     </header>
   </section>
 
@@ -62,7 +62,7 @@
   <FeatureSection
     v-for="(feature, i) in cubeFeatures"
     :key="feature.title"
-    :icon="['Ⓐ', 'Ⓑ'][i]"
+    :icon="['Ⓐ', 'Ⓑ'][i] ?? ''"
     :title="feature.title"
     :description="feature.description"
   />
@@ -71,9 +71,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
+import type { HomepageProduct } from '~/types/api'
 
 const { tm, rt } = useI18n()
 
+const { data: cubeProducts } = await useApi<HomepageProduct[]>('/api/homepage_products?productType=cube')
+const cubeProduct = computed(() => cubeProducts.value?.[0] ?? null)
+
+const sectionRef = ref<HTMLElement | null>(null)
 const panelsRef = ref<HTMLElement | null>(null)
 const cubePanel1Ref = ref<HTMLElement | null>(null)
 const cubePanel2Ref = ref<HTMLElement | null>(null)
@@ -83,7 +88,12 @@ let timeline: gsap.core.Timeline | null = null
 const prefersReducedMotion = ref(false)
 
 const specs = computed(() => {
-  const raw = tm('homepage.cube.specs')
+  // Use API data if available
+  if (cubeProduct.value?.specs && cubeProduct.value.specs.length > 0) {
+    return cubeProduct.value.specs
+  }
+  // Fallback to i18n
+  const raw = (tm as any)('homepage.cube.specs')
   if (Array.isArray(raw)) {
     return raw.map((s: any) => ({
       label: rt(s.label),
@@ -94,7 +104,15 @@ const specs = computed(() => {
 })
 
 const cubeFeatures = computed(() => {
-  const raw = tm('homepage.cube.features')
+  // Use API data if available
+  if (cubeProduct.value?.features && cubeProduct.value.features.length > 0) {
+    return cubeProduct.value.features.map(f => ({
+      title: f.title ?? '',
+      description: f.description ?? ''
+    }))
+  }
+  // Fallback to i18n
+  const raw = (tm as any)('homepage.cube.features')
   if (Array.isArray(raw)) {
     return raw.map((f: any) => ({
       title: rt(f.title),
@@ -162,8 +180,9 @@ onMounted(async () => {
 
     // Pause/resume when off-screen to save CPU/GPU
     if (sectionRef.value) {
-      visibilityObserver = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) timeline?.play()
+      visibilityObserver = new IntersectionObserver((entries) => {
+        const entry = entries[0]
+        if (entry?.isIntersecting) timeline?.play()
         else timeline?.pause()
       }, { threshold: 0 })
       visibilityObserver.observe(sectionRef.value)

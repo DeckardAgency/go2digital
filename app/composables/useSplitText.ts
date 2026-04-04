@@ -71,7 +71,8 @@ function parseOptions(element: HTMLElement): SplitTextOptions {
 
 // Split text into lines, words, or chars
 function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', indent: string | null = null): HTMLElement[] {
-  const text = element.textContent?.trim() || ''
+  // Preserve <br> tags as newlines before extracting text
+  const text = element.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').trim()
   const computedStyle = window.getComputedStyle(element)
 
   // Store original text for accessibility
@@ -127,7 +128,9 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
       elements.push(span)
     } else {
       // Block elements: detect natural line breaks
-      const words = text.split(/\s+/)
+      // If text has explicit newlines (from <br> tags), force those as line breaks
+      const hasExplicitBreaks = text.includes('\n')
+      const words = text.split(/\s+/).filter(w => w.length > 0)
 
       // Parse indent value if provided
       let indentPx = 0
@@ -190,17 +193,31 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
 
       document.body.removeChild(temp)
 
-      // Create line elements
-      lines.forEach((lineWords, index) => {
-        const div = document.createElement('div')
-        div.className = 'split-line'
-        // Apply indent to first line only
-        const indentStyle = (index === 0 && indent) ? `padding-left:${indent};` : ''
-        div.style.cssText = `display:block;${indentStyle}`
-        div.textContent = lineWords.join(' ')
-        element.appendChild(div)
-        elements.push(div)
-      })
+      // If text had explicit <br> breaks, use those as forced line boundaries
+      if (hasExplicitBreaks) {
+        const explicitLines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+        explicitLines.forEach((lineText, index) => {
+          const div = document.createElement('div')
+          div.className = 'split-line'
+          const indentStyle = (index === 0 && indent) ? `padding-left:${indent};` : ''
+          div.style.cssText = `display:block;${indentStyle}`
+          div.textContent = lineText
+          element.appendChild(div)
+          elements.push(div)
+        })
+      } else {
+        // Create line elements from measured word positions
+        lines.forEach((lineWords, index) => {
+          const div = document.createElement('div')
+          div.className = 'split-line'
+          // Apply indent to first line only
+          const indentStyle = (index === 0 && indent) ? `padding-left:${indent};` : ''
+          div.style.cssText = `display:block;${indentStyle}`
+          div.textContent = lineWords.join(' ')
+          element.appendChild(div)
+          elements.push(div)
+        })
+      }
     }
   }
 
