@@ -89,49 +89,33 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { HomepageFeaturedLabItem } from '~/types/api'
+import type { LabProject } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
 const { t } = useI18n()
 
-const { data: featuredLabItems } = await useApi<HomepageFeaturedLabItem[]>('/api/homepage_featured_lab_items')
-
-// Default fallback items
-const defaultItems = [
-  {
-    title: 'Interactive Billboard',
-    slug: 'interactive-billboard',
-    subtitle: t('homepage.featuredLabs.items.item1.subtitle'),
-    categories: ['Interactive', 'DOOH'],
-    image: '/images/lab-item-1.jpg'
-  },
-  {
-    title: 'AR Experience',
-    slug: 'ar-experience',
-    subtitle: t('homepage.featuredLabs.items.item2.subtitle'),
-    categories: ['Augmented Reality', 'Mobile'],
-    image: '/images/lab-item-2.jpg'
-  },
-  {
-    title: 'Dynamic Content',
-    slug: 'dynamic-content',
-    subtitle: t('homepage.featuredLabs.items.item3.subtitle'),
-    categories: ['Real-time', 'Data-driven'],
-    image: '/images/lab-item-3.jpg'
-  }
-]
+// Fetch from the smart endpoint (handles auto/manual mode on the API side)
+const { data: featuredData } = await useApi<{ mode: string; projects: LabProject[] }>('/api/homepage/featured-labs')
 
 const labItems = computed(() => {
-  if (featuredLabItems.value && featuredLabItems.value.length > 0) {
-    return featuredLabItems.value.map((item, index) => ({
-      title: item.title ?? defaultItems[index]?.title ?? '',
-      slug: item.slug ?? defaultItems[index]?.slug ?? '',
-      subtitle: item.subtitle ?? defaultItems[index]?.subtitle ?? '',
-      categories: item.categories ?? defaultItems[index]?.categories ?? [],
-      image: resolveMediaUrl(item.image, 'medium') || defaultItems[index]?.image || ''
+  const projects = featuredData.value?.projects ?? []
+  if (projects.length > 0) {
+    return projects.map(project => ({
+      title: project.shortTitle || project.title || '',
+      slug: project.slug || '',
+      subtitle: project.subtitle || '',
+      categories: Array.isArray(project.categories)
+        ? project.categories.map((c: any) => c.name || c.slug || c)
+        : [],
+      image: resolveMediaUrl(project.image, 'medium') || `/images/lab-item-1.jpg`
     }))
   }
-  return defaultItems
+  // Fallback
+  return [
+    { title: 'Interactive Billboard', slug: 'interactive-billboard', subtitle: t('homepage.featuredLabs.items.item1.subtitle'), categories: ['Interactive', 'DOOH'], image: '/images/lab-item-1.jpg' },
+    { title: 'AR Experience', slug: 'ar-experience', subtitle: t('homepage.featuredLabs.items.item2.subtitle'), categories: ['Augmented Reality', 'Mobile'], image: '/images/lab-item-2.jpg' },
+    { title: 'Dynamic Content', slug: 'dynamic-content', subtitle: t('homepage.featuredLabs.items.item3.subtitle'), categories: ['Real-time', 'Data-driven'], image: '/images/lab-item-3.jpg' },
+  ]
 })
 </script>
 
