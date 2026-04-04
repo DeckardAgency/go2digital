@@ -174,23 +174,17 @@ function createAnimation() {
         // Calculate adjusted progress (excluding delay period)
         const adjustedProgress = Math.max(0, (self.progress - delayRatio) / (1 - delayRatio))
 
-        // Update timeline progress bar
+        // Direct style assignment instead of gsap.set() — avoids GSAP overhead on every frame
         if (progressRef.value) {
-          gsap.set(progressRef.value, {
-            scaleX: adjustedProgress,
-            transformOrigin: 'left center'
-          })
+          progressRef.value.style.transform = `translateY(-50%) scaleX(${adjustedProgress})`
         }
 
         // Update active dot
         updateActiveDot(adjustedProgress)
 
-        // Fade out scroll label as user scrolls (#3: ref now works correctly)
+        // Fade out scroll label
         if (scrollLabelRef.value) {
-          const labelOpacity = 1 - (self.progress * 5)
-          gsap.set(scrollLabelRef.value, {
-            opacity: Math.max(0, labelOpacity)
-          })
+          scrollLabelRef.value.style.opacity = String(Math.max(0, 1 - (self.progress * 5)))
         }
       }
     }
@@ -461,7 +455,7 @@ function destroy() {
     position: relative;
     display: flex;
     height: 100%;
-    will-change: transform;
+    // will-change removed — GSAP handles GPU promotion via force3D
   }
 
   // Timeline (spans all panels horizontally) — width set via inline style (#1)

@@ -20,6 +20,7 @@
 
 <style scoped lang="scss">
 .human-focused {
+  contain: layout paint;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: $spacing-2xl;

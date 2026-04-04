@@ -638,7 +638,7 @@ $why-perspective: 250vw;
   }
 
   &__slide-dot {
-    @include gpu-accelerate;
+    // gpu-accelerate removed — tiny elements don't need permanent GPU layers
     width: $why-dot-size;
     height: $why-dot-size;
     aspect-ratio: 1;

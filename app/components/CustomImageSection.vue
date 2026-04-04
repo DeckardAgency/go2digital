@@ -67,17 +67,20 @@ function onImageLoad() {
   ScrollTrigger.refresh()
 }
 
-onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      initParallax()
-    }, 100)
+onMounted(async () => {
+  await nextTick()
+  requestAnimationFrame(() => {
+    initParallax()
   })
 })
 
 onUnmounted(() => {
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
+  }
+  if (imageRef.value) {
+    gsap.set(imageRef.value, { clearProps: 'all' })
   }
 })
 </script>

@@ -11,6 +11,7 @@
 
 <style scoped lang="scss">
 .rentals-image {
+  contain: layout paint;
   width: 100%;
   padding: $spacing-2xl;
   background-color: #FAFAFA;

@@ -296,7 +296,7 @@ onMounted(() => {
 
   // #2: Wait until scroll is at 0, with max iteration guard
   let waitAttempts = 0
-  const MAX_WAIT_ATTEMPTS = 30
+  const MAX_WAIT_ATTEMPTS = 5
 
   const waitForReady = () => {
     // Guard: component may have unmounted during wait

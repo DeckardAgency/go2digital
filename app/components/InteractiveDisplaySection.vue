@@ -4,10 +4,16 @@
       <div class="interactive-display__container">
         <!-- Header -->
         <div class="interactive-display__header">
-          <h2 class="interactive-display__title">{{ $t('homepage.interactiveDisplay.title') }}</h2>
-          <span class="interactive-display__number">2</span>
+          <h2
+            class="interactive-display__title"
+            data-split-text
+            data-split-type="lines"
+            data-split-trigger="view"
+            data-split-duration="1.2"
+          >{{ $t('homepage.interactiveDisplay.title') }}</h2>
+          <span class="interactive-display__number" aria-hidden="true">2</span>
           <div class="interactive-display__badge">
-            <span class="interactive-display__badge-dot"></span>
+            <span class="interactive-display__badge-dot" aria-hidden="true"></span>
             <span class="interactive-display__badge-text">{{ $t('homepage.interactiveDisplay.badge') }}</span>
           </div>
         </div>
@@ -29,8 +35,8 @@
           <h3 class="interactive-display__specs-title">{{ $t('homepage.interactiveDisplay.specsTitle') }}</h3>
           <dl class="interactive-display__specs-list">
             <div
-              v-for="(spec, i) in specs"
-              :key="i"
+              v-for="spec in specs"
+              :key="spec.label"
               class="interactive-display__spec-item"
             >
               <dt class="interactive-display__spec-label">{{ spec.label }}</dt>
@@ -44,9 +50,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 
-const { t, tm, rt } = useI18n()
+const { tm, rt } = useI18n()
 
 const sectionRef = ref<HTMLElement | null>(null)
 const panelsRef = ref<HTMLElement | null>(null)
@@ -54,6 +61,7 @@ const panel1Ref = ref<HTMLElement | null>(null)
 const panel2Ref = ref<HTMLElement | null>(null)
 
 let timeline: gsap.core.Timeline | null = null
+const prefersReducedMotion = ref(false)
 
 const specs = computed(() => {
   const raw = tm('homepage.interactiveDisplay.specs')
@@ -66,69 +74,93 @@ const specs = computed(() => {
   return []
 })
 
-onMounted(() => {
-  if (!panel1Ref.value || !panel2Ref.value) return
+// #3: nextTick + rAF for DOM readiness
+onMounted(async () => {
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  await nextTick()
+  requestAnimationFrame(() => {
+    if (!panel1Ref.value || !panel2Ref.value) return
 
-  const skewAngle = -26.565
-  const p1 = panel1Ref.value
-  const p2 = panel2Ref.value
+    const skewAngle = -26.565
+    const p1 = panel1Ref.value
+    const p2 = panel2Ref.value
 
-  gsap.set([p1, p2], { transformOrigin: 'center center' })
+    gsap.set([p1, p2], { transformOrigin: 'center center' })
 
-  // State 1: Flat stacked isometric
-  gsap.set(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 20, opacity: 1, zIndex: 1 })
-  gsap.set(p2, { rotation: 30, skewX: skewAngle, x: 0, y: -20, opacity: 1, zIndex: 2 })
+    // State 1: Flat stacked isometric
+    gsap.set(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 20, opacity: 1, zIndex: 1 })
+    gsap.set(p2, { rotation: 30, skewX: skewAngle, x: 0, y: -20, opacity: 1, zIndex: 2 })
 
-  timeline = gsap.timeline({
-    repeat: -1,
-    defaults: { duration: 1.2, ease: 'power3.inOut' }
+    // #1: If reduced motion, show static isometric state and skip animation
+    if (prefersReducedMotion.value) return
+
+    timeline = gsap.timeline({
+      repeat: -1,
+      paused: true, // start paused, IntersectionObserver will play when visible
+      defaults: { duration: 1.2, ease: 'power3.inOut' }
+    })
+
+    // State 1 → 2: Separate vertically
+    timeline
+      .to(p1, { y: 100 }, 'separate')
+      .to(p2, { y: -100 }, 'separate')
+    timeline.to({}, { duration: 1 })
+
+    // State 2 → 3: Rotate to vertical (book open)
+    timeline
+      .to(p1, { rotation: -30, skewX: skewAngle, x: -35, y: 0 }, 'vertical')
+      .to(p2, { rotation: -30, skewX: skewAngle, x: 35, y: 0 }, 'vertical')
+    timeline.to({}, { duration: 1 })
+
+    // State 3 → 4: Merge
+    timeline
+      .to(p1, { x: 0, y: 0, opacity: 0, duration: 1 }, 'merge')
+      .to(p2, { x: 0, y: 0, duration: 1 }, 'merge')
+    timeline.to({}, { duration: 1 })
+
+    // State 4 → 1: Reset
+    timeline
+      .to(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 20, opacity: 1, duration: 1.2 }, 'reset')
+      .to(p2, { rotation: 30, skewX: skewAngle, x: 0, y: -20, duration: 1.2 }, 'reset')
+    timeline.to({}, { duration: 1 })
+
+    // Pause/resume when off-screen to save CPU/GPU
+    if (sectionRef.value) {
+      visibilityObserver = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) timeline?.play()
+        else timeline?.pause()
+      }, { threshold: 0 })
+      visibilityObserver.observe(sectionRef.value)
+    }
   })
-
-  // State 1 → 2: Separate vertically
-  timeline
-    .to(p1, { y: 100 }, 'separate')
-    .to(p2, { y: -100 }, 'separate')
-
-  timeline.to({}, { duration: 1 })
-
-  // State 2 → 3: Rotate to vertical (book open)
-  timeline
-    .to(p1, { rotation: -30, skewX: skewAngle, x: -35, y: 0 }, 'vertical')
-    .to(p2, { rotation: -30, skewX: skewAngle, x: 35, y: 0 }, 'vertical')
-
-  timeline.to({}, { duration: 1 })
-
-  // State 3 → 4: Merge
-  timeline
-    .to(p1, { x: 0, y: 0, opacity: 0, duration: 1 }, 'merge')
-    .to(p2, { x: 0, y: 0, duration: 1 }, 'merge')
-
-  timeline.to({}, { duration: 1 })
-
-  // State 4 → 1: Reset
-  timeline
-    .to(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 20, opacity: 1, duration: 1.2 }, 'reset')
-    .to(p2, { rotation: 30, skewX: skewAngle, x: 0, y: -20, duration: 1.2 }, 'reset')
-
-  timeline.to({}, { duration: 1 })
 })
 
+let visibilityObserver: IntersectionObserver | null = null
+
 onUnmounted(() => {
-  if (timeline) {
-    timeline.kill()
-    timeline = null
-  }
+  visibilityObserver?.disconnect()
+  visibilityObserver = null
+
+  if (timeline) { timeline.kill(); timeline = null }
+
+  // #2: Clear GSAP inline styles on panel elements
+  ;[panel1Ref, panel2Ref].forEach(r => {
+    if (r.value) gsap.set(r.value, { clearProps: 'all' })
+  })
 })
 </script>
 
 <style scoped lang="scss">
+// Component-specific variable
+$display-bg: #FAFAFA;
+
 .interactive-display {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   min-height: 100dvh;
   width: 100%;
   position: relative;
-  background-color: #FAFAFA;
+  background-color: $display-bg;
   z-index: 30;
   border-top: 1px solid $color-border;
   border-bottom: 1px solid $color-border;
@@ -144,8 +176,9 @@ onUnmounted(() => {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    padding: 2.5rem 2.5rem 10rem;
-    @include mobile { padding: 1rem; }
+    padding: $spacing-2xl $spacing-2xl 10rem;
+    @include tablet { padding: $spacing-lg $spacing-lg 6rem; }
+    @include mobile { padding: $spacing-md; }
   }
 
   // Header
@@ -153,7 +186,7 @@ onUnmounted(() => {
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    padding-top: 2.5rem;
+    padding-top: $spacing-2xl;
     align-items: start;
   }
 
@@ -166,6 +199,7 @@ onUnmounted(() => {
     color: $color-primary;
     margin: 0;
     white-space: pre-line;
+    @include desktop { font-size: 4rem; }
     @include mobile { grid-column: 1 / 11; order: 3; font-size: 3.125rem; }
   }
 
@@ -175,6 +209,7 @@ onUnmounted(() => {
     font-weight: 400;
     line-height: 1;
     color: $color-primary;
+    @include desktop { font-size: 8rem; }
     @include mobile { grid-column: 12 / 13; order: 2; font-size: 5.375rem; }
   }
 
@@ -183,8 +218,8 @@ onUnmounted(() => {
     justify-self: end;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    padding-top: 0.5rem;
+    gap: $spacing-xs;
+    padding-top: $spacing-sm;
     @include mobile { grid-column: 1 / 10; order: 1; justify-self: start; }
   }
 
@@ -211,7 +246,8 @@ onUnmounted(() => {
     position: relative;
     margin: 4rem 0;
     perspective: 1000px;
-    @include mobile { grid-column: 1 / 13; height: 20rem; margin: 2rem 0; }
+    @include tablet { grid-column: 1 / 8; height: 26rem; margin: $spacing-xl 0; }
+    @include mobile { grid-column: 1 / 13; height: 20rem; margin: $spacing-xl 0; }
   }
 
   &__panels {
@@ -219,6 +255,7 @@ onUnmounted(() => {
     width: 300px;
     height: 400px;
     transform-style: preserve-3d;
+    @include tablet { transform: scale(0.75); }
     @include mobile { transform: scale(0.55); }
   }
 
@@ -231,13 +268,13 @@ onUnmounted(() => {
     width: 230px;
     height: 345px;
     transform-style: preserve-3d;
-    will-change: transform;
+    // will-change removed — GSAP handles GPU promotion dynamically
   }
 
   &__panel-inner {
     width: 100%;
     height: 100%;
-    background-color: #FAFAFA;
+    background-color: $display-bg;
     border: 1px solid $color-primary;
     border-radius: 4px;
   }
@@ -248,8 +285,9 @@ onUnmounted(() => {
     padding-top: 18.75rem;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    @include mobile { grid-column: 1 / 13; padding-top: 2rem; }
+    gap: $spacing-xl;
+    @include tablet { padding-top: 10rem; }
+    @include mobile { grid-column: 1 / 13; padding-top: $spacing-xl; }
   }
 
   &__specs-title {
@@ -258,7 +296,7 @@ onUnmounted(() => {
     line-height: 1.2;
     letter-spacing: -0.04rem;
     color: $color-primary;
-    margin: 0 0 1rem;
+    margin: 0 0 $spacing-md;
   }
 
   &__specs-list {
@@ -287,6 +325,13 @@ onUnmounted(() => {
     color: $color-muted;
     margin: 0;
     text-align: right;
+  }
+}
+
+// #1: Accessibility — reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .interactive-display__panel {
+    will-change: auto;
   }
 }
 </style>

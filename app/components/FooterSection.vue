@@ -14,6 +14,8 @@ const eventTitleRef = ref<HTMLElement | null>(null)
 let marqueeTimeline: gsap.core.Timeline | null = null
 let innerWrapper: HTMLElement | null = null
 let isPaused = false
+let visibilityObserver: IntersectionObserver | null = null
+let marqueeRetryTimeout: ReturnType<typeof setTimeout> | null = null
 
 // Marquee options
 const marqueeOptions = {
@@ -94,9 +96,9 @@ const animateMarquee = () => {
 
   const wrapperWidth = innerWrapper.scrollWidth / 2
 
-  // Bail if width is 0 (not rendered yet)
+  // Bail if width is 0 (not rendered yet) — guard timeout ID for cleanup
   if (wrapperWidth <= 0) {
-    setTimeout(animateMarquee, 100)
+    marqueeRetryTimeout = setTimeout(animateMarquee, 100)
     return
   }
 
@@ -147,10 +149,23 @@ onMounted(() => {
       })
     })
     window.addEventListener('resize', handleResize, { passive: true })
+
+    // Pause/resume marquee when off-screen to save CPU
+    if (eventTitleRef.value) {
+      visibilityObserver = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !isPaused) marqueeTimeline?.play()
+        else marqueeTimeline?.pause()
+      }, { threshold: 0 })
+      visibilityObserver.observe(eventTitleRef.value)
+    }
   })
 })
 
 onUnmounted(() => {
+  visibilityObserver?.disconnect()
+  visibilityObserver = null
+
+  if (marqueeRetryTimeout) clearTimeout(marqueeRetryTimeout)
   if (marqueeTimeline) {
     marqueeTimeline.kill()
     marqueeTimeline = null
