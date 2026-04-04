@@ -36,10 +36,10 @@
         v-for="(slide, index) in slides"
         :key="index"
         class="why-section__slide"
-        :ref="el => slideRefs[index] = el"
+        :ref="el => slideRefs[index] = el as HTMLElement"
       >
-        <div class="why-section__slide-content-wrapper" :ref="el => contentWrapperRefs[index] = el">
-          <div class="why-section__slide-content" :ref="el => contentRefs[index] = el">
+        <div class="why-section__slide-content-wrapper" :ref="el => contentWrapperRefs[index] = el as HTMLElement">
+          <div class="why-section__slide-content" :ref="el => contentRefs[index] = el as HTMLElement">
             <!-- Top Section -->
             <div class="why-section__slide-top">
               <div class="why-section__slide-top-left">
@@ -53,7 +53,7 @@
             <!-- Bottom Section -->
             <div class="why-section__slide-bottom">
               <div class="why-section__slide-bottom-left">
-                <svg class="why-section__slide-arrow" xmlns="http://www.w3.org/2000/svg" width="145" height="145" viewBox="0 0 145 145" fill="none">
+                <svg class="why-section__slide-arrow" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="145" height="145" viewBox="0 0 145 145" fill="none">
                   <path opacity="0.3" d="M-2.29007e-05 130.977L111.56 19.6325L41.0271 19.6325L41.0271 7.17341e-06L145 2.53526e-05L145 103.772L125.329 103.772L125.329 33.3753L13.7694 145L-2.29007e-05 130.977Z" fill="#FAFAFA"/>
                 </svg>
               </div>
@@ -62,7 +62,7 @@
                   <h4 class="why-section__slide-title-mobile">{{ slide.title }}</h4>
                   <p class="why-section__slide-text">{{ slide.description }}</p>
                 </div>
-                <div class="why-section__slide-dots" :ref="el => dotsContainerRefs[index] = el">
+                <div class="why-section__slide-dots" :ref="el => dotsContainerRefs[index] = el as HTMLElement">
                   <div
                     v-for="(dot, dotIndex) in slide.dots"
                     :key="dotIndex"
@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from 'vue-i18n'
@@ -89,133 +89,176 @@ gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
 
+const mobileBreakpoint = 768
+const isMobile = () => window.innerWidth < mobileBreakpoint
+
 // Slide data with dot patterns
 const slides = computed(() => [
   {
     number: '(01)',
     title: t('homepage.whySection.card1.title'),
     description: t('homepage.whySection.card1.description'),
-    // Dot pattern: 3x5 grid, 1=visible, 0=hidden
     dots: [0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1]
   },
   {
     number: '(02)',
     title: t('homepage.whySection.card2.title'),
     description: t('homepage.whySection.card2.description'),
-    // Diamond pattern
     dots: [0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0]
   },
   {
     number: '(03)',
     title: t('homepage.whySection.card3.title'),
     description: t('homepage.whySection.card3.description'),
-    // Grid pattern
     dots: [1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
   }
 ])
 
-// Template refs
+// Template refs (#4: ref() instead of reactive())
 const sectionRef = ref<HTMLElement | null>(null)
-const slideRefs = reactive<(HTMLElement | null)[]>([])
-const contentWrapperRefs = reactive<(HTMLElement | null)[]>([])
-const contentRefs = reactive<(HTMLElement | null)[]>([])
-const dotsContainerRefs = reactive<(HTMLElement | null)[]>([])
+const slideRefs = ref<(HTMLElement | null)[]>([])
+const contentWrapperRefs = ref<(HTMLElement | null)[]>([])
+const contentRefs = ref<(HTMLElement | null)[]>([])
+const dotsContainerRefs = ref<(HTMLElement | null)[]>([])
 
-// Animation instances
-const scrollTriggers: ScrollTrigger[] = []
+// Animation instances (#3: store timelines for proper cleanup)
+const slideTimelines: gsap.core.Timeline[] = []
+const prefersReducedMotion = ref(false)
 
-onMounted(() => {
-  setTimeout(() => {
+// #7: Debounced resize handler
+let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+
+const handleResize = () => {
+  if (resizeTimeout) clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(() => {
+    ScrollTrigger.refresh()
+  }, 150)
+}
+
+// #5: nextTick + rAF instead of setTimeout
+onMounted(async () => {
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  await nextTick()
+  requestAnimationFrame(() => {
+    // #2: If reduced motion, make everything visible and skip animations
+    if (prefersReducedMotion.value) {
+      slides.value.forEach((_, index) => {
+        const content = contentRefs.value[index]
+        const dotsContainer = dotsContainerRefs.value[index]
+        if (content) gsap.set(content, { scale: 1, opacity: 1, autoAlpha: 1 })
+        if (dotsContainer) {
+          const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
+          gsap.set(dots, { autoAlpha: 1 })
+        }
+      })
+      window.addEventListener('resize', handleResize, { passive: true })
+      return
+    }
+
     createAnimations()
-  }, 100)
+    window.addEventListener('resize', handleResize, { passive: true })
+  })
 })
 
 onUnmounted(() => {
   destroy()
 })
 
+// #1: Consolidated single timeline per slide
 function createAnimations() {
+  const mobile = isMobile()
+  const scrubSpeed = mobile ? 0.3 : 0.8 // #11: faster scrub on mobile
+
   slides.value.forEach((_, index) => {
-    const slide = slideRefs[index]
-    const contentWrapper = contentWrapperRefs[index]
-    const content = contentRefs[index]
-    const dotsContainer = dotsContainerRefs[index]
+    const slide = slideRefs.value[index]
+    const contentWrapper = contentWrapperRefs.value[index]
+    const content = contentRefs.value[index]
+    const dotsContainer = dotsContainerRefs.value[index]
 
     if (!slide || !contentWrapper || !content) return
 
-    // Scale animation with pinning
-    const scaleTrigger = ScrollTrigger.create({
-      trigger: slide,
-      start: 'top top',
-      end: () => `+=${window.innerHeight}`,
-      pin: contentWrapper,
-      scrub: 0.8,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        const scale = 1 - (self.progress * 0.3) // Scale from 1 to 0.7
-        gsap.set(content, { scale, force3D: true })
+    // Single timeline per slide with pin
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: slide,
+        start: 'top top',
+        end: () => `+=${window.innerHeight}`,
+        pin: contentWrapper,
+        scrub: scrubSpeed,
+        invalidateOnRefresh: true
       }
     })
-    scrollTriggers.push(scaleTrigger)
 
-    // Opacity animation
-    const opacityTrigger = ScrollTrigger.create({
-      trigger: slide,
-      start: 'top 100%',
-      end: 'top -50%',
-      scrub: 0.8,
-      onUpdate: (self) => {
-        const opacity = 1 - (self.progress * 0.7) // Opacity from 1 to 0.3
-        gsap.set(content, { opacity })
-      }
-    })
-    scrollTriggers.push(opacityTrigger)
+    // Scale from 1 to 0.7 over full progress
+    tl.fromTo(content,
+      { scale: 1 },
+      { scale: 0.7, duration: 1, force3D: true, ease: 'none' },
+      0
+    )
 
-    // Fade out animation
-    const fadeOutTrigger = ScrollTrigger.create({
-      trigger: content,
-      start: 'top -80%',
-      end: () => `+=${0.2 * window.innerHeight}`,
-      scrub: 0.8,
-      onUpdate: (self) => {
-        gsap.set(content, { autoAlpha: 1 - self.progress })
-      }
-    })
-    scrollTriggers.push(fadeOutTrigger)
+    // Opacity from 1 to 0.3 over 0-80%
+    tl.fromTo(content,
+      { opacity: 1 },
+      { opacity: 0.3, duration: 0.8, ease: 'none' },
+      0
+    )
 
-    // Dots fade-in animation
+    // Fade out (autoAlpha 1 → 0) over 80-100%
+    tl.fromTo(content,
+      { autoAlpha: 1 },
+      { autoAlpha: 0, duration: 0.2, ease: 'none' },
+      0.8
+    )
+
+    // #2: Dots — scrub-linked with stagger (reversible)
     if (dotsContainer) {
       const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
+      if (dots.length > 0) {
+        gsap.set(dots, { autoAlpha: 0 })
 
-      gsap.set(dots, { autoAlpha: 0 })
-
-      ScrollTrigger.create({
-        trigger: dotsContainer,
-        start: 'top 80%',
-        end: 'top 50%',
-        onEnter: () => {
-          gsap.to(dots, {
+        tl.fromTo(dots,
+          { autoAlpha: 0 },
+          {
             autoAlpha: 1,
-            duration: 0.6,
-            stagger: 0.05,
+            duration: 0.4,
+            stagger: 0.02,
             ease: 'power2.out'
-          })
-        }
-      })
+          },
+          0.1 // Start early so dots are visible while card is still prominent
+        )
+      }
     }
+
+    slideTimelines.push(tl)
   })
 }
 
 function destroy() {
-  scrollTriggers.forEach(trigger => trigger.kill())
-  scrollTriggers.length = 0
+  // #7: Clear resize handler
+  if (resizeTimeout) clearTimeout(resizeTimeout)
+  window.removeEventListener('resize', handleResize)
 
-  // Reset elements
-  contentRefs.forEach(content => {
-    if (content) {
-      gsap.set(content, { clearProps: 'all' })
+  // Kill all timelines (includes their ScrollTriggers)
+  slideTimelines.forEach(tl => tl.kill())
+  slideTimelines.length = 0
+
+  // #10: Reset content and dot elements
+  contentRefs.value.forEach(content => {
+    if (content) gsap.set(content, { clearProps: 'all' })
+  })
+
+  dotsContainerRefs.value.forEach(dotsContainer => {
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
+      gsap.set(dots, { clearProps: 'all' })
     }
   })
+
+  // #6: Clear refs to release DOM references
+  slideRefs.value = []
+  contentWrapperRefs.value = []
+  contentRefs.value = []
+  dotsContainerRefs.value = []
 }
 </script>
 
@@ -602,12 +645,34 @@ $why-perspective: 250vw;
     background-color: $color-accent;
     border-radius: $radius-full;
 
+    // #9: Hidden by default so no flash before JS initializes
+    &:not(&--hide) {
+      visibility: hidden;
+    }
+
     // ------------------------------------------
-    // Modifier: Hidden dot
+    // Modifier: Hidden dot (grid placeholder)
     // ------------------------------------------
     &--hide {
       opacity: 0;
       visibility: hidden;
+    }
+  }
+}
+
+// #2: Accessibility — reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .why-section {
+    &__slide-content-wrapper {
+      perspective: none;
+    }
+
+    &__slide-content {
+      transform: none !important;
+    }
+
+    &__slide-dot:not(.why-section__slide-dot--hide) {
+      visibility: visible;
     }
   }
 }

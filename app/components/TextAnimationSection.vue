@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -21,46 +22,93 @@ const word2Ref = ref<HTMLElement | null>(null)
 const word3Ref = ref<HTMLElement | null>(null)
 
 let timeline: gsap.core.Timeline | null = null
+const prefersReducedMotion = ref(false)
 
-onMounted(() => {
-  if (!containerRef.value || !word1Ref.value || !word2Ref.value || !word3Ref.value) return
+const mobileBreakpoint = 768
+const isMobile = () => window.innerWidth < mobileBreakpoint
 
-  const words = [word1Ref.value, word2Ref.value, word3Ref.value]
+// #5: Debounced resize handler
+let resizeTimeout: ReturnType<typeof setTimeout> | null = null
 
-  // Initial state: only first word visible
-  gsap.set(words[0], { opacity: 1, y: 0 })
-  gsap.set(words[1], { opacity: 0, y: '5vh' })
-  gsap.set(words[2], { opacity: 0, y: '5vh' })
+const handleResize = () => {
+  if (resizeTimeout) clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(() => {
+    ScrollTrigger.refresh()
+  }, 150)
+}
 
-  timeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: sectionRef.value,
-      start: 'top top',
-      end: '+=300%',
-      scrub: 1,
-      pin: containerRef.value,
-      pinSpacing: false
+// #2: Use nextTick + requestAnimationFrame for proper DOM readiness
+onMounted(async () => {
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  await nextTick()
+  requestAnimationFrame(() => {
+    if (!containerRef.value || !word1Ref.value || !word2Ref.value || !word3Ref.value) return
+
+    const words = [word1Ref.value, word2Ref.value, word3Ref.value]
+
+    // #4: If reduced motion, show first word visible, skip animations
+    if (prefersReducedMotion.value) {
+      gsap.set(words[0], { opacity: 1, y: 0 })
+      gsap.set(words[1], { opacity: 0 })
+      gsap.set(words[2], { opacity: 0 })
+      window.addEventListener('resize', handleResize, { passive: true })
+      return
     }
+
+    // Initial state: only first word visible
+    gsap.set(words[0], { opacity: 1, y: 0 })
+    gsap.set(words[1], { opacity: 0, y: '5vh' })
+    gsap.set(words[2], { opacity: 0, y: '5vh' })
+
+    const mobile = isMobile()
+
+    timeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.value,
+        start: 'top top',
+        end: '+=300%',
+        scrub: mobile ? 0.3 : 1, // #12: faster scrub on mobile
+        pin: containerRef.value,
+        pinSpacing: false,
+        invalidateOnRefresh: true
+      }
+    })
+
+    // Word 1 → Word 2
+    timeline
+      .to(words[0], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
+      .fromTo(words[1], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
+      .to({}, { duration: 0.2 }) // hold
+
+    // Word 2 → Word 3
+    timeline
+      .to(words[1], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
+      .fromTo(words[2], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
+      .to({}, { duration: 0.3 }) // #11: longer hold so last word lingers
+
+    window.addEventListener('resize', handleResize, { passive: true })
+
+    // #3: Refresh ScrollTrigger after setup for accurate measurements
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh(true)
+    })
   })
-
-  // Word 1 → Word 2
-  timeline
-    .to(words[0], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-    .fromTo(words[1], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
-    .to({}, { duration: 0.2 }) // hold
-
-  // Word 2 → Word 3
-  timeline
-    .to(words[1], { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-    .fromTo(words[2], { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
-    .to({}, { duration: 0.2 }) // hold
 })
 
 onUnmounted(() => {
+  // Clear pending timers
+  if (resizeTimeout) clearTimeout(resizeTimeout)
+  window.removeEventListener('resize', handleResize)
+
   if (timeline) {
     timeline.kill()
     timeline = null
   }
+
+  // #6: Clear inline styles from GSAP
+  if (word1Ref.value) gsap.set(word1Ref.value, { clearProps: 'all' })
+  if (word2Ref.value) gsap.set(word2Ref.value, { clearProps: 'all' })
+  if (word3Ref.value) gsap.set(word3Ref.value, { clearProps: 'all' })
 })
 </script>
 
@@ -78,7 +126,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 300vh;
-  overflow: hidden;
+  // #1: Removed overflow: hidden — it clips the ScrollTrigger pin-spacer
   z-index: 30;
   @include dot-pattern-bg;
 
@@ -109,21 +157,27 @@ onUnmounted(() => {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    will-change: opacity, transform;
+    // #9: Removed permanent will-change — GSAP handles this during animation
 
     &--primary { z-index: 3; }
     &--secondary { z-index: 2; }
     &--tertiary { z-index: 1; }
 
     @include desktop { font-size: clamp(4rem, 14vw, 12rem); }
-    @include tablet { font-size: clamp(3.5rem, 12vw, 10rem); }
-    @include mobile { font-size: clamp(3rem, 10vw, 7rem); letter-spacing: -0.04em; }
+    @include tablet { font-size: clamp(3rem, 10vw, 7rem); letter-spacing: -0.04em; }
+  }
+}
+
+// #4: Accessibility — reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .text-animation__word {
+    transition: none;
   }
 }
 </style>
 
 <style>
-/* Pin spacer background for GSAP */
+/* #10: Pin spacer background for GSAP — scoped to this section via :has() */
 .pin-spacer:has(.text-animation__container) {
   --d: 1px;
   background: #03120F radial-gradient(
