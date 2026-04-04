@@ -2,20 +2,32 @@
   <section class="horizontal-scroll" ref="sectionRef" data-horizontal-scroll>
     <!-- Panels Container - This will scroll horizontally -->
     <div class="horizontal-scroll__wrapper" ref="wrapperRef" data-scroll-wrapper>
+
+      <!-- Scroll label - positioned absolutely over first panel (#3: moved out of v-for) -->
+      <p class="horizontal-scroll__scroll-label" ref="scrollLabelRef">
+        {{ $t('homepage.horizontalScroll.scrollLabel') }}
+      </p>
+
       <div class="horizontal-scroll__panels" ref="panelsRef" data-scroll-panels>
 
-        <!-- Timeline - spans full width of all panels -->
-        <div class="horizontal-scroll__timeline" ref="timelineRef" data-scroll-timeline>
+        <!-- Timeline - spans full width of all panels (#1: dynamic width) -->
+        <div
+          class="horizontal-scroll__timeline"
+          ref="timelineRef"
+          data-scroll-timeline
+          :style="{ width: panels.length * 100 + 'vw' }"
+        >
           <div class="horizontal-scroll__timeline-line"></div>
           <div class="horizontal-scroll__timeline-progress" ref="progressRef"></div>
 
-          <!-- Timeline dots - positioned at center of each panel -->
+          <!-- Timeline dots - positioned at center of each panel (#10: clickable) -->
           <div
             v-for="(panel, index) in panels"
             :key="`dot-${index}`"
             class="horizontal-scroll__timeline-dot"
             :class="{ 'horizontal-scroll__timeline-dot--active': index <= activeIndex }"
             :style="{ left: `${(index * 100) + 50}vw` }"
+            @click="scrollToPanel(index)"
           ></div>
         </div>
 
@@ -26,18 +38,15 @@
           class="horizontal-scroll__panel"
           data-scroll-panel
         >
-          <!-- Top Section - Title/Description on left, Scroll label on right -->
+          <!-- Top Section - Title -->
           <div class="horizontal-scroll__panel-top">
-            <h2 class="horizontal-scroll__title">
+            <h2 class="horizontal-scroll__title" :ref="el => titleRefs[index] = el as HTMLElement">
               {{ panel.title }}
             </h2>
-            <p v-if="index === 0" class="horizontal-scroll__scroll-label" ref="scrollLabelRef">
-              {{ $t('homepage.horizontalScroll.scrollLabel') }}
-            </p>
           </div>
 
           <!-- Middle Section - Tag and Description below timeline -->
-          <div class="horizontal-scroll__panel-middle" :ref="el => panelMiddleRefs[index] = el">
+          <div class="horizontal-scroll__panel-middle" :ref="el => panelMiddleRefs[index] = el as HTMLElement">
             <div class="horizontal-scroll__tag">
               <span class="horizontal-scroll__tag-dot"></span>
               <span class="horizontal-scroll__tag-text">{{ panel.tag }}</span>
@@ -48,8 +57,8 @@
           </div>
 
           <!-- Bottom Section - Large Stat Value -->
-          <div class="horizontal-scroll__panel-bottom" :ref="el => panelBottomRefs[index] = el">
-            <p class="horizontal-scroll__stat-value" :ref="el => statValueRefs[index] = el">
+          <div class="horizontal-scroll__panel-bottom" :ref="el => panelBottomRefs[index] = el as HTMLElement">
+            <p class="horizontal-scroll__stat-value" :ref="el => statValueRefs[index] = el as HTMLElement">
               {{ panel.statValue }}
             </p>
           </div>
@@ -61,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useI18n } from 'vue-i18n'
@@ -69,6 +78,7 @@ import { useI18n } from 'vue-i18n'
 gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
+const { scrollTo } = useLenis()
 
 // Panel data
 const panels = computed(() => [
@@ -105,21 +115,26 @@ const panelsRef = ref<HTMLElement | null>(null)
 const progressRef = ref<HTMLElement | null>(null)
 const scrollLabelRef = ref<HTMLElement | null>(null)
 
-// Panel element refs
-const panelMiddleRefs = reactive<(HTMLElement | null)[]>([])
-const panelBottomRefs = reactive<(HTMLElement | null)[]>([])
-const statValueRefs = reactive<(HTMLElement | null)[]>([])
+// Panel element refs (#6: use ref() instead of reactive())
+const titleRefs = ref<(HTMLElement | null)[]>([])
+const panelMiddleRefs = ref<(HTMLElement | null)[]>([])
+const panelBottomRefs = ref<(HTMLElement | null)[]>([])
+const statValueRefs = ref<(HTMLElement | null)[]>([])
 
-// Animation state
-const activeIndex = ref(0)
+// Animation state (#4: start at -1 so no dots are active before scroll)
+const activeIndex = ref(-1)
 let scrollTimeline: gsap.core.Timeline | null = null
 let scrollTriggerInstance: ScrollTrigger | null = null
+const prefersReducedMotion = ref(false)
 
-onMounted(() => {
-  // Small delay to ensure DOM is ready
-  setTimeout(() => {
+// #8: small delay to ensure preceding ScrollTrigger instances (e.g. HeroSection) are ready
+onMounted(async () => {
+  prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  await nextTick()
+  // Extra frame to let other pinned ScrollTriggers finalize their measurements
+  requestAnimationFrame(() => {
     createAnimation()
-  }, 100)
+  })
 })
 
 onUnmounted(() => {
@@ -132,6 +147,7 @@ function createAnimation() {
   const numPanels = panels.value.length
   const viewportWidth = window.innerWidth
   const viewportHeight = window.innerHeight
+  const isMobile = viewportWidth < 768
 
   // Scroll distance = (numPanels - 1) panels worth of scrolling
   const scrollDistance = (numPanels - 1) * viewportWidth
@@ -151,7 +167,7 @@ function createAnimation() {
       end: () => `+=${totalScrollDistance}`,
       pin: true,
       pinSpacing: true,
-      scrub: 0.8,
+      scrub: isMobile ? 0.3 : 0.8, // #9: faster scrub on mobile
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
@@ -169,7 +185,7 @@ function createAnimation() {
         // Update active dot
         updateActiveDot(adjustedProgress)
 
-        // Fade out scroll label as user scrolls
+        // Fade out scroll label as user scrolls (#3: ref now works correctly)
         if (scrollLabelRef.value) {
           const labelOpacity = 1 - (self.progress * 5)
           gsap.set(scrollLabelRef.value, {
@@ -193,104 +209,136 @@ function createAnimation() {
     force3D: true
   })
 
+  // #5: if reduced motion, just make everything visible and skip element animations
+  if (prefersReducedMotion.value) {
+    panels.value.forEach((_, index) => {
+      const title = titleRefs.value[index]
+      const panelMiddle = panelMiddleRefs.value[index]
+      const panelBottom = panelBottomRefs.value[index]
+      const statValue = statValueRefs.value[index]
+      if (title) gsap.set(title, { opacity: 1, y: 0 })
+      if (panelMiddle) gsap.set(panelMiddle, { opacity: 1, y: 0 })
+      if (panelBottom) gsap.set(panelBottom, { opacity: 1, y: 0 })
+      if (statValue) gsap.set(statValue, { opacity: 1, y: 0 })
+    })
+    return
+  }
+
   // Animate individual panel elements
   const scrollPhase = 1 - delayRatio
   const totalPanelScrolls = numPanels - 1
 
   panels.value.forEach((_, index) => {
-    const panelMiddle = panelMiddleRefs[index]
-    const panelBottom = panelBottomRefs[index]
-    const statValue = statValueRefs[index]
+    const title = titleRefs.value[index]
+    const panelMiddle = panelMiddleRefs.value[index]
+    const panelBottom = panelBottomRefs.value[index]
+    const statValue = statValueRefs.value[index]
 
-    // Set initial states
     if (index === 0) {
+      // #2: First panel — scrub-linked fromTo tweens during delay period
+      // so they properly reverse when scrolling back up
+      if (title) gsap.set(title, { opacity: 0, y: 20 })
       if (panelMiddle) gsap.set(panelMiddle, { opacity: 0, y: 20 })
       if (panelBottom) gsap.set(panelBottom, { opacity: 0, y: 40 })
       if (statValue) gsap.set(statValue, { opacity: 0, y: 50 })
 
-      // Animate first panel elements during the delay period
-      scrollTimeline!.add(() => {
-        const tl = gsap.timeline()
-        if (statValue) {
-          tl.to(statValue, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: 'power2.out'
-          }, 0)
-        }
-        if (panelMiddle) {
-          tl.to(panelMiddle, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: 'power2.out'
-          }, 0.1)
-        }
-        if (panelBottom) {
-          tl.to(panelBottom, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: 'power2.out'
-          }, 0.15)
-        }
-      }, 0)
+      const entranceDuration = delayRatio * 0.8
+      const entranceStart = delayRatio * 0.1
+
+      if (title) {
+        scrollTimeline!.fromTo(title,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: entranceDuration, ease: 'power2.out' },
+          entranceStart)
+      }
+      if (statValue) {
+        scrollTimeline!.fromTo(statValue,
+          { opacity: 0, y: 50 },
+          { opacity: 1, y: 0, duration: entranceDuration, ease: 'power2.out' },
+          entranceStart)
+      }
+      if (panelMiddle) {
+        scrollTimeline!.fromTo(panelMiddle,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: entranceDuration, ease: 'power2.out' },
+          entranceStart + (entranceDuration * 0.15))
+      }
+      if (panelBottom) {
+        scrollTimeline!.fromTo(panelBottom,
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: entranceDuration, ease: 'power2.out' },
+          entranceStart + (entranceDuration * 0.25))
+      }
     } else {
+      // Set initial states for subsequent panels
+      if (title) gsap.set(title, { opacity: 0, y: 20 })
       if (panelMiddle) gsap.set(panelMiddle, { opacity: 0, y: 20 })
       if (panelBottom) gsap.set(panelBottom, { opacity: 0, y: 40 })
       if (statValue) gsap.set(statValue, { opacity: 0, y: 50 })
     }
 
     // Calculate progress points for horizontal scroll
+    // Clamp all positions + durations so they never exceed 1.0 (timeline overflow causes duplicate content)
     const rawAnimationStart = Math.max(0, (index - 0.3) / totalPanelScrolls)
     const animationStart = delayRatio + (rawAnimationStart * scrollPhase)
-    const animationDuration = (0.25 / totalPanelScrolls) * scrollPhase
+    const animationDuration = Math.min(
+      (0.25 / totalPanelScrolls) * scrollPhase,
+      1 - animationStart // never exceed timeline end
+    )
 
-    // Skip animation for first panel (handled separately above)
+    // Entrance animations for panels > 0
     if (index > 0) {
-      // Animate stat value element
+      // #11: Animate title on entrance
+      if (title) {
+        scrollTimeline!.fromTo(title,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: animationDuration, ease: 'power2.out' },
+          animationStart)
+      }
+
       if (statValue) {
         scrollTimeline!.fromTo(statValue,
           { opacity: 0, y: 80 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: animationDuration,
-            ease: 'power2.out'
-          }, animationStart)
+          { opacity: 1, y: 0, duration: animationDuration, ease: 'power2.out' },
+          animationStart)
       }
 
-      // Animate panel middle
+      const middleStart = Math.min(animationStart + (animationDuration * 0.3), 0.99)
+      const middleDur = Math.min(animationDuration, 1 - middleStart)
       if (panelMiddle) {
         scrollTimeline!.fromTo(panelMiddle,
           { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: animationDuration,
-            ease: 'power2.out'
-          }, animationStart + (animationDuration * 0.3))
+          { opacity: 1, y: 0, duration: middleDur, ease: 'power2.out' },
+          middleStart)
       }
 
-      // Animate panel bottom
+      const bottomStart = Math.min(animationStart + (animationDuration * 0.5), 0.99)
+      const bottomDur = Math.min(animationDuration, 1 - bottomStart)
       if (panelBottom) {
         scrollTimeline!.fromTo(panelBottom,
           { opacity: 0, y: 50 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: animationDuration,
-            ease: 'power2.out'
-          }, animationStart + (animationDuration * 0.5))
+          { opacity: 1, y: 0, duration: bottomDur, ease: 'power2.out' },
+          bottomStart)
       }
     }
 
-    // Fade out as panel exits to the left (except last panel)
+    // #11: Fade out as panel exits (including title crossfade)
     if (index < numPanels - 1) {
       const rawExitStart = (index + 0.6) / totalPanelScrolls
-      const exitStart = delayRatio + (rawExitStart * scrollPhase)
-      const exitDuration = (0.2 / totalPanelScrolls) * scrollPhase
+      const exitStart = Math.min(delayRatio + (rawExitStart * scrollPhase), 0.99)
+      const exitDuration = Math.min(
+        (0.2 / totalPanelScrolls) * scrollPhase,
+        1 - exitStart
+      )
+
+      if (title) {
+        scrollTimeline!.to(title, {
+          opacity: 0,
+          y: -15,
+          duration: exitDuration,
+          ease: 'power2.in'
+        }, exitStart)
+      }
 
       if (statValue) {
         scrollTimeline!.to(statValue, {
@@ -320,12 +368,41 @@ function createAnimation() {
   })
 }
 
+// #4: no dots active when progress is 0
 function updateActiveDot(progress: number) {
+  if (progress <= 0) {
+    activeIndex.value = -1
+    return
+  }
   const numDots = panels.value.length
   activeIndex.value = Math.min(
     Math.floor(progress * numDots),
     numDots - 1
   )
+}
+
+// #10: Click a dot to scroll to that panel
+function scrollToPanel(index: number) {
+  if (!scrollTriggerInstance) return
+  const numPanels = panels.value.length
+  const totalPanelScrolls = numPanels - 1
+  if (totalPanelScrolls <= 0) return
+
+  const viewportWidth = window.innerWidth
+  const viewportHeight = window.innerHeight
+  const scrollDistance = totalPanelScrolls * viewportWidth
+  const delayDistance = viewportHeight * 0.5
+  const totalScrollDistance = scrollDistance + delayDistance
+  const delayRatio = delayDistance / totalScrollDistance
+
+  // Target progress for this panel
+  const panelProgress = index === 0
+    ? delayRatio * 0.5
+    : delayRatio + ((index / totalPanelScrolls) * (1 - delayRatio))
+
+  const targetScroll = scrollTriggerInstance.start + (panelProgress * totalScrollDistance)
+
+  scrollTo(targetScroll, { duration: 0.8 })
 }
 
 function destroy() {
@@ -351,6 +428,12 @@ function destroy() {
   if (scrollLabelRef.value) {
     gsap.set(scrollLabelRef.value, { clearProps: 'all' })
   }
+
+  // #7: Clear panel refs to release DOM references
+  titleRefs.value = []
+  panelMiddleRefs.value = []
+  panelBottomRefs.value = []
+  statValueRefs.value = []
 }
 </script>
 
@@ -381,12 +464,11 @@ function destroy() {
     will-change: transform;
   }
 
-  // Timeline (spans all panels horizontally)
+  // Timeline (spans all panels horizontally) — width set via inline style (#1)
   &__timeline {
     position: absolute;
     top: 50%;
     left: 0;
-    width: 400vw; // 4 panels
     height: 1rem;
     transform: translateY(-50%);
     z-index: 5;
@@ -425,6 +507,7 @@ function destroy() {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     z-index: 2;
     pointer-events: auto;
+    cursor: pointer; // #10: indicate clickable
 
     &--active {
       background-color: $color-accent;
@@ -454,7 +537,7 @@ function destroy() {
     }
   }
 
-  // Panel Top (Title + Scroll Label)
+  // Panel Top (Title)
   &__panel-top {
     display: flex;
     justify-content: space-between;
@@ -490,15 +573,27 @@ function destroy() {
     }
   }
 
-  // Scroll Label (top right)
+  // Scroll Label (#3: positioned absolutely, outside v-for)
   &__scroll-label {
+    position: absolute;
+    top: $spacing-2xl;
+    right: $spacing-2xl;
     font-size: $font-size-sm;
     font-weight: 400;
     line-height: 1.3;
     text-transform: capitalize;
     color: $color-primary;
     margin: 0;
-    flex-shrink: 0;
+    z-index: 10;
+
+    @include desktop {
+      top: $spacing-lg;
+      right: $spacing-lg;
+    }
+
+    @include tablet {
+      display: none;
+    }
   }
 
   // Panel Middle (Tag + Description, below timeline)
@@ -618,7 +713,7 @@ function destroy() {
   }
 }
 
-// Accessibility
+// Accessibility (#5: CSS part)
 @media (prefers-reduced-motion: reduce) {
   .horizontal-scroll {
     &__panels {
