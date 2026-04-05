@@ -1,7 +1,8 @@
 <template>
   <section class="billboard-section">
     <div class="billboard-section__image-wrapper" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
-      <div class="billboard-section__image"></div>
+      <img v-if="billboardImage" :src="billboardImage" :alt="billboard?.imageAlt ?? ''" class="billboard-section__image" />
+      <div v-else class="billboard-section__image billboard-section__image--placeholder"></div>
     </div>
     <div class="billboard-section__content">
       <div class="billboard-section__header">
@@ -12,7 +13,7 @@
           data-split-trigger="view"
           data-split-duration="1.2"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
-        <NuxtLink to="/kontakt" class="billboard-section__button">
+        <NuxtLink :to="billboard?.buttonUrl || '/kontakt'" class="billboard-section__button">
           <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
           <span class="billboard-section__button-icon" aria-hidden="true">
             <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -31,8 +32,11 @@
 
 <script setup lang="ts">
 import type { HomepageBillboard } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 const { data: billboard } = await useApi<HomepageBillboard>('/api/singletons/homepage-billboard')
+
+const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.image, 'large'))
 </script>
 
 <style scoped lang="scss">
@@ -66,7 +70,11 @@ $billboard-text-color: #FAFAFA;
   &__image {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1a2a1f 0%, #2a3a2f 50%, #1a2a1f 100%);
+    object-fit: cover;
+
+    &--placeholder {
+      background: linear-gradient(135deg, #1a2a1f 0%, #2a3a2f 50%, #1a2a1f 100%);
+    }
   }
 
   &__content {
