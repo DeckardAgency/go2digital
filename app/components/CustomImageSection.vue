@@ -1,17 +1,24 @@
 <template>
   <section class="custom-image" ref="sectionRef">
     <div class="custom-image__inner" ref="innerRef">
-      <!-- Static image always present for natural sizing -->
-      <img
-        ref="imageRef"
-        :src="desktopImageSrc"
-        :alt="customImage?.alt ?? $t('homepage.customImage.alt')"
-        class="custom-image__image"
-        :class="{ 'custom-image__image--hidden': webglActive }"
-        loading="lazy"
-        @load="onImageLoad"
-      >
-      <!-- WebGL canvas overlays on top -->
+      <picture>
+        <source
+          media="(min-width: 768px)"
+          :srcset="desktopImageSrc"
+        >
+        <source
+          media="(max-width: 767px)"
+          :srcset="mobileImageSrc"
+        >
+        <img
+          ref="imageRef"
+          :src="mobileImageSrc"
+          :alt="customImage?.alt ?? $t('homepage.customImage.alt')"
+          class="custom-image__image"
+          loading="lazy"
+          @load="onImageLoad"
+        >
+      </picture>
     </div>
   </section>
 </template>
@@ -22,7 +29,6 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HomepageCustomImage } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
-import type { WebGLHoverInstance } from '~/composables/useWebGLHover'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -31,54 +37,44 @@ const { data: customImage } = useApi<HomepageCustomImage>('/api/singletons/homep
 const desktopImageSrc = computed(() =>
   resolveMediaUrl(customImage.value?.desktopImage, 'large') || '/images/G2D_HomepagePhoto_Slavonska.jpg'
 )
+const mobileImageSrc = computed(() =>
+  resolveMediaUrl(customImage.value?.mobileImage, 'medium') || '/images/G2D_HomepagePhoto_Slavonska_mobile.jpg'
+)
 
+// Template refs
 const sectionRef = ref<HTMLElement | null>(null)
 const innerRef = ref<HTMLElement | null>(null)
 const imageRef = ref<HTMLImageElement | null>(null)
-const webglActive = ref(false)
 
+// Store ScrollTrigger instance for cleanup
 let scrollTriggerInstance: ScrollTrigger | null = null
-let webglInstance: WebGLHoverInstance | null = null
-
-function initWebGL() {
-  if (!innerRef.value || webglInstance) return
-  if (typeof window === 'undefined') return
-  if (window.matchMedia('(hover: none)').matches) return
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-  const src = desktopImageSrc.value
-  if (!src) return
-
-  import('~/composables/useWebGLHover').then(({ useWebGLHover }) => {
-    if (webglInstance || !innerRef.value) return
-    webglInstance = useWebGLHover(innerRef.value, src)
-    webglActive.value = true
-  }).catch(() => {
-    webglActive.value = false
-  })
-}
 
 function initParallax() {
-  if (!sectionRef.value || !innerRef.value) return
-  if (scrollTriggerInstance) scrollTriggerInstance.kill()
+  if (!sectionRef.value || !imageRef.value) return
 
-  const target = innerRef.value
+  // Kill existing instance if any
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill()
+  }
+
+  // Parallax effect: scale zoom + vertical movement
   scrollTriggerInstance = ScrollTrigger.create({
     trigger: sectionRef.value,
     start: 'top bottom',
     end: 'bottom top',
     scrub: 0.5,
     onUpdate: (self) => {
+      // Scale from 1.25 to 1 as you scroll through
       const scale = 1.25 - (self.progress * 0.25)
+      // Move from -10% to +10% for depth effect
       const yPercent = -10 + (self.progress * 20)
-      gsap.set(target, { scale, yPercent, force3D: true })
+      gsap.set(imageRef.value, { scale, yPercent, force3D: true })
     }
   })
 }
 
+// Handle image load
 function onImageLoad() {
-  initParallax()
-  initWebGL()
   ScrollTrigger.refresh()
 }
 
@@ -86,19 +82,29 @@ onMounted(async () => {
   await nextTick()
   requestAnimationFrame(() => {
     initParallax()
-    // If image already cached/loaded, init WebGL
-    if (imageRef.value?.complete) initWebGL()
   })
 })
 
 onUnmounted(() => {
-  if (scrollTriggerInstance) { scrollTriggerInstance.kill(); scrollTriggerInstance = null }
-  if (webglInstance) { webglInstance.destroy(); webglInstance = null }
-  if (innerRef.value) gsap.set(innerRef.value, { clearProps: 'all' })
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
+  }
+  if (imageRef.value) {
+    gsap.set(imageRef.value, { clearProps: 'all' })
+  }
 })
 </script>
 
 <style lang="scss" scoped>
+// ==========================================================================
+// Custom Image Section
+// Full-width responsive image with rounded corners
+// Overlaps on top of the previous section (WhySection)
+// ==========================================================================
+
+// Component-specific variables
+// --------------------------------------------------------------------------
 $custom-image-bg: #FAFAFA;
 $custom-image-padding-desktop: $spacing-2xl;
 $custom-image-padding-mobile: $spacing-md;
@@ -107,7 +113,7 @@ $custom-image-radius-mobile: $radius-xl;
 
 .custom-image {
   position: relative;
-  z-index: $z-sticky + 10;
+  z-index: $z-sticky + 10; // Higher than WhySection (z-sticky)
   padding: $custom-image-padding-desktop;
   background-color: $custom-image-bg;
 
@@ -115,26 +121,31 @@ $custom-image-radius-mobile: $radius-xl;
     padding: $custom-image-padding-mobile;
   }
 
+  // ==========================================================================
+  // Element: Inner
+  // ==========================================================================
   &__inner {
-    position: relative;
     width: 100%;
     overflow: hidden;
     border-radius: $custom-image-radius-desktop;
-    @include gpu-accelerate;
 
     @include tablet {
       border-radius: $custom-image-radius-mobile;
     }
   }
 
+  // ==========================================================================
+  // Element: Image
+  // ==========================================================================
   &__image {
+    @include gpu-accelerate;
     width: 100%;
     height: auto;
     display: block;
+    border-radius: $custom-image-radius-desktop;
 
-    // When WebGL is active, image stays for sizing but is invisible
-    &--hidden {
-      visibility: hidden;
+    @include tablet {
+      border-radius: $custom-image-radius-mobile;
     }
   }
 }
