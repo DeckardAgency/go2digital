@@ -1,7 +1,8 @@
 <template>
   <section class="rentals-image">
     <div class="rentals-image__inner">
-      <div class="rentals-image__placeholder"></div>
+      <img v-if="rentalsImageSrc" :src="rentalsImageSrc" alt="" class="rentals-image__bg" />
+      <div v-else class="rentals-image__placeholder"></div>
       <div class="rentals-image__overlay">
         <span class="rentals-image__text">{{ rentalsImage?.text ?? 'RENTALS' }}</span>
       </div>
@@ -11,8 +12,11 @@
 
 <script setup lang="ts">
 import type { HomepageRentalsImage } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
-const { data: rentalsImage } = await useApi<HomepageRentalsImage>('/api/singletons/homepage-rentals-image')
+const { data: rentalsImage } = useApi<HomepageRentalsImage>('/api/singletons/homepage-rentals-image', { lazy: true, server: false })
+
+const rentalsImageSrc = computed(() => resolveMediaUrl((rentalsImage.value as any)?.image, 'large'))
 </script>
 
 <style scoped lang="scss">
@@ -31,6 +35,13 @@ const { data: rentalsImage } = await useApi<HomepageRentalsImage>('/api/singleto
     border-radius: 2rem;
     overflow: hidden;
     @include mobile { border-radius: $radius-xl; }
+  }
+
+  &__bg {
+    width: 100%;
+    height: 100%;
+    min-height: 60vh;
+    object-fit: cover;
   }
 
   &__placeholder {
