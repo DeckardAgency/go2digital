@@ -1,8 +1,8 @@
 <template>
   <section class="rentals-image" ref="sectionRef">
     <div class="rentals-image__inner">
-      <img v-if="rentalsImageSrc" :src="rentalsImageSrc" alt="" class="rentals-image__bg" />
-      <div v-else class="rentals-image__placeholder"></div>
+      <img v-if="rentalsImageSrc" :src="rentalsImageSrc" alt="" class="rentals-image__bg" ref="imgRef" />
+      <div v-else class="rentals-image__placeholder" ref="imgRef"></div>
       <div class="rentals-image__overlay">
         <span class="rentals-image__text" ref="textRef">{{ rentalsImage?.text ?? 'RENTALS' }}</span>
       </div>
@@ -25,6 +25,7 @@ const rentalsImageSrc = computed(() => resolveMediaUrl((rentalsImage.value as an
 
 const sectionRef = ref<HTMLElement | null>(null)
 const textRef = ref<HTMLElement | null>(null)
+const imgRef = ref<HTMLElement | null>(null)
 
 let st: ScrollTrigger | null = null
 
@@ -39,8 +40,11 @@ onMounted(async () => {
       end: 'bottom top',
       scrub: 0.6,
       onUpdate: (self) => {
-        const yPercent = 40 - (self.progress * 80)
-        gsap.set(textRef.value, { yPercent, force3D: true })
+        // Text moves up, image moves down (opposite)
+        const textY = 40 - (self.progress * 80)
+        const imgY = -10 + (self.progress * 20)
+        gsap.set(textRef.value, { yPercent: textY, force3D: true })
+        gsap.set(imgRef.value, { yPercent: imgY, scale: 1.15, force3D: true })
       }
     })
   })
@@ -49,6 +53,7 @@ onMounted(async () => {
 onUnmounted(() => {
   if (st) { st.kill(); st = null }
   if (textRef.value) gsap.set(textRef.value, { clearProps: 'all' })
+  if (imgRef.value) gsap.set(imgRef.value, { clearProps: 'all' })
 })
 </script>
 
