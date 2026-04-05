@@ -21,6 +21,17 @@
     <section v-if="body" class="lab-detail__content">
       <div class="lab-detail__body" v-html="body"></div>
     </section>
+
+    <!-- Sections -->
+    <section v-if="sections.length > 0" class="lab-detail__sections">
+      <div v-for="(section, i) in sections" :key="i" class="lab-detail__section">
+        <div class="lab-detail__section-label">
+          <span class="lab-detail__section-bullet"></span>
+          {{ section.label }}
+        </div>
+        <div class="lab-detail__section-content" v-html="formatContent(section.content)"></div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -53,6 +64,12 @@ const meta = computed(() => {
   return ''
 })
 const body = computed(() => project.value?.body ?? '')
+const sections = computed(() => (project.value as any)?.sections ?? [])
+
+function formatContent(text: string): string {
+  if (!text) return ''
+  return text.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('')
+}
 
 // Transition data for animation
 const transitionImage = ref('')
@@ -160,5 +177,55 @@ definePageMeta({ showFooter: false })
 .lab-detail__body {
   line-height: 1.9;
   p { margin-bottom: $spacing-lg; }
+}
+
+.lab-detail__sections {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 $spacing-2xl $spacing-2xl;
+  @include tablet { padding: 0 $spacing-lg $spacing-lg; }
+}
+
+.lab-detail__section {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: $spacing-2xl;
+  padding: $spacing-2xl 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+.lab-detail__section-label {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  font-weight: 400;
+  padding-top: 2px;
+}
+
+.lab-detail__section-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-text-secondary;
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.lab-detail__section-content {
+  font-size: $font-size-base;
+  line-height: 1.8;
+  color: $color-text-secondary;
+
+  :deep(p) {
+    margin-bottom: $spacing-md;
+    &:last-child { margin-bottom: 0; }
+  }
 }
 </style>
