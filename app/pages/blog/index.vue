@@ -39,6 +39,7 @@
             v-for="article in row.small"
             :key="article.id"
             class="article-card article-card--small"
+            :data-slug="article.slug"
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
@@ -70,6 +71,7 @@
             v-for="article in row.large"
             :key="article.id"
             class="article-card article-card--large"
+            :data-slug="article.slug"
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
@@ -105,6 +107,7 @@
             v-for="article in row.posts"
             :key="article.id"
             class="article-card article-card--small"
+            :data-slug="article.slug"
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
@@ -140,6 +143,7 @@
             v-for="article in row.posts"
             :key="article.id"
             class="article-card article-card--full"
+            :data-slug="article.slug"
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
@@ -175,6 +179,7 @@
             v-for="article in row.posts"
             :key="article.id"
             class="article-card article-card--medium"
+            :data-slug="article.slug"
             @mouseenter="onCardHover"
             @mouseleave="onCardLeave"
           >
@@ -227,7 +232,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
-import { animateCardToDetail } from '~/composables/useCardTransition'
+import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/useCardTransition'
 import type { BlogPost, BlogCategory } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
@@ -353,7 +358,7 @@ function formatDate(dateStr: string): string {
 // Custom cursor state
 const isCursorVisible = ref(false)
 
-// Initialize cursor position tracking
+// Initialize cursor position tracking + handle return animation
 onMounted(() => {
   nextTick(() => {
     const cursor = blogCursor.value
@@ -366,6 +371,21 @@ onMounted(() => {
       })
     }
     document.addEventListener('mousemove', moveCursor)
+
+    // Check if returning from a detail page
+    const returnSlug = sessionStorage.getItem('returnSlug')
+    const returnImage = sessionStorage.getItem('returnImage')
+    sessionStorage.removeItem('returnSlug')
+    sessionStorage.removeItem('returnImage')
+
+    if (returnSlug && returnImage) {
+      playReturnToCardAnimation(
+        returnSlug,
+        returnImage,
+        '.article-card',
+        '.article-card__image'
+      )
+    }
   })
 })
 

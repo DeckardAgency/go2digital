@@ -57,6 +57,7 @@
         v-for="lab in filteredLabs"
         :key="lab.id"
         class="lab-card"
+        :data-slug="lab.slug"
         @mouseenter="onLabHover"
         @mouseleave="onLabLeave"
       >
@@ -101,7 +102,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
-import { animateCardToDetail } from '~/composables/useCardTransition'
+import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/useCardTransition'
 import type { LabProject, LabCategory } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
@@ -164,7 +165,7 @@ function filterByCategory(slug: string) {
 // Custom cursor state
 const isCursorVisible = ref(false)
 
-// Initialize cursor position tracking
+// Initialize cursor position tracking + handle return animation
 onMounted(() => {
   nextTick(() => {
     const cursor = labCursor.value
@@ -178,6 +179,21 @@ onMounted(() => {
       })
     }
     document.addEventListener('mousemove', moveCursor)
+
+    // Check if returning from a detail page
+    const returnSlug = sessionStorage.getItem('returnSlug')
+    const returnImage = sessionStorage.getItem('returnImage')
+    sessionStorage.removeItem('returnSlug')
+    sessionStorage.removeItem('returnImage')
+
+    if (returnSlug && returnImage) {
+      playReturnToCardAnimation(
+        returnSlug,
+        returnImage,
+        '.lab-card',
+        '.lab-card__media img'
+      )
+    }
   })
 })
 
