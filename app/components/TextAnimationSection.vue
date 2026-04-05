@@ -93,7 +93,10 @@ onMounted(async () => {
       .to({}, { duration: 0.3 }) // #11: longer hold so last word lingers
 
     window.addEventListener('resize', handleResize, { passive: true })
-    // ScrollTrigger.refresh() is handled globally by lenis plugin after all components mount
+
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh(true)
+    })
   })
 })
 

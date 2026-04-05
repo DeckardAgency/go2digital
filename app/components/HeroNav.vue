@@ -4,8 +4,8 @@
     <div class="hero-nav__container">
       <!-- Menu Toggle Button -->
       <button class="hero-nav__menu-toggle" :aria-expanded="isMenuOpen" aria-controls="hero-nav-links" @click="toggleMenu">
-        <span class="hero-nav__menu-text hero-nav__menu-text--open">Menu</span>
-        <span class="hero-nav__menu-text hero-nav__menu-text--close">Close</span>
+        <span class="hero-nav__menu-text hero-nav__menu-text--open">Izbornik</span>
+        <span class="hero-nav__menu-text hero-nav__menu-text--close">Zatvori</span>
       </button>
 
       <!-- Navigation Links (Hidden by default, shown when menu is active) -->

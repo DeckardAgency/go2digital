@@ -32,12 +32,40 @@ const { isMenuOpen, closeMenu } = useNavigation()
 const showLoader = ref(true)
 function onLoaderComplete() { showLoader.value = false }
 
-// Show footer unless page explicitly hides it
 const showFooter = computed(() => route.meta.showFooter !== false)
 
 const MENU_CLOSE_DURATION = 300
 const OVERLAY_SLIDES_UP = true
 const OVERLAY_SLIDES_AWAY = false
+
+// Helper: restart Lenis + refresh ScrollTrigger after components are ready.
+function restartScrollSystem() {
+  window.scrollTo(0, 0)
+
+  const { $lenis } = useNuxtApp()
+
+  // Start Lenis immediately so it can process scroll events
+  if ($lenis) {
+    $lenis.scrollTo(0, { immediate: true, force: true })
+    $lenis.start()
+  }
+
+  // Refresh ScrollTrigger multiple times to catch all component initializations.
+  // Components use different async patterns (nextTick, rAF, setTimeout) so a
+  // single refresh is never enough on client navigation.
+  const doRefresh = () => ScrollTrigger.refresh(true)
+
+  // Immediate refresh
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(doRefresh)
+    })
+  })
+
+  // Delayed refreshes to catch late-initializing components
+  setTimeout(doRefresh, 300)
+  setTimeout(doRefresh, 800)
+}
 
 // Create overlay elements on client side only
 onMounted(() => {
@@ -75,22 +103,20 @@ function resetTransitionState() {
 
 // ── LEAVE ANIMATION ──
 router.beforeEach(async (to, from) => {
-  // Skip on initial load
   if (!from.name) return
 
-  // Skip if custom transition (card animations handle themselves)
   if ((window as any).__skipPageTransition) {
     ;(window as any).__skipPageTransition = false
+    // Clean up any stale transition state from a previous navigation
+    resetTransitionState()
     return
   }
 
-  // Prevent double-trigger — but don't block forever
   if (isAnimating.value) return
 
   const wrapper = pageWrapper.value
   if (!transitionOverlay || !wrapper || !depthOverlay) return
 
-  // Close menu first
   if (isMenuOpen.value) {
     closeMenu()
     await new Promise(resolve => setTimeout(resolve, MENU_CLOSE_DURATION))
@@ -98,7 +124,6 @@ router.beforeEach(async (to, from) => {
 
   isAnimating.value = true
 
-  // Leave animation
   await new Promise<void>((resolve) => {
     document.documentElement.classList.add('is-transitioning')
 
@@ -127,89 +152,92 @@ router.beforeEach(async (to, from) => {
         }, '<0.15')
     }
 
-    // Hide wrapper so new page content is invisible during swap
     tl.set(wrapper, { opacity: 0 })
   })
 })
 
-// ── ENTER ANIMATION ──
+// ── ENTER ANIMATION (for normal page transitions) ──
 nuxtApp.hook('page:finish', async () => {
   const wrapper = pageWrapper.value
 
-  // Only run enter animation if we ran a leave animation
-  if (!transitionOverlay || !wrapper || !depthOverlay || !isAnimating.value) return
+  // Normal transition: run enter animation
+  if (transitionOverlay && wrapper && depthOverlay && isAnimating.value) {
+    await nextTick()
 
-  // Ensure new page content is in the DOM
-  await nextTick()
+    // Reset scroll
+    window.scrollTo(0, 0)
+    const { $lenis } = useNuxtApp()
+    if ($lenis) $lenis.scrollTo(0, { immediate: true, force: true })
 
-  window.scrollTo(0, 0)
+    // Remove overflow:hidden so ScrollTrigger can measure correctly
+    document.documentElement.classList.remove('is-transitioning')
 
-  // Remove is-transitioning BEFORE enter animation so components can create
-  // ScrollTriggers with correct measurements (overflow:hidden breaks them)
-  document.documentElement.classList.remove('is-transitioning')
+    // CRITICAL: Clear all transforms from the leave animation (scale, y, filter)
+    // BEFORE components create ScrollTriggers. Only keep opacity: 0 for the fade-in.
+    gsap.set(wrapper, { clearProps: 'transform,scale,y' })
 
-  // Enter animation: opacity + filter only — NO transforms that would
-  // corrupt ScrollTrigger pin measurements during component initialization
-  await new Promise<void>((resolve) => {
-    const tl = gsap.timeline({
-      onComplete: () => {
-        isAnimating.value = false
-        resolve()
+    // Enter animation: fade in page, hide overlays
+    await new Promise<void>((resolve) => {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          // Ensure everything is clean even if timeline had issues
+          gsap.set(wrapper, { clearProps: 'all' })
+          gsap.set(transitionOverlay!, { visibility: 'hidden', yPercent: 100 })
+          gsap.set(depthOverlay!, { visibility: 'hidden', opacity: 0 })
+          isAnimating.value = false
+          resolve()
+        }
+      })
 
-        // Refresh ScrollTrigger + restart Lenis after wrapper is clean
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh(true)
-          const { $lenis } = useNuxtApp()
-          if ($lenis) $lenis.start()
-        })
-      }
+      // Hide white overlay immediately (it covered the leave animation)
+      tl.set(transitionOverlay, { visibility: 'hidden', yPercent: 100 }, 0)
+        // Fade out dark overlay
+        .to(depthOverlay, {
+          opacity: 0,
+          duration: 0.4,
+          ease: 'power2.inOut'
+        }, 0)
+        // Fade in page content
+        .fromTo(wrapper,
+          { opacity: 0, filter: 'blur(4px)' },
+          { opacity: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' },
+          0.1
+        )
     })
 
-    tl.set(wrapper, { opacity: 0, filter: 'blur(4px)' })
+    // Restart scroll system AFTER enter animation + clearProps
+    restartScrollSystem()
+    return
+  }
 
-    if (OVERLAY_SLIDES_AWAY && OVERLAY_SLIDES_UP) {
-      tl.to(transitionOverlay, {
-        yPercent: -100,
-        duration: 0.6,
-        ease: 'power3.inOut'
-      }, '+=0.1')
-    } else if (OVERLAY_SLIDES_UP) {
-      tl.set(transitionOverlay, { visibility: 'hidden', yPercent: 100 }, '+=0.1')
-    }
+  // No transition (initial load, __skipPageTransition, card return):
+  // Ensure wrapper is clean — previous transition may have left stale styles
+  if (wrapper) gsap.set(wrapper, { clearProps: 'all' })
 
-    tl.to(depthOverlay, {
-        opacity: 0,
-        duration: 0.4,
-        ease: 'power2.inOut'
-      }, OVERLAY_SLIDES_AWAY ? '-=0.3' : '-=0.1')
-      .to(wrapper, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        duration: 0.6,
-        ease: 'power2.out'
-      }, '-=0.4')
-      .set(wrapper, { clearProps: 'all' })
-      .set(transitionOverlay, { visibility: 'hidden', yPercent: 100 })
-      .set(depthOverlay, { visibility: 'hidden' })
-  })
+  const isReturningToCard = sessionStorage.getItem('returnSlug')
+  if (!isReturningToCard) {
+    window.scrollTo(0, 0)
+    const { $lenis } = useNuxtApp()
+    if ($lenis) $lenis.scrollTo(0, { immediate: true, force: true })
+  }
+
+  // Restart scroll system after components mount
+  restartScrollSystem()
 })
 
-// Safety net: if transition gets stuck, reset after timeout
+// Safety net: force-reset after 3s if stuck
 router.afterEach(() => {
   setTimeout(() => {
     if (isAnimating.value) {
       console.warn('[transition] Force-resetting stuck transition state')
       resetTransitionState()
-      const { $lenis } = useNuxtApp()
-      if ($lenis) $lenis.start()
-      ScrollTrigger.refresh(true)
+      restartScrollSystem()
     }
   }, 3000)
 })
 </script>
 
 <style>
-/* Dark depth overlay (transparent black) */
 .transition-depth-overlay {
   position: fixed;
   top: 0;
@@ -222,7 +250,6 @@ router.afterEach(() => {
   visibility: hidden;
 }
 
-/* White slide overlay */
 .transition-depth {
   position: fixed;
   top: 0;
@@ -235,17 +262,14 @@ router.afterEach(() => {
   visibility: hidden;
 }
 
-/* Page wrapper for animations */
 .page-wrapper {
   will-change: auto;
 }
 
-/* Only apply will-change during transitions */
 html.is-transitioning .page-wrapper {
   will-change: transform, opacity, filter;
 }
 
-/* Prevent scrolling during transitions */
 html.is-transitioning,
 html.is-transitioning body {
   overflow: hidden !important;

@@ -27,52 +27,14 @@ export default defineNuxtPlugin(() => {
   // Disable GSAP's lag smoothing to prevent jumps
   gsap.ticker.lagSmoothing(0)
 
-  // Handle route changes
   const router = useRouter()
-  const nuxtApp = useNuxtApp()
 
+  // Stop Lenis and kill all ScrollTriggers on every navigation.
+  // Components create fresh ScrollTriggers on mount — old ones must be gone.
   router.beforeEach(() => {
-    // Stop Lenis during navigation to prevent scroll while transitioning
     lenis.stop()
-
-    // Only kill component-level ScrollTriggers, NOT transition overlays.
-    // Skip if a custom transition (e.g. location card) is handling it.
-    if (!(window as any).__skipPageTransition) {
-      // Defer ScrollTrigger cleanup to after the leave animation completes.
-      // app.vue's beforeEach runs the leave animation with overlays that don't
-      // use ScrollTrigger, so this is safe to do immediately for page components.
-      // However, we must NOT kill them here because the leave animation in app.vue
-      // uses an awaited promise — killing triggers here would conflict.
-      // Instead, let components clean up their own triggers via onUnmounted.
-    }
-  })
-
-  // Reset scroll on page finish. Two cases:
-  // 1. Transition running (is-transitioning): app.vue's enter animation onComplete
-  //    handles ScrollTrigger.refresh() + lenis.start() after transforms are cleared.
-  // 2. No transition (initial load, __skipPageTransition): restart Lenis here directly.
-  nuxtApp.hook('page:finish', () => {
-    // Skip scroll reset if returning from detail page (card return animation handles scroll)
-    const isReturningToCard = sessionStorage.getItem('returnSlug')
-    if (!isReturningToCard) {
-      window.scrollTo(0, 0)
-      lenis.scrollTo(0, { immediate: true, force: true })
-    }
-
-    const isTransitioning = document.documentElement.classList.contains('is-transitioning')
-
-    if (!isTransitioning) {
-      // No enter animation — start Lenis after components mount
-      nextTick(() => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            ScrollTrigger.refresh(true)
-            lenis.start()
-          })
-        })
-      })
-    }
-    // else: app.vue onComplete handles lenis.start() + ScrollTrigger.refresh()
+    ScrollTrigger.getAll().forEach(st => st.kill())
+    ScrollTrigger.clearScrollMemory()
   })
 
   // Provide lenis instance globally

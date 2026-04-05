@@ -370,7 +370,10 @@ onMounted(() => {
     setupInitialState()
     createAnimation()
     window.addEventListener('resize', handleResize, { passive: true })
-    // ScrollTrigger.refresh() is handled globally by lenis plugin after all components mount
+
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh(true)
+    })
   }
 
   nextTick(() => {
