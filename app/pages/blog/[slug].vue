@@ -1,21 +1,43 @@
 <template>
   <div class="blog-detail">
-    <!-- Hero Image -->
-    <div class="blog-detail__hero">
-      <img v-if="displayImage" :src="displayImage" :alt="displayTitle" class="blog-detail__hero-image">
-      <div class="blog-detail__hero-overlay">
-        <div class="blog-detail__hero-content">
-          <span v-if="displayMeta" class="blog-detail__category">{{ displayMeta }}</span>
-          <h1 class="blog-detail__title">{{ displayTitle }}</h1>
+    <!-- Hero (same pattern as /lokacije/[slug]) -->
+    <section class="blog-detail__hero" ref="heroRef">
+      <div class="blog-detail__hero-image-wrapper" ref="imageWrapperRef">
+        <picture v-if="displayImage" class="blog-detail__hero-picture">
+          <source media="(min-width: 1024px)" :srcset="heroImageOriginal">
+          <source media="(min-width: 768px)" :srcset="heroImageLarge">
+          <img :src="heroImageMedium" :alt="displayTitle" class="blog-detail__hero-image">
+        </picture>
+      </div>
+
+      <div class="blog-detail__hero-info" ref="heroInfoRef">
+        <h1 class="blog-detail__title" ref="titleRef">{{ displayTitle }}</h1>
+        <div class="blog-detail__specs" ref="specsRef">
+          <div class="blog-detail__spec" v-if="displayMeta">
+            <span class="blog-detail__spec-label">Category</span>
+            <span class="blog-detail__spec-value">{{ displayMeta }}</span>
+          </div>
+          <div class="blog-detail__spec" v-if="author">
+            <span class="blog-detail__spec-label">Author</span>
+            <span class="blog-detail__spec-value">{{ author }}</span>
+          </div>
+          <div class="blog-detail__spec" v-if="date">
+            <span class="blog-detail__spec-label">Date</span>
+            <span class="blog-detail__spec-value">{{ formattedDate }}</span>
+          </div>
         </div>
       </div>
-      <button class="blog-detail__back" @click="goBack">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {{ $t('blog.viewAll') }}
-      </button>
-    </div>
+
+      <!-- Actions -->
+      <div class="blog-detail__actions" ref="actionsRef">
+        <button class="blog-detail__action" @click="goBack">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ $t('blog.viewAll') }}
+        </button>
+      </div>
+    </section>
 
     <!-- Content -->
     <article v-if="body" class="blog-detail__content">
@@ -25,9 +47,13 @@
 </template>
 
 <script setup lang="ts">
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { getCardTransitionData, goBackWithTransition } from '~/composables/useCardTransition'
 import type { BlogPost } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -40,34 +66,146 @@ const { data: postsData } = await useApi<BlogPost[]>('/api/blog_posts', {
 
 const post = computed(() => postsData.value?.[0] ?? null)
 
-// API-sourced values (SSR-available)
-const heroImage = computed(() =>
-  resolveMediaUrl(post.value?.image, 'large') || `https://picsum.photos/seed/${slug}/800/700`
+// Responsive image URLs
+const heroImageOriginal = computed(() =>
+  resolveMediaUrl(post.value?.image) || '/images/placeholder-lab.svg'
 )
+const heroImageLarge = computed(() =>
+  resolveMediaUrl(post.value?.image, 'large') || heroImageOriginal.value
+)
+const heroImageMedium = computed(() =>
+  resolveMediaUrl(post.value?.image, 'medium') || heroImageOriginal.value
+)
+const heroImage = computed(() => heroImageOriginal.value)
 const title = computed(() => post.value?.title ?? formattedSlug)
 const meta = computed(() => {
   const cat = post.value?.category
   if (cat && typeof cat === 'object') return cat.name || cat.slug
   return ''
 })
+const author = computed(() => post.value?.author ?? '')
+const date = computed(() => post.value?.date ?? '')
+const formattedDate = computed(() => {
+  if (!date.value) return ''
+  return new Date(date.value).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+})
 const body = computed(() => post.value?.body ?? '')
 
-// Override with transition data for smooth animation (client-side only)
+// Transition data for animation
 const transitionImage = ref('')
 const transitionTitle = ref('')
 const transitionMeta = ref('')
 
-onMounted(() => {
+const displayImage = computed(() => transitionImage.value || heroImage.value)
+const displayTitle = computed(() => transitionTitle.value || title.value)
+const displayMeta = computed(() => transitionMeta.value || meta.value)
+
+// Hero refs for scroll animation
+const heroRef = ref<HTMLElement | null>(null)
+const imageWrapperRef = ref<HTMLElement | null>(null)
+const heroInfoRef = ref<HTMLElement | null>(null)
+const titleRef = ref<HTMLElement | null>(null)
+const specsRef = ref<HTMLElement | null>(null)
+const actionsRef = ref<HTMLElement | null>(null)
+
+let heroTimeline: gsap.core.Timeline | null = null
+
+function setupScrollAnimation() {
+  if (!heroRef.value || !imageWrapperRef.value) return
+
+  const clipTargets = [titleRef.value, specsRef.value, actionsRef.value].filter(Boolean)
+  gsap.set(clipTargets, { clipPath: 'inset(0 0 0 0)' })
+
+  heroTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: heroRef.value,
+      start: 'top top',
+      end: '+=100%',
+      scrub: 1,
+      pin: true,
+      pinSpacing: true
+    }
+  })
+
+  // Image expands to full viewport
+  heroTimeline.to(imageWrapperRef.value, {
+    width: '100vw',
+    height: '100vh',
+    borderRadius: 0,
+    marginLeft: 0,
+    duration: 1,
+    ease: 'power2.inOut'
+  }, 0)
+
+  if (titleRef.value) {
+    heroTimeline.to(titleRef.value, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.4,
+      ease: 'power2.in'
+    }, 0.05)
+  }
+
+  if (specsRef.value) {
+    const specs = specsRef.value.querySelectorAll('.blog-detail__spec')
+    heroTimeline.to(specs, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.4,
+      stagger: 0.02,
+      ease: 'power2.in'
+    }, 0.08)
+  }
+
+  if (actionsRef.value) {
+    heroTimeline.to(actionsRef.value, {
+      clipPath: 'inset(100% 0 0 0)',
+      duration: 0.4,
+      ease: 'power2.in'
+    }, 0.11)
+  }
+}
+
+function runEntranceAnimation() {
+  const tl = gsap.timeline()
+
+  if (titleRef.value) {
+    gsap.set(titleRef.value, { opacity: 0, y: 20 })
+    tl.to(titleRef.value, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0)
+  }
+
+  if (specsRef.value) {
+    const specs = specsRef.value.querySelectorAll('.blog-detail__spec')
+    gsap.set(specs, { opacity: 0, y: 15 })
+    tl.to(specs, { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'power2.out' }, 0.1)
+  }
+
+  if (actionsRef.value) {
+    gsap.set(actionsRef.value, { opacity: 0, y: 10 })
+    tl.to(actionsRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.2)
+  }
+}
+
+onMounted(async () => {
   const data = getCardTransitionData()
   if (data.image) transitionImage.value = data.image
   if (data.title) transitionTitle.value = data.title
   if (data.meta) transitionMeta.value = data.meta
+
+  await nextTick()
+  requestAnimationFrame(() => {
+    runEntranceAnimation()
+    setupScrollAnimation()
+  })
 })
 
-// Use transition data if available (for animation), otherwise API data
-const displayImage = computed(() => transitionImage.value || heroImage.value)
-const displayTitle = computed(() => transitionTitle.value || title.value)
-const displayMeta = computed(() => transitionMeta.value || meta.value)
+onUnmounted(() => {
+  if (heroTimeline) {
+    heroTimeline.kill()
+    heroTimeline = null
+  }
+  ScrollTrigger.getAll().forEach(st => {
+    if (st.trigger === heroRef.value) st.kill()
+  })
+})
 
 function goBack() {
   goBackWithTransition('/blog', slug, displayImage.value)
@@ -83,17 +221,40 @@ definePageMeta({ showFooter: false })
   background-color: $color-background;
 }
 
+// ==========================================================================
+// Hero — same pattern as /lokacije/[slug]
+// ==========================================================================
 .blog-detail__hero {
-  position: relative;
-  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-detail__hero-image-wrapper {
+  width: calc(100vw - #{$spacing-2xl} * 2);
+  margin-left: $spacing-2xl;
   height: 50vh;
-  min-height: 320px;
+  min-height: 280px;
   overflow: hidden;
-  margin: 0 $spacing-2xl;
-  width: calc(100% - #{$spacing-2xl} * 2);
   border-radius: 0 0 $radius-lg $radius-lg;
-  @include tablet { margin: 0 $spacing-lg; width: calc(100% - #{$spacing-lg} * 2); }
-  @include mobile { margin: 0; width: 100%; border-radius: 0; }
+  will-change: width, height, border-radius;
+
+  @include tablet {
+    width: calc(100vw - #{$spacing-lg} * 2);
+    margin-left: $spacing-lg;
+  }
+
+  @include mobile {
+    width: 100vw;
+    margin-left: 0;
+    border-radius: 0;
+  }
+}
+
+.blog-detail__hero-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .blog-detail__hero-image {
@@ -102,65 +263,113 @@ definePageMeta({ showFooter: false })
   object-fit: cover;
 }
 
-.blog-detail__hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
-  display: flex;
-  align-items: flex-end;
-}
+.blog-detail__hero-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-2xl;
+  padding: $spacing-2xl $spacing-2xl 0;
+  flex: 1;
+  align-content: start;
 
-.blog-detail__hero-content {
-  padding: $spacing-xl $spacing-2xl;
-  color: #ffffff;
-  @include tablet { padding: $spacing-lg; }
-}
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    padding: $spacing-lg $spacing-lg 0;
+  }
 
-.blog-detail__category {
-  display: inline-block;
-  font-size: $font-size-sm;
-  opacity: 0.8;
-  margin-bottom: $spacing-sm;
+  @include mobile {
+    padding: $spacing-md $spacing-md 0;
+  }
 }
 
 .blog-detail__title {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
-.blog-detail__back {
-  position: absolute;
-  top: $spacing-lg;
-  left: $spacing-lg;
+.blog-detail__specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg $spacing-xl;
+  align-content: start;
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.blog-detail__spec-label {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-muted;
+  margin-bottom: $spacing-xs;
+}
+
+.blog-detail__spec-value {
+  display: block;
+  font-size: $font-size-base;
+  font-weight: 500;
+}
+
+// Actions
+.blog-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg $spacing-2xl;
+  margin-top: auto;
+
+  @include tablet {
+    padding: $spacing-lg;
+    flex-wrap: wrap;
+  }
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.blog-detail__action {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: $spacing-sm;
   padding: $spacing-sm $spacing-md;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border: none;
+  background: none;
+  border: 1px solid $color-border;
   border-radius: $radius-full;
   font-size: $font-size-sm;
   font-family: inherit;
   color: $color-primary;
   cursor: pointer;
-  transition: background $transition-base;
-  z-index: 1;
-  &:hover { background: #ffffff; }
+  transition: background $transition-base, border-color $transition-base;
+
+  &:hover {
+    background: $color-surface;
+    border-color: $color-primary;
+  }
 }
 
+// ==========================================================================
+// Content
+// ==========================================================================
 .blog-detail__content {
   max-width: 700px;
   margin: 0 auto;
   padding: $spacing-2xl;
-  @include tablet { padding: $spacing-lg; }
+
+  @include tablet {
+    padding: $spacing-lg;
+  }
 }
 
 .blog-detail__body {
   line-height: 1.9;
-  p { margin-bottom: $spacing-lg; }
-  h2 { margin: $spacing-2xl 0 $spacing-md; font-size: $font-size-xl; font-weight: 400; }
+
+  :deep(p) { margin-bottom: $spacing-lg; }
+  :deep(h2) { margin: $spacing-2xl 0 $spacing-md; font-size: $font-size-xl; font-weight: 400; }
+  :deep(img) { width: 100%; border-radius: $radius-lg; margin: $spacing-lg 0; }
 }
 </style>

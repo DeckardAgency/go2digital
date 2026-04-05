@@ -143,7 +143,7 @@ const filteredLabs = computed(() => labsData.value ?? [])
 
 // Helper to get lab image URL
 function getLabImage(lab: LabProject): string {
-  return resolveMediaUrl(lab.image, 'large') || `https://picsum.photos/seed/${lab.slug}/800/600`
+  return resolveMediaUrl(lab.image, 'large') || '/images/placeholder-lab.svg'
 }
 
 // Helper to get category display name for lab

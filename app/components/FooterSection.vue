@@ -26,11 +26,15 @@ const marqueeOptions = {
 }
 
 // Fetch navigation, social links, and contact info from API
-const { data: navData } = await useApi<NavigationItem[]>('/api/navigation_items', {
-  query: { group: 'footer' }
+// Use server: false + lazy to avoid hydration mismatch — footer renders with
+// fallbacks on both server and client, then API data fills in on client only
+const { data: navData } = useApi<NavigationItem[]>('/api/navigation_items', {
+  query: { group: 'footer' },
+  lazy: true,
+  server: false
 })
-const { data: socialData } = await useApi<SocialLink[]>('/api/social_links')
-const { data: contactData } = await useApi<ContactInfo[]>('/api/contact_infos')
+const { data: socialData } = useApi<SocialLink[]>('/api/social_links', { lazy: true, server: false })
+const { data: contactData } = useApi<ContactInfo[]>('/api/contact_infos', { lazy: true, server: false })
 
 // Navigation links — from API with fallback
 const navLinks = computed(() => {

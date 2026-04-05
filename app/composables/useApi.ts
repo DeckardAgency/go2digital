@@ -10,7 +10,7 @@ export function useApi<T>(
   const config = useRuntimeConfig()
   const { locale } = useI18n()
 
-  const { watch: extraWatch, headers: extraHeaders, query: queryOption, ...restOptions } = options
+  const { watch: extraWatch, headers: extraHeaders, query: queryOption, lazy: lazyOption, server: serverOption, ...restOptions } = options
 
   // Build a unique key from the endpoint
   const key = computed(() => {
@@ -32,6 +32,8 @@ export function useApi<T>(
       ...restOptions,
     }),
     {
+      lazy: lazyOption ?? false,
+      server: serverOption ?? true,
       watch: [locale, ...(Array.isArray(extraWatch) ? extraWatch : extraWatch ? [extraWatch] : []),
         ...(queryOption ? [isRef(queryOption) ? queryOption : ref(queryOption)] : [])],
     }
