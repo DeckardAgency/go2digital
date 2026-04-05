@@ -29,7 +29,10 @@
           <span class="lab-detail__section-bullet"></span>
           {{ section.label }}
         </div>
-        <div class="lab-detail__section-content" v-html="formatContent(section.content)"></div>
+        <div class="lab-detail__section-body">
+          <div class="lab-detail__section-content" v-html="section.content"></div>
+          <img v-if="section.imagePath" :src="resolveMediaUrl({ path: section.imagePath } as any)" :alt="section.label" class="lab-detail__section-image" />
+        </div>
       </div>
     </section>
   </div>
@@ -65,11 +68,6 @@ const meta = computed(() => {
 })
 const body = computed(() => project.value?.body ?? '')
 const sections = computed(() => (project.value as any)?.sections ?? [])
-
-function formatContent(text: string): string {
-  if (!text) return ''
-  return text.split('\n').filter(l => l.trim()).map(l => `<p>${l}</p>`).join('')
-}
 
 // Transition data for animation
 const transitionImage = ref('')
@@ -204,7 +202,7 @@ definePageMeta({ showFooter: false })
   align-items: flex-start;
   gap: $spacing-sm;
   font-size: $font-size-base;
-  color: $color-text-secondary;
+  color: $color-muted;
   font-weight: 400;
   padding-top: 2px;
 }
@@ -213,19 +211,31 @@ definePageMeta({ showFooter: false })
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: $color-text-secondary;
+  background: $color-muted;
   flex-shrink: 0;
   margin-top: 8px;
+}
+
+.lab-detail__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
 }
 
 .lab-detail__section-content {
   font-size: $font-size-base;
   line-height: 1.8;
-  color: $color-text-secondary;
+  color: $color-muted;
 
   :deep(p) {
     margin-bottom: $spacing-md;
     &:last-child { margin-bottom: 0; }
   }
+}
+
+.lab-detail__section-image {
+  width: 100%;
+  border-radius: $radius-md;
+  object-fit: cover;
 }
 </style>
