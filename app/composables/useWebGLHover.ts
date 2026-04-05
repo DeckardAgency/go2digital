@@ -35,21 +35,34 @@ const fragment = /* glsl */ `
   void main() {
     vec2 uv = vUv;
 
-    // Random value per pixel area
+    // === RGB Split (outer ring) ===
+    float cRgb = circle(uv, uMouse, 0.0, 0.2);
+    vec2 uvR = uv;
+    vec2 uvG = uv;
+    vec2 uvB = uv;
+    uvR += cRgb * (uVelo * 0.5);
+    uvG += cRgb * (uVelo * 0.525);
+    uvB += cRgb * (uVelo * 0.55);
+
+    // === Random noise (inner core) ===
     float hash = hash12(uv * 10.0);
+    float cRand = circle(uv, uMouse, 0.0, 0.1 + uVelo * 0.01) * 10.0 * uVelo;
+    vec2 randOffset = vec2(hash - 0.5) * cRand;
 
-    // Circular influence zone around mouse, scaled by velocity
-    float c = circle(uv, uMouse, 0.0, 0.1 + uVelo * 0.01) * 10.0 * uVelo;
+    // Combine: apply random offset on top of RGB-split UVs
+    uvR = clamp(uvR + randOffset, 0.0, 1.0);
+    uvG = clamp(uvG + randOffset, 0.0, 1.0);
+    uvB = clamp(uvB + randOffset, 0.0, 1.0);
 
-    // Random UV displacement within the circle
-    vec2 warpedUV = uv + vec2(hash - 0.5) * c;
+    // Sample each channel separately
+    float r = texture2D(uTexture, uvR).r;
+    float g = texture2D(uTexture, uvG).g;
+    float b = texture2D(uTexture, uvB).b;
 
-    // Clamp to prevent sampling outside texture
-    warpedUV = clamp(warpedUV, 0.0, 1.0);
+    vec4 color = vec4(r, g, b, 1.0);
 
-    // Sample with additive glow
-    vec4 color = texture2D(uTexture, warpedUV);
-    color.rgb += color.rgb * c * 0.8;
+    // Additive glow in the effect zone
+    color.rgb += color.rgb * cRand * 0.6;
 
     gl_FragColor = color;
   }
