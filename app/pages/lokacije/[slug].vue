@@ -226,8 +226,11 @@ function capitalize(s: string): string {
   return s.replace(/\b\w/g, c => c.toUpperCase())
 }
 
-// Fetch
-const { data: locData } = await useFetch<any[]>('https://cdn.go2digital.hr/loc.json', {
+// Fetch from API (replaces CDN)
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase as string
+
+const { data: locData } = await useFetch<any[]>(`${apiBase}/api/locations`, {
   key: 'locations-data'
 })
 

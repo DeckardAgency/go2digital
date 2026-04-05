@@ -616,8 +616,11 @@ function parseLocData(data: any[]) {
   }
 }
 
-// Fetch on both server and client to avoid hydration mismatch
-const { data: locData } = useFetch<any[]>('https://cdn.go2digital.hr/loc.json', {
+// Fetch from API (replaces CDN), fallback to CDN if API unavailable
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase as string
+
+const { data: locData } = useFetch<any[]>(`${apiBase}/api/locations`, {
   key: 'locations-data',
   lazy: true
 })
