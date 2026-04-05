@@ -231,7 +231,8 @@ const config = useRuntimeConfig()
 const apiBase = config.public.apiBase as string
 
 const { data: locData } = await useFetch<any[]>(`${apiBase}/api/locations`, {
-  key: 'locations-data'
+  key: 'locations-detail-data',
+  getCachedData: () => undefined,
 })
 
 const matchedData = computed(() => {
