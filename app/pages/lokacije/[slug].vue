@@ -3,12 +3,11 @@
     <!-- Hero -->
     <section class="location-detail__hero" ref="heroRef">
       <div class="location-detail__hero-image-wrapper" ref="imageWrapperRef">
-        <img
-          v-if="heroImage"
-          :src="heroImage"
-          :alt="totem?.name"
-          class="location-detail__hero-image"
-        >
+        <picture v-if="heroImage" class="location-detail__hero-picture">
+          <source media="(min-width: 1024px)" :srcset="heroImageOriginal">
+          <source media="(min-width: 768px)" :srcset="heroImageLarge">
+          <img :src="heroImageMedium" :alt="totem?.name" class="location-detail__hero-image">
+        </picture>
       </div>
 
       <div class="location-detail__hero-info" ref="heroInfoRef">
@@ -250,7 +249,8 @@ const matchedData = computed(() => {
 const totem = computed(() => matchedData.value?.totem || null)
 const cityName = computed(() => matchedData.value?.cityName || '')
 
-const heroImage = computed(() => {
+// Responsive hero images — full quality on desktop, smaller on mobile
+const heroImageOriginal = computed(() => {
   const t = totem.value
   if (t?.images?.length) {
     const img = t.images[0]
@@ -258,6 +258,27 @@ const heroImage = computed(() => {
   }
   return sessionImage.value || ''
 })
+
+const heroImageLarge = computed(() => {
+  const t = totem.value
+  if (t?.images?.length) {
+    const img = t.images[0]
+    return resolveUrl(img.large || img.main || img.thumbnail || '')
+  }
+  return heroImageOriginal.value
+})
+
+const heroImageMedium = computed(() => {
+  const t = totem.value
+  if (t?.images?.length) {
+    const img = t.images[0]
+    return resolveUrl(img.thumbnail || img.large || img.main || '')
+  }
+  return heroImageOriginal.value
+})
+
+// Backward compat alias
+const heroImage = computed(() => heroImageOriginal.value)
 
 const galleryImages = computed(() => {
   if (!totem.value?.images) return []
@@ -489,6 +510,7 @@ definePageMeta({
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; // clip info/actions when image expands past them
 }
 
 .location-detail__hero-image-wrapper {
@@ -499,6 +521,7 @@ definePageMeta({
   overflow: hidden;
   border-radius: 0 0 $radius-lg $radius-lg;
   will-change: width, height, border-radius;
+  flex-shrink: 0; // prevent flex from compressing when GSAP animates to 100vh
   @include tablet {
     width: calc(100vw - #{$spacing-lg} * 2);
     margin-left: $spacing-lg;
@@ -508,6 +531,12 @@ definePageMeta({
     margin-left: 0;
     border-radius: 0;
   }
+}
+
+.location-detail__hero-picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .location-detail__hero-image {

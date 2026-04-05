@@ -260,6 +260,7 @@ definePageMeta({ showFooter: false })
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; // clip info/actions when image expands past them
 }
 
 .lab-detail__hero-image-wrapper {
@@ -270,6 +271,7 @@ definePageMeta({ showFooter: false })
   overflow: hidden;
   border-radius: 0 0 $radius-lg $radius-lg;
   will-change: width, height, border-radius;
+  flex-shrink: 0; // prevent flex from compressing when GSAP animates to 100vh
 
   @include tablet {
     width: calc(100vw - #{$spacing-lg} * 2);
