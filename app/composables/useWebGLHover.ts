@@ -14,37 +14,42 @@ const fragment = /* glsl */ `
   precision highp float;
   uniform sampler2D uTexture;
   uniform vec2 uMouse;
-  uniform float uHover;
+  uniform float uVelo;
   uniform float uTime;
   uniform vec2 uResolution;
   varying vec2 vUv;
 
+  // Circular mask around mouse
+  float circle(vec2 uv, vec2 center, float radius, float border) {
+    vec2 d = (uv - center) * uResolution;
+    float dist = length(d);
+    return smoothstep(radius + border, radius - border, dist);
+  }
+
+  // Hash: pseudo-random float from 2D position
+  float hash12(vec2 p) {
+    float h = dot(p, vec2(127.1, 311.7));
+    return fract(sin(h) * 43758.5453123);
+  }
+
   void main() {
     vec2 uv = vUv;
 
-    // Distance from mouse
-    vec2 mouse = uMouse;
-    float dist = distance(uv, mouse);
+    // Random value per pixel area
+    float hash = hash12(uv * 10.0);
 
-    // Ripple displacement on hover
-    float strength = uHover * 0.04;
-    float radius = 0.35;
-    float ripple = smoothstep(radius, 0.0, dist);
+    // Circular influence zone around mouse, scaled by velocity
+    float c = circle(uv, uMouse, 0.0, 0.1 + uVelo * 0.01) * 10.0 * uVelo;
 
-    // Chromatic-style displacement
-    float angle = atan(uv.y - mouse.y, uv.x - mouse.x);
-    vec2 offset = vec2(cos(angle), sin(angle)) * ripple * strength;
+    // Random UV displacement within the circle
+    vec2 warpedUV = uv + vec2(hash - 0.5) * c;
 
-    // Slight wave
-    offset += vec2(
-      sin(uv.y * 12.0 + uTime * 2.0) * ripple * strength * 0.3,
-      cos(uv.x * 12.0 + uTime * 2.0) * ripple * strength * 0.3
-    );
+    // Clamp to prevent sampling outside texture
+    warpedUV = clamp(warpedUV, 0.0, 1.0);
 
-    vec4 color = texture2D(uTexture, uv + offset);
-
-    // Subtle brightness boost on hover area
-    color.rgb += ripple * uHover * 0.06;
+    // Sample with additive glow
+    vec4 color = texture2D(uTexture, warpedUV);
+    color.rgb += color.rgb * c * 0.8;
 
     gl_FragColor = color;
   }
@@ -71,16 +76,14 @@ export function useWebGLHover(
   gl.canvas.style.height = '100%'
   container.appendChild(gl.canvas)
 
-  const { width, height } = container.getBoundingClientRect()
-  renderer.setSize(width, height)
+  const rect = container.getBoundingClientRect()
+  renderer.setSize(rect.width, rect.height)
 
   // Load texture
   const texture = new Texture(gl)
   const img = new Image()
   img.crossOrigin = 'anonymous'
-  img.onload = () => {
-    texture.image = img
-  }
+  img.onload = () => { texture.image = img }
   img.src = imageSrc
 
   const geometry = new Plane(gl, { width: 2, height: 2 })
@@ -90,43 +93,47 @@ export function useWebGLHover(
     uniforms: {
       uTexture: { value: texture },
       uMouse: { value: [0.5, 0.5] },
-      uHover: { value: 0 },
+      uVelo: { value: 0 },
       uTime: { value: 0 },
-      uResolution: { value: [width, height] },
+      uResolution: { value: [1.0, rect.height / rect.width] },
     },
   })
 
   const mesh = new Mesh(gl, { geometry, program })
 
-  // State
-  let targetHover = 0
-  let currentHover = 0
-  let mouseX = 0.5
-  let mouseY = 0.5
-  let currentMouseX = 0.5
-  let currentMouseY = 0.5
+  // Mouse tracking with velocity
+  let mouseX = -1, mouseY = -1
+  let prevMouseX = -1, prevMouseY = -1
+  let followX = 0.5, followY = 0.5
+  let targetVelo = 0, currentVelo = 0
   let raf = 0
   let destroyed = false
 
   function onMouseMove(e: MouseEvent) {
-    const rect = container.getBoundingClientRect()
-    mouseX = (e.clientX - rect.left) / rect.width
-    mouseY = 1.0 - (e.clientY - rect.top) / rect.height
+    const r = container.getBoundingClientRect()
+    mouseX = (e.clientX - r.left) / r.width
+    mouseY = 1.0 - (e.clientY - r.top) / r.height
   }
 
-  function onMouseEnter() {
-    targetHover = 1
+  function onMouseEnter(e: MouseEvent) {
+    const r = container.getBoundingClientRect()
+    mouseX = (e.clientX - r.left) / r.width
+    mouseY = 1.0 - (e.clientY - r.top) / r.height
+    prevMouseX = mouseX
+    prevMouseY = mouseY
+    followX = mouseX
+    followY = mouseY
   }
 
   function onMouseLeave() {
-    targetHover = 0
+    targetVelo = 0
   }
 
   function onResize() {
     if (destroyed) return
-    const { width, height } = container.getBoundingClientRect()
-    renderer.setSize(width, height)
-    program.uniforms.uResolution.value = [width, height]
+    const r = container.getBoundingClientRect()
+    renderer.setSize(r.width, r.height)
+    program.uniforms.uResolution.value = [1.0, r.height / r.width]
   }
 
   container.addEventListener('mousemove', onMouseMove)
@@ -138,16 +145,28 @@ export function useWebGLHover(
     if (destroyed) return
     raf = requestAnimationFrame(animate)
 
-    // Smooth interpolation
-    currentHover += (targetHover - currentHover) * 0.06
-    currentMouseX += (mouseX - currentMouseX) * 0.08
-    currentMouseY += (mouseY - currentMouseY) * 0.08
+    // Calculate mouse velocity
+    if (prevMouseX >= 0) {
+      const dx = mouseX - prevMouseX
+      const dy = mouseY - prevMouseY
+      targetVelo = Math.min(Math.sqrt(dx * dx + dy * dy), 0.05)
+    }
+    prevMouseX = mouseX
+    prevMouseY = mouseY
 
-    program.uniforms.uHover.value = currentHover
-    program.uniforms.uMouse.value = [currentMouseX, currentMouseY]
+    // Smooth follow
+    followX += (mouseX - followX) * 0.1
+    followY += (mouseY - followY) * 0.1
+    currentVelo += (targetVelo - currentVelo) * 0.08
+
+    program.uniforms.uMouse.value = [followX, followY]
+    program.uniforms.uVelo.value = currentVelo
     program.uniforms.uTime.value = time * 0.001
 
     renderer.render({ scene: mesh })
+
+    // Decay velocity when not moving
+    targetVelo *= 0.92
   }
 
   raf = requestAnimationFrame(animate)
@@ -160,9 +179,7 @@ export function useWebGLHover(
       container.removeEventListener('mouseenter', onMouseEnter)
       container.removeEventListener('mouseleave', onMouseLeave)
       window.removeEventListener('resize', onResize)
-      if (gl.canvas.parentNode) {
-        gl.canvas.parentNode.removeChild(gl.canvas)
-      }
+      if (gl.canvas.parentNode) gl.canvas.parentNode.removeChild(gl.canvas)
       gl.getExtension('WEBGL_lose_context')?.loseContext()
     },
   }
