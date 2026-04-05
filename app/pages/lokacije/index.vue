@@ -620,9 +620,8 @@ function parseLocData(data: any[]) {
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase as string
 
-const { data: locData } = useFetch<any[]>(`${apiBase}/api/locations`, {
+const { data: locData } = await useFetch<any[]>(`${apiBase}/api/locations`, {
   key: 'locations-data',
-  lazy: true,
   getCachedData: () => undefined, // Always fetch fresh data — order may change via CMS
 })
 

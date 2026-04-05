@@ -29,16 +29,27 @@ export default defineNuxtPlugin(() => {
 
   // Handle route changes
   const router = useRouter()
+  const nuxtApp = useNuxtApp()
 
   router.beforeEach(() => {
-    // Stop Lenis during navigation
+    // Stop Lenis during navigation to prevent scroll while transitioning
     lenis.stop()
-    // Kill all ScrollTriggers
-    ScrollTrigger.getAll().forEach(st => st.kill())
+
+    // Only kill component-level ScrollTriggers, NOT transition overlays.
+    // Skip if a custom transition (e.g. location card) is handling it.
+    if (!(window as any).__skipPageTransition) {
+      // Defer ScrollTrigger cleanup to after the leave animation completes.
+      // app.vue's beforeEach runs the leave animation with overlays that don't
+      // use ScrollTrigger, so this is safe to do immediately for page components.
+      // However, we must NOT kill them here because the leave animation in app.vue
+      // uses an awaited promise — killing triggers here would conflict.
+      // Instead, let components clean up their own triggers via onUnmounted.
+    }
   })
 
-  router.afterEach(() => {
-    // Reset scroll and restart Lenis after navigation
+  // Use page:finish instead of router.afterEach to reset scroll and restart Lenis
+  // AFTER Suspense resolves and the new page is actually rendered
+  nuxtApp.hook('page:finish', () => {
     window.scrollTo(0, 0)
     lenis.scrollTo(0, { immediate: true, force: true })
     lenis.start()

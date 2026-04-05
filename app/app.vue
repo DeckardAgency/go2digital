@@ -17,6 +17,7 @@ import { gsap } from 'gsap'
 const appRoot = ref<HTMLElement | null>(null)
 const pageWrapper = ref<HTMLElement | null>(null)
 const isAnimating = ref(false)
+let leaveAnimationDone = false // tracks if leave animation has completed
 let transitionOverlay: HTMLElement | null = null
 
 const router = useRouter()
@@ -92,6 +93,7 @@ router.beforeEach(async (to, from) => {
   }
 
   isAnimating.value = true
+  leaveAnimationDone = false
 
   // Leave animation
   await new Promise<void>((resolve) => {
@@ -128,14 +130,34 @@ router.beforeEach(async (to, from) => {
     // Hide wrapper at the end so new page content is invisible when Vue swaps the component
     tl.set(wrapper, { opacity: 0 })
   })
+
+  leaveAnimationDone = true
 })
 
-router.afterEach(async () => {
+// Use page:finish hook instead of router.afterEach — this fires AFTER Suspense
+// resolves and the new page component is actually rendered. router.afterEach fires
+// immediately when the route changes, but with async components (await useApi),
+// Suspense keeps the old page visible until the new one resolves, causing a flash.
+const nuxtApp = useNuxtApp()
+
+nuxtApp.hook('page:finish', async () => {
   const wrapper = pageWrapper.value
 
   if (!transitionOverlay || !wrapper || !depthOverlay || !isAnimating.value) return
 
-  // Small delay to let the new page render
+  // Wait for leave animation to complete if it hasn't yet
+  // (page:finish can fire before beforeEach's leave animation finishes if API responses are cached)
+  if (!leaveAnimationDone) {
+    await new Promise<void>((resolve) => {
+      const check = () => {
+        if (leaveAnimationDone) return resolve()
+        requestAnimationFrame(check)
+      }
+      check()
+    })
+  }
+
+  // Ensure new page content is in the DOM
   await nextTick()
 
   window.scrollTo(0, 0)

@@ -1,8 +1,6 @@
 export default defineNuxtPlugin(() => {
   const { initSplitText } = useSplitText()
-
-  // Initialize on route change
-  const router = useRouter()
+  const nuxtApp = useNuxtApp()
 
   // Initial load
   onNuxtReady(() => {
@@ -11,8 +9,9 @@ export default defineNuxtPlugin(() => {
     })
   })
 
-  // Re-initialize after page transitions
-  router.afterEach(() => {
+  // Re-initialize after page transitions — use page:finish instead of router.afterEach
+  // so we target the NEW page's elements after Suspense resolves, not the old page's
+  nuxtApp.hook('page:finish', () => {
     nextTick(() => {
       setTimeout(() => initSplitText(), 150)
     })

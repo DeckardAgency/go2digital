@@ -315,7 +315,9 @@ onUnmounted(() => {
           </button>
         </div>
         <div class="footer__credits">
-          Design / N3 Studio
+          <span>Design / N3 Studio</span>
+          <span class="footer__credits-divider"></span>
+          <span>Decoded by: <a href="https://www.deckard.hr/" target="_blank" rel="noopener noreferrer" class="footer__credits-link" data-text="Deckard">Deckard</a></span>
         </div>
       </div>
     </div>
@@ -782,9 +784,119 @@ onUnmounted(() => {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 
   @include responsive('mobile') {
     font-size: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
+.footer__credits-divider {
+  width: 0.25rem;
+  height: 0.25rem;
+  background-color: #4a4a4a;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  @include responsive('mobile') {
+    display: none;
+  }
+}
+
+// Glitch hover effect on Deckard link
+.footer__credits-link {
+  color: var(--footer-text);
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    animation: glitch 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  // Glitch pseudo-layers
+  &::before,
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &::before {
+    color: #0CD459;
+    z-index: -1;
+  }
+
+  &::after {
+    color: #ff0050;
+    z-index: -1;
+  }
+
+  &:hover::before {
+    animation: glitch-layer-1 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+
+  &:hover::after {
+    animation: glitch-layer-2 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  10% { transform: translate(-2px, 1px); }
+  20% { transform: translate(2px, -1px); }
+  30% { transform: translate(-1px, -1px); }
+  40% { transform: translate(1px, 2px); }
+  50% { transform: translate(-1px, -2px); }
+  60% { transform: translate(2px, 1px); }
+  70% { transform: translate(-2px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, 0); }
+  100% { transform: translate(0); }
+}
+
+@keyframes glitch-layer-1 {
+  0% { opacity: 0; transform: translate(0); }
+  10% { opacity: 0.8; transform: translate(2px, -1px); }
+  20% { opacity: 0.6; transform: translate(-3px, 1px); }
+  30% { opacity: 0.8; transform: translate(1px, 2px); }
+  40% { opacity: 0.4; transform: translate(-2px, -1px); }
+  50% { opacity: 0.7; transform: translate(3px, 0); }
+  60% { opacity: 0.5; transform: translate(-1px, 1px); }
+  70% { opacity: 0.8; transform: translate(2px, -2px); }
+  80% { opacity: 0.3; transform: translate(-2px, 1px); }
+  90% { opacity: 0.6; transform: translate(1px, -1px); }
+  100% { opacity: 0; transform: translate(0); }
+}
+
+@keyframes glitch-layer-2 {
+  0% { opacity: 0; transform: translate(0); }
+  10% { opacity: 0.6; transform: translate(-2px, 2px); }
+  20% { opacity: 0.8; transform: translate(3px, -1px); }
+  30% { opacity: 0.4; transform: translate(-1px, -2px); }
+  40% { opacity: 0.7; transform: translate(2px, 1px); }
+  50% { opacity: 0.5; transform: translate(-3px, -1px); }
+  60% { opacity: 0.8; transform: translate(1px, 2px); }
+  70% { opacity: 0.3; transform: translate(-2px, -1px); }
+  80% { opacity: 0.7; transform: translate(3px, 1px); }
+  90% { opacity: 0.4; transform: translate(-1px, -2px); }
+  100% { opacity: 0; transform: translate(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__credits-link {
+    &:hover { animation: none; opacity: 0.7; }
+    &:hover::before,
+    &:hover::after { animation: none; }
   }
 }
 </style>

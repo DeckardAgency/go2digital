@@ -41,17 +41,11 @@
 </template>
 
 <script setup lang="ts">
-const isMenuOpen = ref(false)
+// Use shared navigation composable — same state as HeroNav and app.vue transitions
+const { isMenuOpen, toggleMenu, closeMenu } = useNavigation()
+
 const isHidden = ref(false)
 let lastScrollY = 0
-
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
-
-const closeMenu = () => {
-  isMenuOpen.value = false
-}
 
 const handleScroll = () => {
   const currentScrollY = window.scrollY
@@ -107,7 +101,7 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999; // Above transition overlays (9997-9998) so menu button stays clickable
   background-color: transparent;
   padding: $spacing-4;
   transition: transform $transition-duration $easing-default;
