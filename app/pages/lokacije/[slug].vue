@@ -193,6 +193,7 @@
 <script setup lang="ts">
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { goBackWithTransition } from '~/composables/useCardTransition'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -426,45 +427,7 @@ function setupScrollAnimation() {
 }
 
 function goBack() {
-  sessionStorage.setItem('returnSlug', slug)
-  sessionStorage.setItem('returnImage', heroImage.value)
-
-  // Clip-path hide elements before navigating (same as scroll animation)
-  const targets = [titleRef.value, specsRef.value, actionsRef.value].filter(Boolean)
-  gsap.set(targets, { clipPath: 'inset(0 0 0 0)' })
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      ;(window as any).__skipPageTransition = true
-      navigateTo('/lokacije')
-    }
-  })
-
-  if (titleRef.value) {
-    tl.to(titleRef.value, {
-      clipPath: 'inset(100% 0 0 0)',
-      duration: 0.3,
-      ease: 'power2.in'
-    }, 0)
-  }
-
-  if (specsRef.value) {
-    const specs = specsRef.value.querySelectorAll('.location-detail__spec')
-    tl.to(specs, {
-      clipPath: 'inset(100% 0 0 0)',
-      duration: 0.3,
-      stagger: 0.02,
-      ease: 'power2.in'
-    }, 0.03)
-  }
-
-  if (actionsRef.value) {
-    tl.to(actionsRef.value, {
-      clipPath: 'inset(100% 0 0 0)',
-      duration: 0.3,
-      ease: 'power2.in'
-    }, 0.06)
-  }
+  goBackWithTransition('/lokacije', slug, heroImage.value, imageWrapperRef.value)
 }
 
 function shareLocation() {

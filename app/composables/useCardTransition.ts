@@ -158,13 +158,64 @@ export function getCardTransitionData() {
  * Stores slug + image in sessionStorage so the listing page can animate
  * the clone from hero size down to the exact target card position.
  */
-export function goBackWithTransition(basePath: string, slug: string, heroImage: string) {
+export function goBackWithTransition(basePath: string, slug: string, heroImage: string, heroElement?: HTMLElement | null) {
   if (isNavigating) return
   isNavigating = true
 
-  // Store return data for the listing page to consume
   sessionStorage.setItem('returnSlug', slug)
   sessionStorage.setItem('returnImage', heroImage)
+
+  // Capture the hero element's CURRENT dimensions (it may have been
+  // expanded by ScrollTrigger). If no element provided, use defaults.
+  let cloneTop: string, cloneLeft: string, cloneWidth: string, cloneHeight: string, cloneRadius: string
+
+  if (heroElement) {
+    const rect = heroElement.getBoundingClientRect()
+    const style = getComputedStyle(heroElement)
+    cloneTop = `${rect.top}px`
+    cloneLeft = `${rect.left}px`
+    cloneWidth = `${rect.width}px`
+    cloneHeight = `${rect.height}px`
+    cloneRadius = style.borderRadius
+  } else {
+    const vw = window.innerWidth
+    cloneTop = '0px'
+    if (vw <= 768) {
+      cloneLeft = '0px'; cloneWidth = '100vw'; cloneRadius = '0'
+    } else if (vw <= 1024) {
+      cloneLeft = '1.5rem'; cloneWidth = 'calc(100vw - 3rem)'; cloneRadius = '0 0 0.75rem 0.75rem'
+    } else {
+      cloneLeft = '3rem'; cloneWidth = 'calc(100vw - 6rem)'; cloneRadius = '0 0 0.75rem 0.75rem'
+    }
+    cloneHeight = '50vh'
+  }
+
+  // White overlay behind clone
+  let overlay = document.getElementById('return-transition-overlay')
+  if (!overlay) {
+    overlay = document.createElement('div')
+    overlay.id = 'return-transition-overlay'
+    document.body.appendChild(overlay)
+  }
+  overlay.style.cssText = `
+    position: fixed; inset: 0; background: #ffffff;
+    z-index: 10000; opacity: 1; pointer-events: none;
+  `
+
+  // Hero image clone on top — matches current hero element exactly
+  let clone = document.getElementById('return-transition-clone') as HTMLImageElement
+  if (!clone) {
+    clone = document.createElement('img')
+    clone.id = 'return-transition-clone'
+    document.body.appendChild(clone)
+  }
+  clone.src = heroImage
+  clone.style.cssText = `
+    position: fixed; top: ${cloneTop}; left: ${cloneLeft};
+    width: ${cloneWidth}; height: ${cloneHeight};
+    object-fit: cover; z-index: 10001; pointer-events: none;
+    border-radius: ${cloneRadius};
+  `
 
   ;(window as any).__skipPageTransition = true
   navigateTo(basePath)
@@ -190,52 +241,37 @@ export function playReturnToCardAnimation(
 ) {
   const vw = window.innerWidth
 
-  // Calculate hero dimensions matching detail page
-  let heroLeft: string
-  let heroWidth: string
-  let heroRadius: string
+  // Reuse clone + overlay created by goBackWithTransition (they persist across navigation)
+  let clone = document.getElementById('return-transition-clone') as HTMLElement
+  let overlay = document.getElementById('return-transition-overlay') as HTMLElement
 
-  if (vw <= 768) {
-    heroLeft = '0px'
-    heroWidth = '100vw'
-    heroRadius = '0'
-  } else if (vw <= 1024) {
-    heroLeft = '1.5rem'
-    heroWidth = 'calc(100vw - 3rem)'
-    heroRadius = '0 0 0.75rem 0.75rem'
-  } else {
-    heroLeft = '3rem'
-    heroWidth = 'calc(100vw - 6rem)'
-    heroRadius = '0 0 0.75rem 0.75rem'
+  // Fallback: create them if not found (e.g. direct page load with returnSlug)
+  if (!overlay) {
+    overlay = document.createElement('div')
+    overlay.id = 'return-transition-overlay'
+    overlay.style.cssText = `
+      position: fixed; inset: 0; background: #ffffff;
+      z-index: 10000; opacity: 1; pointer-events: none;
+    `
+    document.body.appendChild(overlay)
   }
 
-  // Create clone at hero size
-  const clone = document.createElement('img')
-  clone.src = imageSrc
-  clone.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: ${heroLeft};
-    width: ${heroWidth};
-    height: 50vh;
-    object-fit: cover;
-    z-index: 10001;
-    pointer-events: none;
-    border-radius: ${heroRadius};
-  `
-  document.body.appendChild(clone)
+  if (!clone) {
+    const heroLeft = vw <= 768 ? '0px' : vw <= 1024 ? '1.5rem' : '3rem'
+    const heroWidth = vw <= 768 ? '100vw' : vw <= 1024 ? 'calc(100vw - 3rem)' : 'calc(100vw - 6rem)'
+    const heroRadius = vw <= 768 ? '0' : '0 0 0.75rem 0.75rem'
 
-  // White overlay behind the clone (starts opaque)
-  const overlay = document.createElement('div')
-  overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: #ffffff;
-    z-index: 10000;
-    opacity: 1;
-    pointer-events: none;
-  `
-  document.body.appendChild(overlay)
+    clone = document.createElement('img')
+    clone.id = 'return-transition-clone'
+    ;(clone as HTMLImageElement).src = imageSrc
+    clone.style.cssText = `
+      position: fixed; top: 0; left: ${heroLeft};
+      width: ${heroWidth}; height: 50vh;
+      object-fit: cover; z-index: 10001; pointer-events: none;
+      border-radius: ${heroRadius};
+    `
+    document.body.appendChild(clone)
+  }
 
   // Delay until after page:finish (which resets scroll) has fired.
   // onMounted runs before page:finish, so we wait for nextTick + rAF.

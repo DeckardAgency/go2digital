@@ -208,7 +208,7 @@ onUnmounted(() => {
 })
 
 function goBack() {
-  goBackWithTransition('/blog', slug, displayImage.value)
+  goBackWithTransition('/blog', slug, displayImage.value, imageWrapperRef.value)
 }
 
 useHead({ title: computed(() => `${title.value} - Blog`) })
