@@ -426,8 +426,8 @@ function setupScrollAnimation() {
 }
 
 function goBack() {
-  sessionStorage.setItem('locationReturnSlug', slug)
-  sessionStorage.setItem('locationReturnImage', heroImage.value)
+  sessionStorage.setItem('returnSlug', slug)
+  sessionStorage.setItem('returnImage', heroImage.value)
 
   // Clip-path hide elements before navigating (same as scroll animation)
   const targets = [titleRef.value, specsRef.value, actionsRef.value].filter(Boolean)

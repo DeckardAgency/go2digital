@@ -237,7 +237,10 @@ export function playReturnToCardAnimation(
   `
   document.body.appendChild(overlay)
 
-  // Find the target card and scroll it into view
+  // Delay until after page:finish (which resets scroll) has fired.
+  // onMounted runs before page:finish, so we wait for nextTick + rAF.
+  nextTick(() => {
+  requestAnimationFrame(() => {
   requestAnimationFrame(() => {
     const targetCard = document.querySelector(`${cardSelector}[${slugAttr}="${slug}"]`) as HTMLElement
     let targetImg: HTMLElement | null = null
@@ -245,14 +248,26 @@ export function playReturnToCardAnimation(
     if (targetCard) {
       targetImg = targetCard.querySelector(imageSelector) as HTMLElement
 
-      // Scroll card into view if needed
-      const cardRect = targetCard.getBoundingClientRect()
-      if (cardRect.top < 0 || cardRect.bottom > window.innerHeight) {
-        targetCard.scrollIntoView({ block: 'center' })
+      // Scroll the card into view — overlay covers everything so user doesn't see the jump
+      // Check if card is inside a scrollable container (e.g. lokacije sidebar)
+      const scrollParent = targetCard.closest('[data-lenis-prevent]') as HTMLElement
+      if (scrollParent) {
+        // Card is in a scrollable sidebar — scroll within that container
+        const cardTop = targetCard.offsetTop
+        const containerHeight = scrollParent.clientHeight
+        const cardHeight = targetCard.offsetHeight
+        scrollParent.scrollTop = cardTop - (containerHeight / 2) + (cardHeight / 2)
+      } else {
+        // Card is in the main page scroll — use Lenis
+        const { $lenis } = useNuxtApp()
+        if ($lenis) {
+          $lenis.scrollTo(targetCard, { offset: -(window.innerHeight / 2) + (targetCard.offsetHeight / 2), immediate: true, force: true })
+        }
       }
     }
 
-    // Wait one more frame for scroll to settle
+    // Wait extra frames for scroll position and layout to settle
+    requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       let targetRect: DOMRect
 
@@ -295,5 +310,8 @@ export function playReturnToCardAnimation(
         ease: 'power2.in'
       }, 0.45)
     })
+    })
+  })
+  })
   })
 }

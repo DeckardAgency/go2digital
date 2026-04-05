@@ -52,8 +52,12 @@ export default defineNuxtPlugin(() => {
   //    handles ScrollTrigger.refresh() + lenis.start() after transforms are cleared.
   // 2. No transition (initial load, __skipPageTransition): restart Lenis here directly.
   nuxtApp.hook('page:finish', () => {
-    window.scrollTo(0, 0)
-    lenis.scrollTo(0, { immediate: true, force: true })
+    // Skip scroll reset if returning from detail page (card return animation handles scroll)
+    const isReturningToCard = sessionStorage.getItem('returnSlug')
+    if (!isReturningToCard) {
+      window.scrollTo(0, 0)
+      lenis.scrollTo(0, { immediate: true, force: true })
+    }
 
     const isTransitioning = document.documentElement.classList.contains('is-transitioning')
 

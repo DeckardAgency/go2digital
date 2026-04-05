@@ -464,6 +464,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { gsap } from 'gsap'
+import { playReturnToCardAnimation } from '~/composables/useCardTransition'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 // Page meta - hide footer on this page
@@ -1133,14 +1134,33 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
 
   // Check if returning from a detail page
-  const returnSlug = sessionStorage.getItem('locationReturnSlug')
-  const returnImage = sessionStorage.getItem('locationReturnImage')
-  sessionStorage.removeItem('locationReturnSlug')
-  sessionStorage.removeItem('locationReturnImage')
+  const returnSlug = sessionStorage.getItem('returnSlug')
+  const returnImage = sessionStorage.getItem('returnImage')
+  sessionStorage.removeItem('returnSlug')
+  sessionStorage.removeItem('returnImage')
 
   if (returnSlug && returnImage) {
-    await nextTick()
-    playReturnAnimation(returnSlug, returnImage)
+    // Make all elements visible immediately — skip entrance animations
+    initSplitText()
+    const allAnimTargets = [countRef.value, buttonsRef.value, filtersRef.value, searchRef.value]
+    allAnimTargets.forEach(el => { if (el) gsap.set(el, { opacity: 1, y: 0 }) })
+    document.querySelectorAll('[data-split-text]').forEach(el => {
+      el.classList.add('split-text-ready')
+      el.querySelectorAll('[style]').forEach(s => {
+        gsap.set(s, { clipPath: 'none', y: 0, opacity: 1 })
+      })
+    })
+    const cardsEl = cardsContainer.value?.$el || cardsContainer.value
+    if (cardsEl) {
+      gsap.set(cardsEl.querySelectorAll('.location-card'), { opacity: 1, y: 0 })
+    }
+
+    playReturnToCardAnimation(
+      returnSlug,
+      returnImage,
+      '.location-card',
+      '.location-card__image'
+    )
   } else {
     // Initialize split text and run entrance animations
     initSplitText()
