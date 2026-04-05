@@ -1,8 +1,9 @@
 <template>
   <section class="billboard-section">
-    <div class="billboard-section__image-wrapper" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
-      <img v-if="billboardImage" :src="billboardImage" :alt="billboard?.imageAlt ?? ''" class="billboard-section__image" />
-      <div v-else class="billboard-section__image billboard-section__image--placeholder"></div>
+    <div class="billboard-section__image-wrapper" ref="imageWrapperRef" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
+      <!-- Fallback image (hidden when WebGL active) -->
+      <img v-if="billboardImage && !webglActive" :src="billboardImage" :alt="billboard?.imageAlt ?? ''" class="billboard-section__image" />
+      <div v-if="!billboardImage" class="billboard-section__image billboard-section__image--placeholder"></div>
     </div>
     <div class="billboard-section__content">
       <div class="billboard-section__header">
@@ -13,14 +14,22 @@
           data-split-trigger="view"
           data-split-duration="1.2"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
-        <component :is="isExternalUrl(billboardUrl) ? 'a' : NuxtLink" :[isExternalUrl(billboardUrl) ? 'href' : 'to']="billboardUrl" :target="isExternalUrl(billboardUrl) ? '_blank' : undefined" class="billboard-section__button">
+        <NuxtLink v-if="!isExternalUrl(billboardUrl)" :to="billboardUrl" class="billboard-section__button">
           <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
           <span class="billboard-section__button-icon" aria-hidden="true">
             <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-        </component>
+        </NuxtLink>
+        <a v-else :href="billboardUrl" target="_blank" rel="noopener noreferrer" class="billboard-section__button">
+          <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
+          <span class="billboard-section__button-icon" aria-hidden="true">
+            <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </a>
       </div>
       <div class="billboard-section__footer">
         <h3 class="billboard-section__subtitle">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
@@ -31,15 +40,37 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onUnmounted } from 'vue'
 import type { HomepageBillboard } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
-
-const NuxtLink = resolveComponent('NuxtLink')
+import type { WebGLHoverInstance } from '~/composables/useWebGLHover'
 
 const { data: billboard } = useApi<HomepageBillboard>('/api/singletons/homepage-billboard', { lazy: true, server: false })
 
 const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.image, 'large'))
 const billboardUrl = computed(() => billboard.value?.buttonUrl || '/kontakt')
+
+const imageWrapperRef = ref<HTMLElement | null>(null)
+const webglActive = ref(false)
+let webglInstance: WebGLHoverInstance | null = null
+
+watch(billboardImage, async (src) => {
+  if (!src || !imageWrapperRef.value || webglInstance) return
+  if (window.matchMedia('(hover: none)').matches) return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  try {
+    const { useWebGLHover } = await import('~/composables/useWebGLHover')
+    webglInstance = useWebGLHover(imageWrapperRef.value!, src)
+    webglActive.value = true
+  } catch {
+    webglActive.value = false
+  }
+}, { flush: 'post' })
+
+onUnmounted(() => {
+  if (webglInstance) { webglInstance.destroy(); webglInstance = null }
+})
 
 function isExternalUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://')

@@ -13,6 +13,9 @@
 
 <script setup lang="ts">
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const appRoot = ref<HTMLElement | null>(null)
 const pageWrapper = ref<HTMLElement | null>(null)
@@ -162,20 +165,33 @@ nuxtApp.hook('page:finish', async () => {
 
   window.scrollTo(0, 0)
 
+  // Remove is-transitioning BEFORE enter animation starts so components
+  // can create ScrollTriggers with correct measurements (overflow: hidden
+  // on html makes ScrollTrigger think there's no scrollable area).
+  // The overlays still cover the page visually during the enter animation.
+  document.documentElement.classList.remove('is-transitioning')
+
   // Enter animation
   await new Promise<void>((resolve) => {
     const tl = gsap.timeline({
       onComplete: () => {
-        document.documentElement.classList.remove('is-transitioning')
         isAnimating.value = false
         resolve()
+
+        // Restart Lenis after transition completes
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh(true)
+          const { $lenis } = useNuxtApp()
+          if ($lenis) $lenis.start()
+        })
       }
     })
 
+    // Enter animation: only opacity + filter, NO scale/y transforms.
+    // Components create ScrollTriggers during this animation — any transforms
+    // on the wrapper would corrupt their pin/position measurements.
     tl.set(wrapper, {
-        scale: 1.1,
         opacity: 0,
-        y: 50,
         filter: 'blur(4px)'
       })
 
@@ -187,7 +203,6 @@ nuxtApp.hook('page:finish', async () => {
           ease: 'power3.inOut'
         }, '+=0.1')
     } else if (OVERLAY_SLIDES_UP) {
-      // If overlay slid up but shouldn't slide away, just hide it instantly
       tl.set(transitionOverlay, { visibility: 'hidden', yPercent: 100 }, '+=0.1')
     }
 
@@ -197,14 +212,12 @@ nuxtApp.hook('page:finish', async () => {
         ease: 'power2.inOut'
       }, OVERLAY_SLIDES_AWAY ? '-=0.3' : '-=0.1')
       .to(wrapper, {
-        scale: 1,
         opacity: 1,
-        y: 0,
         filter: 'blur(0px)',
         duration: 0.6,
         ease: 'power2.out'
       }, '-=0.4')
-      .set(wrapper, { clearProps: 'all' }) // Clear all inline styles to prevent stacking issues
+      .set(wrapper, { clearProps: 'all' })
       .set(transitionOverlay, { visibility: 'hidden', yPercent: 100 })
       .set(depthOverlay, { visibility: 'hidden' })
   })

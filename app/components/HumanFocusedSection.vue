@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import type { HomepageHumanFocused } from '~/types/api'
 
-const { data: humanFocused } = await useApi<HomepageHumanFocused>('/api/singletons/homepage-human-focused')
+const { data: humanFocused } = useApi<HomepageHumanFocused>('/api/singletons/homepage-human-focused', { lazy: true, server: false })
 </script>
 
 <style scoped lang="scss">

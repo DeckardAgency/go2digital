@@ -39,7 +39,7 @@ import type { HomepageTrackingFeature } from '~/types/api'
 
 const { tm, rt } = useI18n()
 
-const { data: trackingFeatures } = await useApi<HomepageTrackingFeature[]>('/api/homepage_tracking_features')
+const { data: trackingFeatures } = useApi<HomepageTrackingFeature[]>('/api/homepage_tracking_features', { lazy: true, server: false })
 
 const features = computed(() => {
   // Use API data if available

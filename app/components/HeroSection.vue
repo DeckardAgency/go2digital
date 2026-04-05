@@ -9,7 +9,7 @@ import { resolveMediaUrl } from '~/utils/media'
 
 const { t } = useI18n()
 
-const { data: hero } = await useApi<HomepageHero>('/api/singletons/homepage-hero')
+const { data: hero } = useApi<HomepageHero>('/api/singletons/homepage-hero', { lazy: true, server: false })
 
 // Video URLs from API with fallback to local files
 const desktopVideoSrc = computed(() => {
@@ -370,10 +370,7 @@ onMounted(() => {
     setupInitialState()
     createAnimation()
     window.addEventListener('resize', handleResize, { passive: true })
-
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh(true)
-    })
+    // ScrollTrigger.refresh() is handled globally by lenis plugin after all components mount
   }
 
   nextTick(() => {

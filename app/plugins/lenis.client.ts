@@ -47,12 +47,28 @@ export default defineNuxtPlugin(() => {
     }
   })
 
-  // Use page:finish instead of router.afterEach to reset scroll and restart Lenis
-  // AFTER Suspense resolves and the new page is actually rendered
+  // Reset scroll on page finish. Two cases:
+  // 1. Transition running (is-transitioning): app.vue's enter animation onComplete
+  //    handles ScrollTrigger.refresh() + lenis.start() after transforms are cleared.
+  // 2. No transition (initial load, __skipPageTransition): restart Lenis here directly.
   nuxtApp.hook('page:finish', () => {
     window.scrollTo(0, 0)
     lenis.scrollTo(0, { immediate: true, force: true })
-    lenis.start()
+
+    const isTransitioning = document.documentElement.classList.contains('is-transitioning')
+
+    if (!isTransitioning) {
+      // No enter animation — start Lenis after components mount
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            ScrollTrigger.refresh(true)
+            lenis.start()
+          })
+        })
+      })
+    }
+    // else: app.vue onComplete handles lenis.start() + ScrollTrigger.refresh()
   })
 
   // Provide lenis instance globally

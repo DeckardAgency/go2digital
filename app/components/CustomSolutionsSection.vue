@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import type { HomepageCustomSolution } from '~/types/api'
 
-const { data: customSolution } = await useApi<HomepageCustomSolution>('/api/singletons/homepage-custom-solution')
+const { data: customSolution } = useApi<HomepageCustomSolution>('/api/singletons/homepage-custom-solution', { lazy: true, server: false })
 </script>
 
 <style lang="scss" scoped>

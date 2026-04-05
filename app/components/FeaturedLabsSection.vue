@@ -95,7 +95,7 @@ import { resolveMediaUrl } from '~/utils/media'
 const { t } = useI18n()
 
 // Fetch from the smart endpoint (handles auto/manual mode on the API side)
-const { data: featuredData } = await useApi<{ mode: string; projects: LabProject[] }>('/api/homepage/featured-labs')
+const { data: featuredData } = useApi<{ mode: string; projects: LabProject[] }>('/api/homepage/featured-labs', { lazy: true, server: false })
 
 const labItems = computed(() => {
   const projects = featuredData.value?.projects ?? []

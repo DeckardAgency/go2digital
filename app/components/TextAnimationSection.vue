@@ -14,7 +14,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HomepageTextAnimation } from '~/types/api'
 
-const { data: textAnim } = await useApi<HomepageTextAnimation>('/api/singletons/homepage-text-animation')
+const { data: textAnim } = useApi<HomepageTextAnimation>('/api/singletons/homepage-text-animation', { lazy: true, server: false })
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -93,11 +93,7 @@ onMounted(async () => {
       .to({}, { duration: 0.3 }) // #11: longer hold so last word lingers
 
     window.addEventListener('resize', handleResize, { passive: true })
-
-    // #3: Refresh ScrollTrigger after setup for accurate measurements
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh(true)
-    })
+    // ScrollTrigger.refresh() is handled globally by lenis plugin after all components mount
   })
 })
 

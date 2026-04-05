@@ -90,8 +90,8 @@ gsap.registerPlugin(ScrollTrigger)
 
 const { t } = useI18n()
 
-const { data: whySection } = await useApi<HomepageWhySection>('/api/singletons/homepage-why-section')
-const { data: whyCards } = await useApi<HomepageWhyCard[]>('/api/homepage_why_cards')
+const { data: whySection } = useApi<HomepageWhySection>('/api/singletons/homepage-why-section', { lazy: true, server: false })
+const { data: whyCards } = useApi<HomepageWhyCard[]>('/api/homepage_why_cards', { lazy: true, server: false })
 
 const mobileBreakpoint = 768
 const isMobile = () => window.innerWidth < mobileBreakpoint

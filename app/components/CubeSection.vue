@@ -75,7 +75,7 @@ import type { HomepageProduct } from '~/types/api'
 
 const { tm, rt } = useI18n()
 
-const { data: cubeProducts } = await useApi<HomepageProduct[]>('/api/homepage_products?productType=cube')
+const { data: cubeProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=cube', { lazy: true, server: false })
 const cubeProduct = computed(() => cubeProducts.value?.[0] ?? null)
 
 const sectionRef = ref<HTMLElement | null>(null)

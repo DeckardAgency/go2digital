@@ -34,8 +34,10 @@ const { isMenuOpen, toggleMenu } = useNavigation()
 const localePath = useLocalePath()
 
 // Fetch main navigation from API
-const { data: navData } = await useApi<NavigationItem[]>('/api/navigation_items', {
-  query: { group: 'main' }
+const { data: navData } = useApi<NavigationItem[]>('/api/navigation_items', {
+  query: { group: 'main' },
+  lazy: true,
+  server: false
 })
 
 const mainNavItems = computed(() => {

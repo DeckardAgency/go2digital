@@ -32,7 +32,7 @@ import { resolveMediaUrl } from '~/utils/media'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const { data: customImage } = await useApi<HomepageCustomImage>('/api/singletons/homepage-custom-image')
+const { data: customImage } = useApi<HomepageCustomImage>('/api/singletons/homepage-custom-image', { lazy: true, server: false })
 
 const desktopImageSrc = computed(() =>
   resolveMediaUrl(customImage.value?.desktopImage, 'large') || '/images/G2D_HomepagePhoto_Slavonska.jpg'

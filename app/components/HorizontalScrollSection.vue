@@ -81,7 +81,7 @@ gsap.registerPlugin(ScrollTrigger)
 const { t } = useI18n()
 const { scrollTo } = useLenis()
 
-const { data: panelsData } = await useApi<HomepagePanel[]>('/api/homepage_panels')
+const { data: panelsData } = useApi<HomepagePanel[]>('/api/homepage_panels', { lazy: true, server: false })
 
 // Panel data
 const panels = computed(() => [
