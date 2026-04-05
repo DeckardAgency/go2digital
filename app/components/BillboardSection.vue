@@ -13,14 +13,14 @@
           data-split-trigger="view"
           data-split-duration="1.2"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
-        <NuxtLink :to="billboard?.buttonUrl || '/kontakt'" class="billboard-section__button">
+        <component :is="isExternalUrl(billboardUrl) ? 'a' : NuxtLink" :[isExternalUrl(billboardUrl) ? 'href' : 'to']="billboardUrl" :target="isExternalUrl(billboardUrl) ? '_blank' : undefined" class="billboard-section__button">
           <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
           <span class="billboard-section__button-icon" aria-hidden="true">
             <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-        </NuxtLink>
+        </component>
       </div>
       <div class="billboard-section__footer">
         <h3 class="billboard-section__subtitle">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
@@ -34,9 +34,16 @@
 import type { HomepageBillboard } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
-const { data: billboard } = await useApi<HomepageBillboard>('/api/singletons/homepage-billboard')
+const NuxtLink = resolveComponent('NuxtLink')
+
+const { data: billboard } = useApi<HomepageBillboard>('/api/singletons/homepage-billboard', { lazy: true, server: false })
 
 const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.image, 'large'))
+const billboardUrl = computed(() => billboard.value?.buttonUrl || '/kontakt')
+
+function isExternalUrl(url: string): boolean {
+  return url.startsWith('http://') || url.startsWith('https://')
+}
 </script>
 
 <style scoped lang="scss">
