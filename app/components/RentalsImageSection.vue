@@ -39,11 +39,8 @@ onMounted(async () => {
       end: 'bottom top',
       scrub: 0.6,
       onUpdate: (self) => {
-        // Move text horizontally from right to left as you scroll
-        const xPercent = 30 - (self.progress * 60)
-        // Slight scale pulse
-        const scale = 1 + Math.sin(self.progress * Math.PI) * 0.08
-        gsap.set(textRef.value, { xPercent, scale, force3D: true })
+        const yPercent = 40 - (self.progress * 80)
+        gsap.set(textRef.value, { yPercent, force3D: true })
       }
     })
   })
