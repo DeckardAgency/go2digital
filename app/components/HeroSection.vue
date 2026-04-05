@@ -5,10 +5,28 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 import type { HomepageHero } from '~/types/api'
+import { resolveMediaUrl } from '~/utils/media'
 
 const { t } = useI18n()
 
 const { data: hero } = await useApi<HomepageHero>('/api/singletons/homepage-hero')
+
+// Video URLs from API with fallback to local files
+const desktopVideoSrc = computed(() => {
+  const video = hero.value?.video
+  if (video && typeof video === 'object' && (video as any).path) {
+    return resolveMediaUrl(video as any)
+  }
+  return '/videos/home-hero-desktop.mp4'
+})
+
+const mobileVideoSrc = computed(() => {
+  const video = hero.value?.mobileVideo
+  if (video && typeof video === 'object' && (video as any).path) {
+    return resolveMediaUrl(video as any)
+  }
+  return '/videos/home-hero-mobile.mp4'
+})
 
 // Split text composable
 const { initSplitText, getSplitElements } = useSplitText()
@@ -409,7 +427,7 @@ onUnmounted(() => {
           playsinline
           preload="metadata"
         >
-          <source src="/videos/home-hero-desktop.mp4" type="video/mp4">
+          <source :src="desktopVideoSrc" type="video/mp4">
         </video>
         <video
           class="hero-section__media-video hero-section__media-video--mobile"
@@ -419,7 +437,7 @@ onUnmounted(() => {
           playsinline
           preload="metadata"
         >
-          <source src="/videos/home-hero-mobile.mp4" type="video/mp4">
+          <source :src="mobileVideoSrc" type="video/mp4">
         </video>
       </div>
     </div>
