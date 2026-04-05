@@ -31,7 +31,7 @@
         </div>
         <div class="lab-detail__section-body">
           <div class="lab-detail__section-content" v-html="section.content"></div>
-          <img v-if="section.imagePath" :src="resolveMediaUrl({ path: section.imagePath } as any)" :alt="section.label" class="lab-detail__section-image" />
+          <img v-if="section.imagePath" :src="sectionImageUrl(section.imagePath)" :alt="section.label" class="lab-detail__section-image" />
         </div>
       </div>
     </section>
@@ -67,7 +67,14 @@ const meta = computed(() => {
   return ''
 })
 const body = computed(() => project.value?.body ?? '')
-const sections = computed(() => (project.value as any)?.sections ?? [])
+const sections = computed(() => project.value?.sections ?? [])
+
+function sectionImageUrl(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  const config = useRuntimeConfig()
+  return `${config.public.apiBase}/storage/media/${path}`
+}
 
 // Transition data for animation
 const transitionImage = ref('')

@@ -44,6 +44,12 @@ export interface BlogCategory {
 
 // ─── Lab ─────────────────────────────────────────────────────
 
+export interface LabProjectSection {
+  label: string
+  content: string
+  imagePath?: string
+}
+
 export interface LabProject {
   id: string
   slug: string
@@ -56,6 +62,7 @@ export interface LabProject {
   shortTitle: string | null
   subtitle: string | null
   body: string | null
+  sections: LabProjectSection[] | null
 }
 
 export interface LabCategory {
