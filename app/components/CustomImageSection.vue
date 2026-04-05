@@ -1,22 +1,23 @@
 <template>
   <section class="custom-image" ref="sectionRef">
     <div class="custom-image__inner" ref="innerRef">
-      <!-- WebGL canvas replaces image on desktop -->
+      <!-- Static image always present for natural sizing -->
       <img
-        v-if="!webglActive"
         ref="imageRef"
         :src="desktopImageSrc"
         :alt="customImage?.alt ?? $t('homepage.customImage.alt')"
         class="custom-image__image"
+        :class="{ 'custom-image__image--hidden': webglActive }"
         loading="lazy"
         @load="onImageLoad"
       >
+      <!-- WebGL canvas overlays on top -->
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HomepageCustomImage } from '~/types/api'
@@ -39,23 +40,23 @@ const webglActive = ref(false)
 let scrollTriggerInstance: ScrollTrigger | null = null
 let webglInstance: WebGLHoverInstance | null = null
 
-// Init WebGL when image src is ready
-watch(desktopImageSrc, async (src) => {
-  if (!src || !innerRef.value || webglInstance) return
+function initWebGL() {
+  if (!innerRef.value || webglInstance) return
+  if (typeof window === 'undefined') return
   if (window.matchMedia('(hover: none)').matches) return
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  try {
-    const { useWebGLHover } = await import('~/composables/useWebGLHover')
-    webglInstance = useWebGLHover(innerRef.value!, src)
+  const src = desktopImageSrc.value
+  if (!src) return
+
+  import('~/composables/useWebGLHover').then(({ useWebGLHover }) => {
+    if (webglInstance || !innerRef.value) return
+    webglInstance = useWebGLHover(innerRef.value, src)
     webglActive.value = true
-    // Init parallax on the canvas
-    await nextTick()
-    initParallax()
-  } catch {
+  }).catch(() => {
     webglActive.value = false
-  }
-}, { flush: 'post' })
+  })
+}
 
 function initParallax() {
   if (!sectionRef.value || !innerRef.value) return
@@ -77,13 +78,16 @@ function initParallax() {
 
 function onImageLoad() {
   initParallax()
+  initWebGL()
   ScrollTrigger.refresh()
 }
 
 onMounted(async () => {
   await nextTick()
   requestAnimationFrame(() => {
-    if (!webglActive.value) initParallax()
+    initParallax()
+    // If image already cached/loaded, init WebGL
+    if (imageRef.value?.complete) initWebGL()
   })
 })
 
@@ -124,14 +128,13 @@ $custom-image-radius-mobile: $radius-xl;
   }
 
   &__image {
-    @include gpu-accelerate;
     width: 100%;
     height: auto;
     display: block;
-    border-radius: $custom-image-radius-desktop;
 
-    @include tablet {
-      border-radius: $custom-image-radius-mobile;
+    // When WebGL is active, image stays for sizing but is invisible
+    &--hidden {
+      visibility: hidden;
     }
   }
 }
