@@ -81,16 +81,44 @@
 
     <!-- Gallery -->
     <section class="location-detail__gallery" v-if="galleryImages.length > 0">
-      <div class="location-detail__gallery-viewport">
-        <img
-          :src="galleryImages[activeGalleryIndex]"
-          :alt="`${totem?.name} - ${activeGalleryIndex + 1}`"
-          class="location-detail__gallery-image"
+      <div class="location-detail__gallery-carousel">
+        <!-- Previous image (peek) -->
+        <div
+          class="location-detail__gallery-peek location-detail__gallery-peek--prev"
+          :class="{ 'location-detail__gallery-peek--hidden': galleryImages.length <= 1 }"
+          @click="prevGalleryImage"
         >
+          <img
+            :src="galleryImages[(activeGalleryIndex - 1 + galleryImages.length) % galleryImages.length]"
+            :alt="`${totem?.name} - prev`"
+          >
+        </div>
+
+        <!-- Active image -->
+        <div class="location-detail__gallery-viewport" @click="nextGalleryImage">
+          <img
+            :src="galleryImages[activeGalleryIndex]"
+            :alt="`${totem?.name} - ${activeGalleryIndex + 1}`"
+            class="location-detail__gallery-image"
+          >
+        </div>
+
+        <!-- Next image (peek) -->
+        <div
+          class="location-detail__gallery-peek location-detail__gallery-peek--next"
+          :class="{ 'location-detail__gallery-peek--hidden': galleryImages.length <= 1 }"
+          @click="nextGalleryImage"
+        >
+          <img
+            :src="galleryImages[(activeGalleryIndex + 1) % galleryImages.length]"
+            :alt="`${totem?.name} - next`"
+          >
+        </div>
       </div>
+
       <div class="location-detail__gallery-controls" v-if="galleryImages.length > 1">
         <div class="location-detail__gallery-label">
-          <span class="location-detail__dot"></span>
+          <span class="location-detail__gallery-bullet"></span>
           Gallery
         </div>
         <div class="location-detail__gallery-track">
@@ -100,15 +128,6 @@
           ></div>
         </div>
         <span class="location-detail__gallery-counter">{{ String(activeGalleryIndex + 1).padStart(2, '0') }}</span>
-      </div>
-      <div class="location-detail__gallery-dots" v-if="galleryImages.length > 1">
-        <button
-          v-for="(_, i) in galleryImages"
-          :key="i"
-          class="location-detail__gallery-dot"
-          :class="{ 'location-detail__gallery-dot--active': i === activeGalleryIndex }"
-          @click="activeGalleryIndex = i"
-        ></button>
       </div>
     </section>
 
@@ -309,6 +328,16 @@ const nearbyLocations = computed(() => {
 // Gallery state
 const activeGalleryIndex = ref(0)
 const isSaved = ref(false)
+
+function nextGalleryImage() {
+  if (galleryImages.value.length <= 1) return
+  activeGalleryIndex.value = (activeGalleryIndex.value + 1) % galleryImages.value.length
+}
+
+function prevGalleryImage() {
+  if (galleryImages.value.length <= 1) return
+  activeGalleryIndex.value = (activeGalleryIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length
+}
 
 // Refs for animation
 const heroRef = ref<HTMLElement | null>(null)
@@ -653,30 +682,85 @@ definePageMeta({
 }
 
 // Gallery
+// Gallery carousel
 .location-detail__gallery {
-  padding: 4rem $spacing-2xl;
-  @include tablet { padding: $spacing-2xl $spacing-lg; }
+  padding: 6rem 0 4rem;
+  background-color: $color-surface;
+  overflow: hidden;
+  @include tablet { padding: 3rem 0 2rem; }
+}
+
+.location-detail__gallery-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0 0;
+  margin-bottom: 2rem;
+  @include tablet { gap: 0.75rem; }
 }
 
 .location-detail__gallery-viewport {
-  width: 100%;
-  aspect-ratio: 16/9;
+  width: 60%;
+  max-width: 800px;
+  aspect-ratio: 16/10;
   overflow: hidden;
-  border-radius: $radius-lg;
-  margin-bottom: $spacing-lg;
+  border-radius: 1rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+
+  @include tablet { width: 75%; }
+  @include mobile { width: 85%; border-radius: $radius-lg; }
 }
 
 .location-detail__gallery-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+
+  .location-detail__gallery-viewport:hover & {
+    transform: scale(1.02);
+  }
+}
+
+.location-detail__gallery-peek {
+  width: 18%;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  opacity: 0.5;
+  cursor: pointer;
+  flex-shrink: 0;
   transition: opacity 0.3s ease;
+  position: relative;
+  z-index: 1;
+
+  &:hover { opacity: 0.7; }
+  &--hidden { visibility: hidden; pointer-events: none; }
+
+  @include tablet { width: 12%; }
+  @include mobile { width: 8%; border-radius: $radius-sm; }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .location-detail__gallery-controls {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: $spacing-lg;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0 $spacing-2xl;
+
+  @include tablet { padding: 0 $spacing-lg; }
 }
 
 .location-detail__gallery-label {
@@ -685,11 +769,19 @@ definePageMeta({
   gap: $spacing-sm;
   font-size: $font-size-sm;
   white-space: nowrap;
+  color: $color-primary;
+}
+
+.location-detail__gallery-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: $color-primary;
 }
 
 .location-detail__gallery-track {
   flex: 1;
-  height: 2px;
+  height: 1px;
   background: $color-border;
   border-radius: 1px;
   overflow: hidden;
@@ -697,7 +789,7 @@ definePageMeta({
 
 .location-detail__gallery-progress {
   height: 100%;
-  background: $color-primary;
+  background: $color-accent;
   transition: width 0.3s ease;
 }
 
@@ -706,25 +798,6 @@ definePageMeta({
   color: $color-muted;
   min-width: 1.5rem;
   text-align: right;
-}
-
-.location-detail__gallery-dots {
-  display: flex;
-  justify-content: center;
-  gap: $spacing-xs;
-  margin-top: $spacing-md;
-}
-
-.location-detail__gallery-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: $color-border;
-  cursor: pointer;
-  padding: 0;
-  transition: background $transition-base;
-  &--active { background: $color-primary; }
 }
 
 // Statistics
