@@ -51,13 +51,10 @@
           <!-- Dot grid -->
           <div class="analytics-section__dot-grid" ref="dotGridRef">
             <div v-for="(col, ci) in currentGrid" :key="ci" class="analytics-section__dot-col">
-              <span
-                v-for="(dot, ri) in col"
-                :key="ri"
-                class="analytics-section__dot"
-                :class="{ 'analytics-section__dot--active': dot }"
-                :style="dot ? { '--dot-color': activeColor } : {}"
-              ></span>
+              <div v-for="(dot, ri) in col" :key="ri" class="analytics-section__dot-pair">
+                <span class="analytics-section__dot" :class="{ 'analytics-section__dot--active': dot }"></span>
+                <span class="analytics-section__dot" :class="{ 'analytics-section__dot--active': dot }"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -83,7 +80,7 @@ const tabsRef = ref<HTMLElement | null>(null)
 const sliderRef = ref<HTMLElement | null>(null)
 const tabEls = ref<HTMLElement[]>([])
 
-const rows = 20
+const rows = 16
 const cols = 31
 
 interface Tab {
@@ -383,40 +380,51 @@ function switchTab(tabId: string, index: number) {
 
   &__dot-grid {
     display: flex;
-    gap: 1px;
+    gap: 6px;
     flex: 1;
     align-items: stretch;
+
+    @include mobile { gap: 3px; }
   }
 
   &__dot-col {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 6px;
     flex: 1;
-    justify-content: space-between;
+
+    @include mobile { gap: 3px; }
+  }
+
+  &__dot-pair {
+    display: flex;
+    gap: 6px;
+
+    @include mobile { gap: 3px; }
   }
 
   &__dot {
-    width: 100%;
-    aspect-ratio: 1;
-    max-width: 7px;
-    max-height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    border: 1px solid rgba(#FAFAFA, 0.1);
-    background-color: transparent;
+    background-color: rgba(#FAFAFA, 0.12);
+    flex-shrink: 0;
+
+    @include mobile {
+      width: 4px;
+      height: 4px;
+    }
 
     &--active {
-      background-color: var(--dot-color, #00ff88);
-      border-color: var(--dot-color, #00ff88);
-      box-shadow: 0 0 3px color-mix(in srgb, var(--dot-color, #00ff88) 40%, transparent);
+      background-color: #00ff88;
     }
   }
 
   &__x-axis {
     display: flex;
     justify-content: space-between;
-    padding-top: $spacing-xs;
-    padding-left: calc($spacing-sm + 30px);
+    padding-top: $spacing-sm;
+    padding-left: calc($spacing-sm + 36px);
   }
 
   &__x-label {
