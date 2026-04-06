@@ -1195,4 +1195,26 @@ definePageMeta({
   font-weight: 400;
   color: $color-primary;
 }
+
+// Toast notification
+.location-detail-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.875rem 1.5rem;
+  background: $color-primary;
+  color: #fff;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-family: $font-family;
+  z-index: 10010;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.toast-enter-active { transition: all 0.3s ease; }
+.toast-leave-active { transition: all 0.2s ease; }
+.toast-enter-from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+.toast-leave-to { opacity: 0; transform: translateX(-50%) translateY(10px); }
 </style>

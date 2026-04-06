@@ -1940,7 +1940,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   contain: layout style;
 
   &:hover { opacity: 0.9; }
-  &--selected .location-card__badge { background-color: rgba($color-accent, 0.15); }
   &--active .location-card__badge { background-color: rgba($color-accent, 0.15); }
 
   &--dark {
@@ -1955,40 +1954,55 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__badge {
     position: absolute;
-    top: 0.625rem;
-    left: 0.625rem;
+    top: 0.75rem;
+    left: 0.75rem;
     z-index: 10;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2rem;
+    height: 2rem;
     @include flex-center;
-    background-color: rgba(#fff, 0.9);
-    backdrop-filter: blur(4px);
-    border-radius: $radius-sm;
+    background-color: #fff;
+    border-radius: $radius-md;
     cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow $transition-base;
+    &:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
   }
 
-  &__badge-input { width: 1rem; height: 1rem; accent-color: $color-accent; cursor: pointer; }
+  &__badge-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border: 0.0625rem solid $color-accent;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+
+    &:checked {
+      background-color: $color-accent;
+    }
+  }
 
   &__focus {
     position: absolute;
-    top: 0.625rem;
-    left: 2.75rem;
+    top: 0.75rem;
+    left: 3.125rem;
     z-index: 10;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2rem;
+    height: 2rem;
     @include flex-center;
-    background-color: rgba(#fff, 0.9);
-    backdrop-filter: blur(4px);
-    border-radius: $radius-sm;
+    background-color: #fff;
+    border-radius: $radius-md;
     cursor: pointer;
-    transition: transform $transition-base;
-    &:hover { transform: scale(1.1); }
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform $transition-base, box-shadow $transition-base;
+    &:hover { transform: scale(1.05); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
   }
 
   &__focus-icon {
     &--default { display: block; }
     &--active { display: none; }
-    .location-card--selected &,
     .location-card--active & {
       &--default { display: none; }
       &--active { display: block; }

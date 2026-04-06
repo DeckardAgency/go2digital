@@ -458,8 +458,6 @@ function moveCursor(e: MouseEvent) {
 </script>
 
 <style lang="scss" scoped>
-// Variables and mixins are now globally available via nuxt.config.ts
-// Page-specific spacing
 $spacing-page: 2.5rem;
 $spacing-page-mobile: 1rem;
 

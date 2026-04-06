@@ -179,16 +179,24 @@ export async function playDistortionTransition(
       onUpdate: () => {
         const p = proxy.progress
 
-        // Circle expands from center
-        const circleSize = p * 150
-        instance.overlayImg.style.clipPath = `circle(${circleSize}% at 50% 50%)`
+        // Diagonal wipe: polygon sweeps from top-left to bottom-right
+        // with extra overshoot so the entire image is revealed
+        const sweep = p * 200 // 0 → 200 (oversized to cover corners)
+        const offset = 30 // how far the diagonal edge extends
 
-        // Displacement peaks mid-transition
-        const disp = Math.sin(p * Math.PI) * 50
+        instance.overlayImg.style.clipPath = `polygon(
+          0% 0%,
+          ${sweep}% 0%,
+          ${sweep - offset}% 100%,
+          0% 100%
+        )`
+
+        // Displacement peaks mid-transition for gooey organic edge
+        const disp = Math.sin(p * Math.PI) * 60
         instance.displacementMap.setAttribute('scale', String(disp))
 
-        // Blur peaks mid-transition
-        const bl = Math.sin(p * Math.PI) * 3
+        // Blur peaks mid-transition for softness
+        const bl = Math.sin(p * Math.PI) * 4
         instance.blur.setAttribute('stdDeviation', String(bl))
       },
       onComplete: () => {
