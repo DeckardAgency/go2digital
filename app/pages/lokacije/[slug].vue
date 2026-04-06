@@ -95,7 +95,11 @@
         </div>
 
         <!-- Active image -->
-        <div class="location-detail__gallery-viewport" @click="nextGalleryImage">
+        <div
+          class="location-detail__gallery-viewport"
+          ref="galleryViewportRef"
+          @click="nextGalleryImage"
+        >
           <img
             :src="galleryImages[activeGalleryIndex]"
             :alt="`${totem?.name} - ${activeGalleryIndex + 1}`"
@@ -249,9 +253,10 @@ function capitalize(s: string): string {
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase as string
 
-const { data: locData } = await useFetch<any[]>(`${apiBase}/api/locations`, {
+const { data: locData } = useFetch<any[]>(`${apiBase}/api/locations`, {
   key: 'locations-detail-data',
-  getCachedData: () => undefined,
+  lazy: true,
+  server: false,
 })
 
 const matchedData = computed(() => {
@@ -328,16 +333,65 @@ const nearbyLocations = computed(() => {
 // Gallery state
 const activeGalleryIndex = ref(0)
 const isSaved = ref(false)
+const galleryViewportRef = ref<HTMLElement | null>(null)
+const isGalleryTransitioning = ref(false)
+
+let distortionInstance: any = null
+
+async function initGalleryEffect() {
+  if (distortionInstance) return // already initialized
+  if (!galleryViewportRef.value || galleryImages.value.length <= 1) return
+  const { createDistortionTransition } = await import('~/composables/useDistortionTransition')
+  distortionInstance = createDistortionTransition(galleryViewportRef.value)
+}
+
+// Watch for gallery viewport to become available (v-if delays it until data loads)
+watch(galleryViewportRef, (el) => {
+  if (el && !distortionInstance) {
+    nextTick(() => initGalleryEffect())
+  }
+})
+
+// Also watch galleryImages in case data loads after viewport is rendered
+watch(galleryImages, (imgs) => {
+  if (imgs.length > 1 && galleryViewportRef.value && !distortionInstance) {
+    nextTick(() => initGalleryEffect())
+  }
+})
+
+async function transitionGalleryTo(newIndex: number) {
+  if (isGalleryTransitioning.value || galleryImages.value.length <= 1) return
+  const fromSrc = galleryImages.value[activeGalleryIndex.value]
+  const toSrc = galleryImages.value[newIndex]
+  if (fromSrc === toSrc) return
+
+  // Try to init if not yet (in case watch didn't fire)
+  if (!distortionInstance) await initGalleryEffect()
+
+  if (distortionInstance) {
+    isGalleryTransitioning.value = true
+    const { playDistortionTransition } = await import('~/composables/useDistortionTransition')
+    await playDistortionTransition(distortionInstance, fromSrc, toSrc, 700)
+    activeGalleryIndex.value = newIndex
+    isGalleryTransitioning.value = false
+  } else {
+    activeGalleryIndex.value = newIndex
+  }
+}
 
 function nextGalleryImage() {
-  if (galleryImages.value.length <= 1) return
-  activeGalleryIndex.value = (activeGalleryIndex.value + 1) % galleryImages.value.length
+  endGalleryHover()
+  const next = (activeGalleryIndex.value + 1) % galleryImages.value.length
+  transitionGalleryTo(next)
 }
 
 function prevGalleryImage() {
-  if (galleryImages.value.length <= 1) return
-  activeGalleryIndex.value = (activeGalleryIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length
+  endGalleryHover()
+  const prev = (activeGalleryIndex.value - 1 + galleryImages.value.length) % galleryImages.value.length
+  transitionGalleryTo(prev)
 }
+
+function endGalleryHover() {}
 
 // Refs for animation
 const heroRef = ref<HTMLElement | null>(null)
@@ -363,10 +417,12 @@ onMounted(() => {
   nextTick(() => {
     setupEntranceAnimation()
     setupScrollAnimation()
+    initGalleryEffect()
   })
 })
 
 onUnmounted(() => {
+  if (distortionInstance) { distortionInstance.destroy(); distortionInstance = null }
   if (heroTimeline) {
     heroTimeline.kill()
     heroTimeline = null
