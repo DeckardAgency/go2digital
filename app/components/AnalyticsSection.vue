@@ -5,21 +5,21 @@
       <div class="analytics-section__header">
         <div class="analytics-section__indicator">
           <span class="analytics-section__indicator-dot"></span>
-          <span class="analytics-section__indicator-text">{{ $t('homepage.analytics.indicator') }}</span>
+          <span class="analytics-section__indicator-text">{{ analytics?.indicator ?? $t('homepage.analytics.indicator') }}</span>
         </div>
         <h2 class="analytics-section__title"
           data-split-text
           data-split-type="lines"
           data-split-trigger="view"
           data-split-duration="1.2"
-        >{{ $t('homepage.analytics.title') }}</h2>
+        >{{ analytics?.title ?? $t('homepage.analytics.title') }}</h2>
       </div>
     </div>
 
     <!-- Right -->
     <div class="analytics-section__right">
       <div class="analytics-section__description-area">
-        <p class="analytics-section__description">{{ $t('homepage.analytics.description') }}</p>
+        <p class="analytics-section__description">{{ analytics?.description ?? $t('homepage.analytics.description') }}</p>
       </div>
 
       <!-- Dot Grid Graph -->
@@ -71,6 +71,8 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 import { gsap } from 'gsap'
+
+const { data: analytics } = useApi<any>('/api/singletons/homepage-analytics', { lazy: true, server: false })
 
 const graphRef = ref<HTMLElement | null>(null)
 const dotGridRef = ref<HTMLElement | null>(null)
