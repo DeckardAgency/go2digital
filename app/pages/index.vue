@@ -1,11 +1,12 @@
 <template>
   <div class="page page--home">
-    <component
-      v-for="section in orderedSections"
-      :key="section.id"
-      :is="section.component"
-      v-bind="section.props || {}"
-    />
+    <template v-if="orderLoaded">
+      <component
+        v-for="section in orderedSections"
+        :key="section.id"
+        :is="section.component"
+      />
+    </template>
     <FeatureSection
       v-for="(feature, i) in features"
       :key="'feature-' + i"
@@ -49,11 +50,13 @@ const defaultOrder = [
 
 // Fetch section order from settings
 const config = useRuntimeConfig()
-const sectionOrder = ref([...defaultOrder])
+const sectionOrder = ref<string[]>([])
+const orderLoaded = ref(false)
 
-onMounted(async () => {
+async function loadSectionOrder() {
   try {
-    const res = await $fetch<any>(`${config.public.apiBase}/api/settings`, {
+    const res = await $fetch<any>('/api/settings', {
+      baseURL: config.public.apiBase as string,
       params: { key: 'homepage.sectionOrder' },
       headers: { Accept: 'application/json' },
     })
@@ -63,11 +66,19 @@ onMounted(async () => {
     if (Array.isArray(order) && order.length > 0) {
       const missing = defaultOrder.filter(id => !order.includes(id))
       sectionOrder.value = [...order, ...missing]
+    } else {
+      sectionOrder.value = [...defaultOrder]
     }
   } catch {
-    // Keep default order
+    sectionOrder.value = [...defaultOrder]
   }
-})
+  orderLoaded.value = true
+}
+
+// Load on client
+onMounted(() => loadSectionOrder())
+// Also try SSR
+loadSectionOrder()
 
 const orderedSections = computed(() =>
   sectionOrder.value
