@@ -6,7 +6,7 @@
         <!-- Label -->
         <div class="featured-labs__label">
           <span class="featured-labs__label-dot"></span>
-          <span class="featured-labs__label-text">{{ $t('homepage.featuredLabs.label') }}</span>
+          <span class="featured-labs__label-text">{{ sectionLabel }}</span>
         </div>
 
         <!-- Title Row -->
@@ -20,20 +20,18 @@
               data-split-y="80"
               data-split-stagger="0.10"
             >
-              {{ $t('homepage.featuredLabs.title') }}
+              {{ sectionTitle }}
             </h1>
             <span class="featured-labs__count">({{ labItems.length }})</span>
           </div>
 
           <div class="featured-labs__button-wrapper">
-            <NuxtLink to="/lab" class="featured-labs__button">
-              <span class="featured-labs__button-text">{{ $t('homepage.featuredLabs.buttonText') }}</span>
-              <span class="featured-labs__button-icon">
-                <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </NuxtLink>
+            <BtnAnimated
+              :text="sectionButtonText"
+              :to="sectionButtonUrl"
+              variant="on-light"
+              size="small"
+            />
           </div>
         </div>
       </div>
@@ -41,7 +39,7 @@
       <!-- Description -->
       <div class="featured-labs__description">
         <p class="featured-labs__text">
-          {{ $t('homepage.featuredLabs.description') }}
+          {{ sectionDescription }}
         </p>
       </div>
     </div>
@@ -92,10 +90,30 @@ import { useI18n } from 'vue-i18n'
 import type { LabProject } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // Fetch from the smart endpoint (handles auto/manual mode on the API side)
 const { data: featuredData } = useApi<{ mode: string; projects: LabProject[] }>('/api/homepage/featured-labs', { lazy: true, server: false })
+
+// Fetch section text settings
+const { data: settingsData } = useApi<any[]>('/api/settings?group=homepage', { lazy: true, server: false })
+
+function getSetting(key: string): string {
+  const settings = Array.isArray(settingsData.value) ? settingsData.value : (settingsData.value as any)?.['hydra:member'] ?? []
+  const s = settings.find((s: any) => s.key === key)
+  if (!s?.value) return ''
+  // Translation value: { hr: '...', en: '...' }
+  if (s.value[locale.value]) return s.value[locale.value]
+  // Simple value: { value: '...' }
+  if (s.value.value !== undefined) return s.value.value
+  return ''
+}
+
+const sectionLabel = computed(() => getSetting('homepage.featuredLabs.label') || t('homepage.featuredLabs.label'))
+const sectionTitle = computed(() => getSetting('homepage.featuredLabs.title') || t('homepage.featuredLabs.title'))
+const sectionDescription = computed(() => getSetting('homepage.featuredLabs.description') || t('homepage.featuredLabs.description'))
+const sectionButtonText = computed(() => getSetting('homepage.featuredLabs.buttonText') || t('homepage.featuredLabs.buttonText'))
+const sectionButtonUrl = computed(() => getSetting('homepage.featuredLabs.buttonUrl') || '/lab')
 
 const labItems = computed(() => {
   const projects = featuredData.value?.projects ?? []
@@ -279,32 +297,6 @@ $labs-dot-size: 6px;
       width: 100%;
       max-width: 17.5rem;
     }
-  }
-
-  &__button {
-    @include flex-center;
-    gap: $spacing-sm;
-    padding: $spacing-sm $spacing-md;
-    background-color: $labs-text-color;
-    color: $labs-bg;
-    border-radius: $radius-full;
-    text-decoration: none;
-    font-size: $font-size-sm;
-    transition: opacity $transition-base;
-
-    @include hover {
-      opacity: 0.9;
-    }
-  }
-
-  &__button-text {
-    white-space: nowrap;
-  }
-
-  &__button-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   // ==========================================================================
