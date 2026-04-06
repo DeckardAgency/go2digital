@@ -121,20 +121,18 @@ export function animateCardToDetail(event: MouseEvent, options: TransitionOption
     targetRadius = '0 0 0.75rem 0.75rem'
   }
 
-  tl.to(overlay, {
-    opacity: 1,
-    duration: 0.3,
-    ease: 'power2.inOut'
-  })
-  .to(clone, {
+  // Animate clone expanding to hero size — no white overlay fade during animation.
+  // Overlay snaps opaque at the end to cover the page swap.
+  tl.to(clone, {
     top: 0,
     left: targetLeft,
     width: targetWidth,
-    height: '50vh', // matches .lab-detail__hero height exactly
+    height: '50vh',
     borderRadius: targetRadius,
     duration: 0.5,
     ease: 'power3.inOut'
   }, 0)
+  .set(overlay, { opacity: 1 }, 0.45)
 }
 
 /**

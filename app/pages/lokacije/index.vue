@@ -1041,42 +1041,54 @@ function animateToDetail(location: Location, event: MouseEvent) {
   `
   document.body.appendChild(overlay)
 
-  // Animate
+  // Calculate responsive target to match detail page hero
+  const vw = window.innerWidth
+  let targetLeft: string, targetWidth: string, targetRadius: string
+  if (vw <= 768) {
+    targetLeft = '0px'; targetWidth = '100vw'; targetRadius = '0'
+  } else if (vw <= 1024) {
+    targetLeft = '1.5rem'; targetWidth = 'calc(100vw - 3rem)'; targetRadius = '0 0 0.75rem 0.75rem'
+  } else {
+    targetLeft = '3rem'; targetWidth = 'calc(100vw - 6rem)'; targetRadius = '0 0 0.75rem 0.75rem'
+  }
+
+  // Store transition data
+  sessionStorage.setItem('locationTransitionImage', location.image)
+  sessionStorage.setItem('locationTransitionName', location.name)
+  sessionStorage.setItem('locationTransitionCity', location.city)
+  sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
+
   const tl = gsap.timeline({
     onComplete: () => {
-      // Store image src for the detail page to pick up
-      sessionStorage.setItem('locationTransitionImage', location.image)
-      sessionStorage.setItem('locationTransitionName', location.name)
-      sessionStorage.setItem('locationTransitionCity', location.city)
-      sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
-
-      // Skip the default page transition — our card animation handles it
       ;(window as any).__skipPageTransition = true
       navigateTo(`/lokacije/${location.slug}`)
 
-      // Cleanup after navigation
+      // Keep clone until new page renders
+      const nuxtApp = useNuxtApp()
+      nuxtApp.hooks.hookOnce('page:finish', () => {
+        requestAnimationFrame(() => {
+          clone.remove()
+          overlay.remove()
+          isNavigating = false
+        })
+      })
       setTimeout(() => {
-        clone.remove()
-        overlay.remove()
-        isNavigating = false
-      }, 100)
+        if (clone.parentNode) { clone.remove(); overlay.remove(); isNavigating = false }
+      }, 2000)
     }
   })
 
-  tl.to(overlay, {
-    opacity: 1,
-    duration: 0.3,
-    ease: 'power2.inOut'
-  })
-  .to(clone, {
+  // Clone expands to hero size — overlay snaps opaque at the end (no flash)
+  tl.to(clone, {
     top: 0,
-    left: '3rem',
-    width: 'calc(100vw - 6rem)',
+    left: targetLeft,
+    width: targetWidth,
     height: '35vh',
-    borderRadius: '0 0 0.75rem 0.75rem',
+    borderRadius: targetRadius,
     duration: 0.5,
     ease: 'power3.inOut'
   }, 0)
+  .set(overlay, { opacity: 1 }, 0.45)
 }
 function openSidebar() { isSidebarOpen.value = true }
 function closeSidebar() { isSidebarOpen.value = false }
