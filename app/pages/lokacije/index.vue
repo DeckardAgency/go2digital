@@ -192,6 +192,11 @@
 
       </div><!-- end toolbar -->
 
+      <!-- Scroll Progress Bar -->
+      <div class="locations-sidebar__progress">
+        <div class="locations-sidebar__progress-bar" :style="{ transform: `scaleX(${scrollProgress})` }"></div>
+      </div>
+
       <!-- Shimmer Loader -->
       <div class="locations-sidebar__shimmer" v-show="isLoading">
         <div v-for="i in 6" :key="i" class="location-card-shimmer">
@@ -1182,15 +1187,20 @@ function applyModalFilters() {
   applyFilters()
 }
 
+const scrollProgress = ref(0)
+
 function onCardsScroll(e: Event) {
   const target = e.target as HTMLElement
   const scrolled = target.scrollTop > 10
   if (scrolled && !isScrolled.value) {
-    // Close dropdowns when toolbar collapses
     isCityDropdownOpen.value = false
     isEnvDropdownOpen.value = false
   }
   isScrolled.value = scrolled
+
+  // Calculate scroll progress (0-1)
+  const maxScroll = target.scrollHeight - target.clientHeight
+  scrollProgress.value = maxScroll > 0 ? target.scrollTop / maxScroll : 0
 }
 
 function saveToStorage() {
@@ -1337,8 +1347,9 @@ function startResize(e: MouseEvent) {
     document.body.style.userSelect = ''
     document.removeEventListener('mousemove', onMove)
     document.removeEventListener('mouseup', onUp)
-    // Refresh map after resize
     if (map) map.resize()
+    // Remember sidebar width
+    if (sidebarWidth.value) localStorage.setItem('lokacije-sidebar-width', String(sidebarWidth.value))
   }
 
   document.addEventListener('mousemove', onMove)
@@ -1362,6 +1373,7 @@ function startResizeTouch(e: TouchEvent) {
     document.removeEventListener('touchmove', onMove)
     document.removeEventListener('touchend', onEnd)
     if (map) map.resize()
+    if (sidebarWidth.value) localStorage.setItem('lokacije-sidebar-width', String(sidebarWidth.value))
   }
 
   document.addEventListener('touchmove', onMove, { passive: false })
@@ -1371,6 +1383,16 @@ function startResizeTouch(e: TouchEvent) {
 onMounted(async () => {
   loadFromStorage()
   loadFromUrl()
+
+  // Restore saved sidebar width
+  const savedWidth = localStorage.getItem('lokacije-sidebar-width')
+  if (savedWidth && window.innerWidth >= 768) {
+    const w = Math.min(MAX_SIDEBAR, Math.max(MIN_SIDEBAR, parseInt(savedWidth)))
+    sidebarWidth.value = w
+    const page = document.querySelector('.locations-page') as HTMLElement
+    if (page) page.style.gridTemplateColumns = `${w}px auto 1fr`
+  }
+
   await nextTick()
   initializeMap()
   document.addEventListener('click', handleClickOutside)
@@ -1524,14 +1546,28 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     max-height: 500px;
     opacity: 1;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-    border-bottom: 1px dashed $color-border;
+    border-top: 1px solid $color-border;
 
     &--collapsed {
       max-height: 0;
       opacity: 0;
       pointer-events: none;
-      border-bottom-color: transparent;
     }
+  }
+
+  // Scroll progress bar
+  &__progress {
+    height: 1px;
+    background-color: $color-border;
+    flex-shrink: 0;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background-color: $color-accent;
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 0.1s linear;
   }
 
   // ── Header ──
