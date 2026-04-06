@@ -1572,9 +1572,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   // ── Header ──
   &__header {
-    padding: 2rem 1.75rem 1rem;
+    padding: 2rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: $spacing-md;
   }
@@ -1601,7 +1601,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: center;
     gap: $spacing-md;
     flex-shrink: 0;
-    margin-top: 0.5rem;
   }
 
   &__clear-btn {
@@ -1643,7 +1642,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   // ── Filters ──
   &__filters {
-    padding: 1.25rem 1.75rem;
+    padding: 2rem;
     position: relative;
     z-index: $z-dropdown;
     @include tablet { display: none; }
@@ -1677,7 +1676,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__search {
     display: flex;
     gap: 0;
-    padding: 0 1.75rem 1.25rem;
+    padding: 0 2rem 2rem;
   }
 
   &__search-input {
