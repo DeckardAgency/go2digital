@@ -811,14 +811,25 @@ function removeFilter(type: string, value?: string) {
   if (type === 'city' && value) selectedCities.value = selectedCities.value.filter(id => id !== value)
   else if (type === 'environment' && value) selectedEnvironments.value = selectedEnvironments.value.filter(id => id !== value)
   else if (type === 'search') searchQuery.value = ''
-  applyFilters()
+  applyFiltersAndResetMap()
 }
 
 function clearAllFilters() {
   selectedCities.value = []
   selectedEnvironments.value = []
   searchQuery.value = ''
+  applyFiltersAndResetMap()
+}
+
+function applyFiltersAndResetMap() {
   applyFilters()
+  // Reset map to fit all currently visible markers
+  nextTick(() => {
+    const features = filteredLocations.value
+      .filter(loc => loc.lat && loc.lng && loc.lat !== 0 && loc.lng !== 0)
+      .map(loc => ({ geometry: { coordinates: [loc.lng, loc.lat] } }))
+    fitMapToMarkers(features)
+  })
 }
 
 function toggleLocation(location: Location) {
@@ -1277,6 +1288,11 @@ function resetMapView() {
   focusedLocationId.value = null
   activeLocationId.value = null
   updateMapMarkers()
+  // Zoom map to fit all visible markers
+  const features = filteredLocations.value
+    .filter(loc => loc.lat && loc.lng && loc.lat !== 0 && loc.lng !== 0)
+    .map(loc => ({ geometry: { coordinates: [loc.lng, loc.lat] } }))
+  fitMapToMarkers(features)
 }
 
 function handleClickOutside(e: MouseEvent) {
