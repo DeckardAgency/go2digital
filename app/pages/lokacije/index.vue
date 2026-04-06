@@ -1087,9 +1087,38 @@ function shareCollection() {
   } else { showToast(`Share URL: ${shareUrl}`, 'info') }
 }
 
-function exportToPdf() {
+async function exportToPdf() {
   if (selectedLocations.value.size === 0) { showToast('No locations to export', 'warning'); return }
-  showToast('PDF export is not available in demo mode', 'info')
+
+  showToast('Generating PDF...', 'info')
+
+  try {
+    const ids = Array.from(selectedLocations.value.keys())
+    const config = useRuntimeConfig()
+
+    const response = await fetch(`${config.public.apiBase}/api/locations/export-pdf`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/pdf' },
+      body: JSON.stringify({ locationIds: ids })
+    })
+
+    if (!response.ok) throw new Error(`Export failed: ${response.status}`)
+
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `go2digital-locations-${new Date().toISOString().slice(0, 10)}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    showToast('PDF downloaded!', 'success')
+  } catch (error) {
+    console.error('PDF export failed:', error)
+    showToast('Failed to generate PDF', 'error')
+  }
 }
 
 function showToast(message: string, type: string = 'info') {
