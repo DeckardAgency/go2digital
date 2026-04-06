@@ -17,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
 const { t, tm, rt } = useI18n()
 
 // Section component map
@@ -46,18 +48,25 @@ const defaultOrder = [
 ]
 
 // Fetch section order from settings
-const { data: settingsData } = useApi<any[]>('/api/settings?key=homepage.sectionOrder', { lazy: true, server: false })
+const config = useRuntimeConfig()
+const sectionOrder = ref([...defaultOrder])
 
-const sectionOrder = computed(() => {
-  const settings = Array.isArray(settingsData.value) ? settingsData.value : (settingsData.value as any)?.['hydra:member'] ?? []
-  const s = settings.find((s: any) => s.key === 'homepage.sectionOrder')
-  const order = s?.value?.value
-  if (Array.isArray(order) && order.length > 0) {
-    // Add any missing sections (new ones not yet in the saved order)
-    const missing = defaultOrder.filter(id => !order.includes(id))
-    return [...order, ...missing]
+onMounted(async () => {
+  try {
+    const res = await $fetch<any>(`${config.public.apiBase}/api/settings`, {
+      params: { key: 'homepage.sectionOrder' },
+      headers: { Accept: 'application/json' },
+    })
+    const settings = Array.isArray(res) ? res : res?.['hydra:member'] ?? []
+    const s = settings.find((s: any) => s.key === 'homepage.sectionOrder')
+    const order = s?.value?.value
+    if (Array.isArray(order) && order.length > 0) {
+      const missing = defaultOrder.filter(id => !order.includes(id))
+      sectionOrder.value = [...order, ...missing]
+    }
+  } catch {
+    // Keep default order
   }
-  return defaultOrder
 })
 
 const orderedSections = computed(() =>
