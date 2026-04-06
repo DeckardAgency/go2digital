@@ -51,10 +51,12 @@
           <!-- Dot grid -->
           <div class="analytics-section__dot-grid" ref="dotGridRef">
             <div v-for="(col, ci) in currentGrid" :key="ci" class="analytics-section__dot-col">
-              <div v-for="(dot, ri) in col" :key="ri" class="analytics-section__dot-pair">
-                <span class="analytics-section__dot" :class="{ 'analytics-section__dot--active': dot }"></span>
-                <span class="analytics-section__dot" :class="{ 'analytics-section__dot--active': dot }"></span>
-              </div>
+              <span
+                v-for="(dot, ri) in col"
+                :key="ri"
+                class="analytics-section__dot"
+                :class="{ 'analytics-section__dot--active': dot }"
+              ></span>
             </div>
           </div>
         </div>
@@ -392,13 +394,6 @@ function switchTab(tabId: string, index: number) {
     flex-direction: column;
     gap: 6px;
     flex: 1;
-
-    @include mobile { gap: 3px; }
-  }
-
-  &__dot-pair {
-    display: flex;
-    gap: 6px;
 
     @include mobile { gap: 3px; }
   }
