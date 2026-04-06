@@ -24,21 +24,36 @@
 
       <!-- Dot Grid Graph -->
       <div class="analytics-section__graph" ref="graphRef">
+
+        <!-- Tabs -->
+        <div class="analytics-section__tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            class="analytics-section__tab"
+            :class="{ 'analytics-section__tab--active': activeTab === tab.id }"
+            @click="switchTab(tab.id)"
+          >
+            <span class="analytics-section__tab-dot" :style="{ backgroundColor: tab.color }"></span>
+            {{ tab.label }}
+          </button>
+        </div>
+
         <div class="analytics-section__graph-inner">
           <!-- Y axis labels -->
           <div class="analytics-section__y-axis">
-            <span v-for="label in yLabels" :key="label" class="analytics-section__y-label">{{ label }}</span>
+            <span v-for="label in activeYLabels" :key="label" class="analytics-section__y-label">{{ label }}</span>
           </div>
 
           <!-- Dot grid -->
-          <div class="analytics-section__dot-grid">
-            <div v-for="(col, ci) in dotGrid" :key="ci" class="analytics-section__dot-col">
+          <div class="analytics-section__dot-grid" ref="dotGridRef">
+            <div v-for="(col, ci) in currentGrid" :key="ci" class="analytics-section__dot-col">
               <span
                 v-for="(dot, ri) in col"
                 :key="ri"
                 class="analytics-section__dot"
                 :class="{ 'analytics-section__dot--active': dot }"
-                :style="dot ? { transitionDelay: `${(ci * 0.03 + ri * 0.02)}s` } : {}"
+                :style="dot ? { '--dot-color': activeColor } : {}"
               ></span>
             </div>
           </div>
@@ -54,36 +69,114 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import { gsap } from 'gsap'
 
 const graphRef = ref<HTMLElement | null>(null)
+const dotGridRef = ref<HTMLElement | null>(null)
 
-const yLabels = ['120k', '90k', '60k', '30k', '0']
 const rows = 20
 const cols = 31
 
-// Generate dot grid data — dots are active if they fall within the "impression curve"
-// Simulates a rising curve from left to right
-const dotGrid = computed(() => {
+interface Tab {
+  id: string
+  label: string
+  color: string
+  yLabels: string[]
+  curve: (c: number) => number
+}
+
+const tabs: Tab[] = [
+  {
+    id: 'impressions',
+    label: 'Impresije',
+    color: '#00ff88',
+    yLabels: ['120k', '90k', '60k', '30k', '0'],
+    curve: (c) => {
+      const p = c / (cols - 1)
+      return Math.pow(p, 0.7) * rows * 0.85 + Math.sin(c * 0.8) * 1.5
+    },
+  },
+  {
+    id: 'reach',
+    label: 'Doseg',
+    color: '#60a5fa',
+    yLabels: ['50k', '37.5k', '25k', '12.5k', '0'],
+    curve: (c) => {
+      const p = c / (cols - 1)
+      return Math.pow(p, 0.5) * rows * 0.7 + Math.cos(c * 0.6) * 2
+    },
+  },
+  {
+    id: 'engagement',
+    label: 'Interakcije',
+    color: '#f59e0b',
+    yLabels: ['10k', '7.5k', '5k', '2.5k', '0'],
+    curve: (c) => {
+      const p = c / (cols - 1)
+      return (Math.sin(p * Math.PI) * rows * 0.6) + Math.sin(c * 1.2) * 1.5 + rows * 0.15
+    },
+  },
+]
+
+const activeTab = ref('impressions')
+
+const activeTabData = computed(() => tabs.find(t => t.id === activeTab.value)!)
+const activeColor = computed(() => activeTabData.value.color)
+const activeYLabels = computed(() => activeTabData.value.yLabels)
+
+function generateGrid(tab: Tab): boolean[][] {
   const grid: boolean[][] = []
   for (let c = 0; c < cols; c++) {
     const col: boolean[] = []
-    // Height curve: starts low, rises with some variation
-    const progress = c / (cols - 1)
-    const baseHeight = Math.pow(progress, 0.7) * rows * 0.85
-    const variation = Math.sin(c * 0.8) * 1.5
-
-    const activeRows = Math.round(baseHeight + variation)
-
+    const activeRows = Math.max(0, Math.min(rows, Math.round(tab.curve(c))))
     for (let r = 0; r < rows; r++) {
-      // r=0 is top, r=rows-1 is bottom
-      // Active dots fill from bottom up
       col.push(r >= (rows - activeRows))
     }
     grid.push(col)
   }
   return grid
-})
+}
+
+const currentGrid = ref(generateGrid(tabs[0]))
+
+function switchTab(tabId: string) {
+  if (activeTab.value === tabId) return
+  activeTab.value = tabId
+
+  const newGrid = generateGrid(activeTabData.value)
+
+  // Animate out current dots
+  if (dotGridRef.value) {
+    const activeDots = dotGridRef.value.querySelectorAll('.analytics-section__dot--active')
+    gsap.to(activeDots, {
+      scale: 0,
+      opacity: 0,
+      duration: 0.25,
+      stagger: { each: 0.003, from: 'random' },
+      ease: 'power2.in',
+      onComplete: () => {
+        currentGrid.value = newGrid
+        nextTick(() => {
+          if (!dotGridRef.value) return
+          const newDots = dotGridRef.value.querySelectorAll('.analytics-section__dot--active')
+          gsap.fromTo(newDots, {
+            scale: 0,
+            opacity: 0,
+          }, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.35,
+            stagger: { each: 0.003, from: 'random' },
+            ease: 'back.out(1.5)',
+          })
+        })
+      },
+    })
+  } else {
+    currentGrid.value = newGrid
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -112,10 +205,6 @@ const dotGrid = computed(() => {
       border-right: none;
       border-bottom: 1px solid #293331;
     }
-
-    @include mobile {
-      grid-column: 1 / -1;
-    }
   }
 
   &__header {
@@ -123,10 +212,7 @@ const dotGrid = computed(() => {
     flex-direction: column;
     gap: $spacing-md;
     padding: $spacing-2xl;
-
-    @include mobile {
-      padding: $spacing-lg $spacing-md;
-    }
+    @include mobile { padding: $spacing-lg $spacing-md; }
   }
 
   &__indicator {
@@ -161,22 +247,13 @@ const dotGrid = computed(() => {
     display: flex;
     flex-direction: column;
 
-    @include tablet {
-      grid-column: 1 / -1;
-    }
-
-    @include mobile {
-      grid-column: 1 / -1;
-    }
+    @include tablet { grid-column: 1 / -1; }
   }
 
   &__description-area {
     border-bottom: 1px solid #293331;
     padding: $spacing-2xl;
-
-    @include mobile {
-      padding: $spacing-lg $spacing-md;
-    }
+    @include mobile { padding: $spacing-lg $spacing-md; }
   }
 
   &__description {
@@ -188,22 +265,62 @@ const dotGrid = computed(() => {
     margin: 0;
   }
 
+  // ─── Tabs ───────────────────────────────────────────────
+
+  &__tabs {
+    display: flex;
+    gap: 2px;
+    padding: $spacing-lg $spacing-2xl 0;
+    @include mobile { padding: $spacing-md $spacing-md 0; }
+  }
+
+  &__tab {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    color: rgba(#FAFAFA, 0.4);
+    background: transparent;
+    border: 1px solid #293331;
+    border-radius: $radius-full;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+
+    &:hover {
+      color: rgba(#FAFAFA, 0.7);
+      border-color: rgba(#FAFAFA, 0.2);
+    }
+
+    &--active {
+      color: $color-primary;
+      background: #FAFAFA;
+      border-color: #FAFAFA;
+    }
+  }
+
+  &__tab-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
   // ─── Dot Grid Graph ─────────────────────────────────────
 
   &__graph {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: $spacing-2xl;
-
-    @include mobile {
-      padding: $spacing-lg $spacing-md;
-    }
+    padding: $spacing-lg $spacing-2xl $spacing-2xl;
+    @include mobile { padding: $spacing-md; }
   }
 
   &__graph-inner {
     display: flex;
-    gap: $spacing-md;
+    gap: $spacing-sm;
     flex: 1;
   }
 
@@ -211,20 +328,21 @@ const dotGrid = computed(() => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 4px 0;
+    padding: 2px 0;
     flex-shrink: 0;
+    min-width: 30px;
   }
 
   &__y-label {
-    font-size: 0.625rem;
-    color: rgba(#FAFAFA, 0.3);
+    font-size: 0.5625rem;
+    color: rgba(#FAFAFA, 0.25);
     font-weight: 400;
     font-variant-numeric: tabular-nums;
   }
 
   &__dot-grid {
     display: flex;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
     align-items: stretch;
   }
@@ -232,7 +350,7 @@ const dotGrid = computed(() => {
   &__dot-col {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
     justify-content: space-between;
   }
@@ -240,30 +358,29 @@ const dotGrid = computed(() => {
   &__dot {
     width: 100%;
     aspect-ratio: 1;
-    max-width: 10px;
-    max-height: 10px;
+    max-width: 7px;
+    max-height: 7px;
     border-radius: 50%;
-    border: 1px solid rgba(#FAFAFA, 0.15);
+    border: 1px solid rgba(#FAFAFA, 0.1);
     background-color: transparent;
-    transition: background-color 0.4s ease, border-color 0.4s ease;
 
     &--active {
-      background-color: #00ff88;
-      border-color: #00ff88;
-      box-shadow: 0 0 4px rgba(#00ff88, 0.3);
+      background-color: var(--dot-color, #00ff88);
+      border-color: var(--dot-color, #00ff88);
+      box-shadow: 0 0 3px color-mix(in srgb, var(--dot-color, #00ff88) 40%, transparent);
     }
   }
 
   &__x-axis {
     display: flex;
     justify-content: space-between;
-    padding-top: $spacing-sm;
-    padding-left: calc($spacing-md + 30px); // offset for y-axis width
+    padding-top: $spacing-xs;
+    padding-left: calc($spacing-sm + 30px);
   }
 
   &__x-label {
-    font-size: 0.625rem;
-    color: rgba(#FAFAFA, 0.3);
+    font-size: 0.5625rem;
+    color: rgba(#FAFAFA, 0.25);
     font-weight: 400;
     text-align: center;
     flex: 1;
