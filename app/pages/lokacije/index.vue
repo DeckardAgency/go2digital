@@ -1681,7 +1681,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__search-input {
     flex: 1;
-    padding: 0.875rem 1.25rem;
+    padding: 1rem;
     border: 1px solid $color-border;
     border-radius: $radius-lg 0 0 $radius-lg;
     border-right: none;
@@ -1788,7 +1788,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__trigger {
     width: 100%;
     @include flex-between;
-    padding: 0.875rem 1rem;
+    padding: 1rem;
     border: 1px solid $color-border;
     border-radius: $radius-lg;
     background: transparent;
@@ -1810,7 +1810,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     position: absolute;
     left: $spacing-lg;
     right: $spacing-lg;
-    top: 100%;
     max-height: 360px;
     display: flex;
     flex-direction: column;
@@ -1872,7 +1871,41 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     text-align: left;
     &:hover { background-color: rgba($color-primary, 0.05); }
     .locations-sidebar--dark & { color: $dark-text; &:hover { background-color: rgba($dark-text, 0.1); } }
-    input { accent-color: $color-accent; width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 1.375rem;
+      height: 1.375rem;
+      border: 1.5px solid $color-border;
+      border-radius: $radius-sm;
+      background: $color-background;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s ease;
+
+      &:checked {
+        border-color: darken($color-border, 10%);
+      }
+
+      &:checked::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 0.625rem;
+        height: 0.625rem;
+        border-radius: 50%;
+        background-color: $color-accent;
+      }
+
+      .locations-sidebar--dark & {
+        border-color: $dark-border;
+        background: $dark-surface;
+        &:checked { border-color: $dark-border; }
+      }
+    }
 
     &--selected {
       background-color: rgba($color-primary, 0.05);
