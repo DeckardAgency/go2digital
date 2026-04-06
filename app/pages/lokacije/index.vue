@@ -596,8 +596,8 @@ interface Environment {
   name: string
 }
 
-// Mapbox token
-const MAPBOX_TOKEN = 'MAPBOX_TOKEN_REMOVED'
+// Mapbox token (fetched from CMS settings)
+let MAPBOX_TOKEN = ''
 
 // Storage keys
 const STORAGE_KEY = 'selectedLocations'
@@ -1249,6 +1249,8 @@ function loadFromUrl() {
 async function initializeMap() {
   if (!mapContainer.value) return
   try {
+    const { useMapboxToken } = await import('~/composables/useMapboxToken')
+    MAPBOX_TOKEN = await useMapboxToken()
     const mapboxgl = await import('mapbox-gl')
     await import('mapbox-gl/dist/mapbox-gl.css')
     mapboxgl.default.accessToken = MAPBOX_TOKEN

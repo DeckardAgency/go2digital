@@ -51,9 +51,9 @@
           </svg>
           Share Location
         </button>
-        <label class="location-detail__action location-detail__action--save">
-          <input type="checkbox" v-model="isSaved">
-          Save to collection
+        <label class="location-detail__action location-detail__action--save" :class="{ 'location-detail__action--active': isSaved }">
+          <input type="checkbox" :checked="isSaved" @change="toggleSaveToCollection">
+          {{ isSaved ? 'Saved to collection' : 'Save to collection' }}
         </label>
       </div>
     </section>
@@ -70,11 +70,20 @@
     </section>
 
     <!-- Floor Plans -->
-    <section class="location-detail__floorplans" v-if="floorPlans.length > 0">
-      <div class="location-detail__floorplans-grid">
-        <div v-for="plan in floorPlans" :key="plan.floor_plan_id" class="location-detail__floorplan">
-          <span class="location-detail__floorplan-label">{{ plan.name || 'Floor Plan' }}</span>
-          <img :src="resolveUrl(plan.plan)" :alt="plan.name" loading="lazy">
+    <!-- Location Map -->
+    <section class="location-detail__maps" v-if="totem?.location?.[0]">
+      <div class="location-detail__maps-grid" :class="{ 'location-detail__maps-grid--single': !hasIndoorOutdoor }">
+        <div v-if="isIndoor || hasIndoorOutdoor" class="location-detail__map-item" :class="{ 'location-detail__map-item--large': hasIndoorOutdoor }">
+          <span class="location-detail__map-label">Indoor</span>
+          <div class="location-detail__map-container" ref="indoorMapRef"></div>
+        </div>
+        <div v-if="isOutdoor || hasIndoorOutdoor" class="location-detail__map-item">
+          <span class="location-detail__map-label">Outdoor</span>
+          <div class="location-detail__map-container" ref="outdoorMapRef"></div>
+        </div>
+        <div v-if="!isIndoor && !isOutdoor && !hasIndoorOutdoor" class="location-detail__map-item location-detail__map-item--full">
+          <span class="location-detail__map-label">Location</span>
+          <div class="location-detail__map-container" ref="singleMapRef"></div>
         </div>
       </div>
     </section>
@@ -136,57 +145,68 @@
     </section>
 
     <!-- Statistics -->
-    <section class="location-detail__statistics" v-if="totem?.reach">
-      <h2 class="location-detail__section-title">
-        Location Statistics
-        <span class="location-detail__section-subtitle">(Monthly)</span>
-      </h2>
+    <section class="location-detail__statistics" v-if="totem">
+      <!-- Header -->
+      <div class="location-detail__stats-header">
+        <h2 class="location-detail__stats-title">
+          Location Statistics
+          <span class="location-detail__stats-period">(Monthly)</span>
+        </h2>
+        <div class="location-detail__stats-type">Primary</div>
+      </div>
 
-      <div class="location-detail__stats-grid">
-        <div class="location-detail__stats-column">
-          <div class="location-detail__stats-label">Primary</div>
-
-          <div class="location-detail__stat-row">
-            <div class="location-detail__stat-name">
-              <span class="location-detail__dot"></span>
-              Approximate Traffic
-            </div>
-            <div class="location-detail__stat-big">{{ formatNumber(totem.reach) }}</div>
-            <div class="location-detail__stat-desc" v-if="totem.postbuy_category === 'roadside'">
-              Vehicles pass monthly, ensuring strong impressions from daily commuters and tourists alike.
-            </div>
-          </div>
-
-          <div class="location-detail__stat-row" v-if="totem.screens > 1">
-            <div class="location-detail__stat-name">
-              <span class="location-detail__dot"></span>
-              Active Screens
-            </div>
-            <div class="location-detail__stat-big">{{ totem.screens }}</div>
-          </div>
+      <!-- Stat: Approximate Traffic -->
+      <div class="location-detail__stat-row" v-if="totem.reach">
+        <div class="location-detail__stat-label">
+          <span class="location-detail__dot"></span>
+          Approximate Traffic
         </div>
+        <div class="location-detail__stat-value">{{ formatNumber(totem.reach) }}</div>
+        <div class="location-detail__stat-desc">
+          Over {{ totem.reach?.toLocaleString() || '0' }} vehicles pass monthly, ensuring
+          strong impressions from daily commuters and
+          tourists alike.
+        </div>
+      </div>
 
-        <div class="location-detail__stats-column" v-if="totem.postbuy_category">
-          <div class="location-detail__stats-label">Secondary</div>
-          <div class="location-detail__stat-row">
-            <div class="location-detail__stat-name">
-              <span class="location-detail__dot"></span>
-              Neighbourhood
-            </div>
-            <div class="location-detail__stat-desc">
-              {{ capitalize(totem.postbuy_category) }} location in {{ cityName }}.
-              {{ totem.totem_type === 'indoor' ? 'Indoor placement with high foot traffic.' : 'Outdoor placement with strong vehicle and pedestrian visibility.' }}
-            </div>
-          </div>
+      <!-- Stat: Pedestrian Footfall -->
+      <div class="location-detail__stat-row" v-if="totem.pedestrian_count">
+        <div class="location-detail__stat-label">
+          <span class="location-detail__dot"></span>
+          Pedestrian Footfall
+        </div>
+        <div class="location-detail__stat-value">{{ formatNumber(totem.pedestrian_count) }}</div>
+        <div class="location-detail__stat-desc">
+          Attracting approximately {{ totem.pedestrian_count?.toLocaleString() || '0' }} pedestrians
+          each month, this location engages both foot traffic
+          and public transport users throughout the day.
+        </div>
+      </div>
+
+      <!-- Secondary label -->
+      <div class="location-detail__stats-secondary" v-if="totem.postbuy_category">
+        <div class="location-detail__stats-type">Secondary</div>
+      </div>
+
+      <!-- Stat: Neighbourhood -->
+      <div class="location-detail__stat-row location-detail__stat-row--no-value" v-if="totem.postbuy_category">
+        <div class="location-detail__stat-label">
+          <span class="location-detail__dot"></span>
+          Neighbourhood
+        </div>
+        <div class="location-detail__stat-value"></div>
+        <div class="location-detail__stat-desc">
+          {{ capitalize(totem.postbuy_category) }} location in {{ cityName }}.
+          {{ totem.totem_type === 'indoor' ? 'Indoor placement with high foot traffic.' : 'Outdoor placement with strong vehicle and pedestrian visibility.' }}
         </div>
       </div>
     </section>
 
     <!-- Nearby Locations -->
     <section class="location-detail__nearby" v-if="nearbyLocations.length > 0">
-      <h2 class="location-detail__section-title">
+      <h2 class="location-detail__nearby-title">
         Nearby locations
-        <span class="location-detail__section-subtitle">({{ nearbyLocations.length }})</span>
+        <span class="location-detail__nearby-count">({{ nearbyLocations.length }})</span>
       </h2>
       <div class="location-detail__nearby-grid">
         <div
@@ -195,7 +215,7 @@
           class="location-detail__nearby-card"
           @click="navigateToLocation(loc)"
         >
-          <div class="location-detail__nearby-image-wrapper">
+          <div class="location-detail__nearby-image">
             <img
               v-if="loc.images?.[0]"
               :src="resolveUrl(loc.images[0].main || loc.images[0].thumbnail)"
@@ -204,12 +224,19 @@
             >
           </div>
           <div class="location-detail__nearby-info">
-            <span class="location-detail__nearby-type">{{ capitalize(loc.postbuy_category || '') }}</span>
+            <span class="location-detail__nearby-city">{{ cityName }}</span>
             <span class="location-detail__nearby-name">{{ loc.name }}</span>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Toast -->
+    <Teleport to="body">
+      <Transition name="toast">
+        <div v-if="isToastVisible" class="location-detail-toast">{{ toastMessage }}</div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -310,7 +337,70 @@ const galleryImages = computed(() => {
   return totem.value.images.map((img: any) => resolveUrl(img.main || img.large || img.thumbnail || ''))
 })
 
-const floorPlans = computed(() => totem.value?.floor_plans || [])
+const isIndoor = computed(() => totem.value?.totem_type === 'indoor')
+const isOutdoor = computed(() => totem.value?.totem_type === 'outdoor' || totem.value?.postbuy_category === 'roadside')
+const hasIndoorOutdoor = computed(() => {
+  // If location has floor plans for both or postbuy suggests both
+  const cat = totem.value?.postbuy_category || ''
+  return cat === 'shopping' || cat === 'mall' // these typically have both indoor and outdoor views
+})
+
+const indoorMapRef = ref<HTMLElement | null>(null)
+const outdoorMapRef = ref<HTMLElement | null>(null)
+const singleMapRef = ref<HTMLElement | null>(null)
+
+let detailMaps: any[] = []
+
+async function initDetailMaps() {
+  const t = totem.value
+  if (!t?.location?.[0]) return
+
+  const { useMapboxToken } = await import('~/composables/useMapboxToken')
+  const token = await useMapboxToken()
+  const mapboxgl = await import('mapbox-gl')
+  await import('mapbox-gl/dist/mapbox-gl.css')
+  mapboxgl.default.accessToken = token
+
+  const lat = t.location[0]
+  const lng = t.location[1]
+
+  const createMap = (container: HTMLElement, zoom: number) => {
+    const map = new mapboxgl.default.Map({
+      container,
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: [lng, lat],
+      zoom,
+      interactive: false,
+      attributionControl: false,
+    })
+
+    // Green marker
+    const markerEl = document.createElement('div')
+    markerEl.style.cssText = `
+      width: 16px; height: 16px; border-radius: 50%;
+      background-color: #0CD459; border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    `
+    new mapboxgl.default.Marker({ element: markerEl })
+      .setLngLat([lng, lat])
+      .addTo(map)
+
+    detailMaps.push(map)
+    return map
+  }
+
+  // Create maps based on type
+  if (hasIndoorOutdoor.value) {
+    if (indoorMapRef.value) createMap(indoorMapRef.value, 15) // closer zoom for indoor
+    if (outdoorMapRef.value) createMap(outdoorMapRef.value, 12) // wider for outdoor
+  } else if (isIndoor.value && indoorMapRef.value) {
+    createMap(indoorMapRef.value, 15)
+  } else if (isOutdoor.value && outdoorMapRef.value) {
+    createMap(outdoorMapRef.value, 12)
+  } else if (singleMapRef.value) {
+    createMap(singleMapRef.value, 13)
+  }
+}
 
 const locationName = computed(() =>
   totem.value?.name || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
@@ -333,6 +423,69 @@ const nearbyLocations = computed(() => {
 // Gallery state
 const activeGalleryIndex = ref(0)
 const isSaved = ref(false)
+const COLLECTION_KEY = 'selectedLocations'
+const toastMessage = ref('')
+const isToastVisible = ref(false)
+let toastTimeout: number | null = null
+
+function showToast(msg: string) {
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastMessage.value = msg
+  isToastVisible.value = true
+  toastTimeout = window.setTimeout(() => { isToastVisible.value = false }, 3000)
+}
+
+function loadSavedState() {
+  try {
+    const data = localStorage.getItem(COLLECTION_KEY)
+    if (!data) return
+    const locations = JSON.parse(data) as any[]
+    const t = totem.value
+    if (!t) return
+    isSaved.value = locations.some(loc => loc.slug === slug || loc.id === t.totem_id || loc.externalId === t.external_id)
+  } catch {}
+}
+
+function toggleSaveToCollection() {
+  try {
+    const data = localStorage.getItem(COLLECTION_KEY)
+    const locations: any[] = data ? JSON.parse(data) : []
+    const t = totem.value
+    if (!t) return
+
+    const idx = locations.findIndex(loc => loc.slug === slug || loc.id === t.totem_id || loc.externalId === t.external_id)
+
+    const name = t.name || locationName.value
+    if (idx >= 0) {
+      // Remove from collection
+      locations.splice(idx, 1)
+      isSaved.value = false
+      showToast(`Uklonjeno "${name}" iz kolekcije`)
+    } else {
+      // Add to collection
+      const img = t.images?.[0]
+      locations.push({
+        id: t.totem_id || slug,
+        slug,
+        externalId: t.external_id || '',
+        name: t.name || locationName.value,
+        city: cityName.value,
+        environments: [t.postbuy_category || ''].filter(Boolean),
+        lat: t.location?.[0] || 0,
+        lng: t.location?.[1] || 0,
+        image: img ? resolveUrl(img.main || img.large || img.thumbnail || '') : '',
+        screens: t.screen_count || 0,
+      })
+      isSaved.value = true
+      showToast(`Dodano "${name}" u kolekciju`)
+    }
+
+    localStorage.setItem(COLLECTION_KEY, JSON.stringify(locations))
+  } catch (e) {
+    console.error('Error toggling collection:', e)
+  }
+}
+
 const galleryViewportRef = ref<HTMLElement | null>(null)
 const isGalleryTransitioning = ref(false)
 
@@ -356,6 +509,16 @@ watch(galleryViewportRef, (el) => {
 watch(galleryImages, (imgs) => {
   if (imgs.length > 1 && galleryViewportRef.value && !distortionInstance) {
     nextTick(() => initGalleryEffect())
+  }
+})
+
+// Initialize detail maps and load saved state when totem data loads
+watch(totem, (t) => {
+  if (t) {
+    loadSavedState()
+    if (t.location?.[0] && detailMaps.length === 0) {
+      nextTick(() => { requestAnimationFrame(() => initDetailMaps()) })
+    }
   }
 })
 
@@ -423,6 +586,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (distortionInstance) { distortionInstance.destroy(); distortionInstance = null }
+  detailMaps.forEach(m => m.remove()); detailMaps = []
   if (heroTimeline) {
     heroTimeline.kill()
     heroTimeline = null
@@ -708,40 +872,52 @@ definePageMeta({
 }
 
 // Floor plans
-.location-detail__floorplans {
-  padding: $spacing-2xl;
-  @include tablet { padding: $spacing-lg; }
+// Location Maps
+.location-detail__maps {
+  padding: 6rem $spacing-5xl;
+  @include tablet { padding: $spacing-2xl 0; }
 }
 
-.location-detail__floorplans-grid {
+.location-detail__maps-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: $spacing-lg;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 0;
+
+  &--single {
+    grid-template-columns: 1fr;
+  }
+
   @include mobile { grid-template-columns: 1fr; }
 }
 
-.location-detail__floorplan {
+.location-detail__map-item {
   position: relative;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
 }
 
-.location-detail__floorplan-label {
+.location-detail__map-label {
   display: block;
-  font-size: $font-size-sm;
-  color: $color-muted;
-  margin-bottom: $spacing-sm;
+  font-size: $font-size-base;
+  font-weight: 400;
+  color: $color-primary;
+  padding: 0 $spacing-2xl $spacing-md;
+  @include tablet { padding: 0 $spacing-lg $spacing-sm; }
 }
 
-.location-detail__floorplan img {
+.location-detail__map-container {
   width: 100%;
-  border-radius: $radius-md;
-  background: $color-surface;
+  height: 500px;
+  @include tablet { height: 350px; }
+  @include mobile { height: 280px; }
 }
 
 // Gallery
 // Gallery carousel
 .location-detail__gallery {
   padding: 6rem 0 4rem;
-  background-color: $color-surface;
   overflow: hidden;
   @include tablet { padding: 3rem 0 2rem; }
 }
@@ -856,74 +1032,120 @@ definePageMeta({
   text-align: right;
 }
 
-// Statistics
+// Statistics — borders edge-to-edge, content padded
 .location-detail__statistics {
-  padding: 4rem $spacing-2xl;
-  @include tablet { padding: $spacing-2xl $spacing-lg; }
+  padding: 6rem 0;
+  @include tablet { padding: $spacing-2xl 0; }
 }
 
-.location-detail__section-title {
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+.location-detail__stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 $spacing-2xl 2rem;
+  @include tablet { padding: 0 $spacing-lg $spacing-lg; }
+}
+
+.location-detail__stats-title {
+  font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 400;
-  margin: 0 0 $spacing-2xl;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
-.location-detail__section-subtitle {
-  font-size: $font-size-sm;
+.location-detail__stats-period {
+  font-size: $font-size-base;
   color: $color-muted;
   vertical-align: super;
+  font-weight: 400;
 }
 
-.location-detail__stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-2xl;
-  @include tablet { grid-template-columns: 1fr; }
-}
-
-.location-detail__stats-column {
-  border-top: 1px solid $color-border;
-  padding-top: $spacing-lg;
-}
-
-.location-detail__stats-label {
-  font-size: $font-size-sm;
+.location-detail__stats-type {
+  font-size: $font-size-base;
   font-weight: 500;
-  margin-bottom: $spacing-xl;
+  color: $color-primary;
+  flex-shrink: 0;
+}
+
+.location-detail__stats-secondary {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6rem $spacing-2xl 0;
+  @include tablet { padding: 3rem $spacing-lg 0; }
 }
 
 .location-detail__stat-row {
-  margin-bottom: $spacing-xl;
+  display: grid;
+  grid-template-columns: 200px 1fr 300px;
+  gap: $spacing-2xl;
+  align-items: start;
+  padding: 2.5rem $spacing-2xl;
+  border-top: 1px solid $color-border;
+
+  @include desktop {
+    grid-template-columns: 180px 1fr 260px;
+  }
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  &--no-value {
+    .location-detail__stat-value { display: none; }
+    grid-template-columns: 200px 1fr;
+    @include desktop { grid-template-columns: 180px 1fr; }
+    @include tablet { grid-template-columns: 1fr; }
+  }
 }
 
-.location-detail__stat-name {
+.location-detail__stat-label {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
   font-size: $font-size-sm;
   color: $color-muted;
-  margin-bottom: $spacing-sm;
+  padding-top: 0.25rem;
 }
 
-.location-detail__stat-big {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+.location-detail__stat-value {
+  font-size: clamp(3rem, 7vw, 5.5rem);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: $spacing-sm;
+  letter-spacing: -0.03em;
+  color: $color-primary;
 }
 
 .location-detail__stat-desc {
-  font-size: $font-size-sm;
+  font-size: $font-size-base;
   color: $color-muted;
   line-height: 1.6;
-  max-width: 400px;
+  max-width: 300px;
+
+  @include tablet { max-width: 100%; }
 }
 
-// Nearby
+// Nearby Locations
 .location-detail__nearby {
   padding: 4rem $spacing-2xl 6rem;
   @include tablet { padding: $spacing-2xl $spacing-lg 4rem; }
+}
+
+.location-detail__nearby-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 2rem;
+}
+
+.location-detail__nearby-count {
+  font-size: $font-size-base;
+  color: $color-muted;
+  vertical-align: super;
+  font-weight: 400;
 }
 
 .location-detail__nearby-grid {
@@ -938,36 +1160,39 @@ definePageMeta({
 .location-detail__nearby-card {
   cursor: pointer;
   transition: opacity $transition-base;
-  &:hover { opacity: 0.8; }
+  &:hover { opacity: 0.85; }
 }
 
-.location-detail__nearby-image-wrapper {
+.location-detail__nearby-image {
   aspect-ratio: 4/3;
   overflow: hidden;
-  border-radius: $radius-md;
+  border-radius: $radius-lg;
   background: $color-surface;
-  margin-bottom: $spacing-sm;
+  margin-bottom: 0.75rem;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
+    .location-detail__nearby-card:hover & { transform: scale(1.03); }
   }
 }
 
 .location-detail__nearby-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.125rem;
 }
 
-.location-detail__nearby-type {
+.location-detail__nearby-city {
   font-size: $font-size-xs;
   color: $color-muted;
 }
 
 .location-detail__nearby-name {
-  font-size: $font-size-sm;
-  font-weight: 500;
+  font-size: $font-size-base;
+  font-weight: 400;
+  color: $color-primary;
 }
 </style>
