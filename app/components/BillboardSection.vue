@@ -14,22 +14,12 @@
           data-split-trigger="view"
           data-split-duration="1.2"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
-        <NuxtLink v-if="!isExternalUrl(billboardUrl)" :to="billboardUrl" class="billboard-section__button">
-          <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
-          <span class="billboard-section__button-icon" aria-hidden="true">
-            <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </NuxtLink>
-        <a v-else :href="billboardUrl" target="_blank" rel="noopener noreferrer" class="billboard-section__button">
-          <span class="billboard-section__button-text">{{ billboard?.buttonText ?? $t('homepage.billboard.buttonText') }}</span>
-          <span class="billboard-section__button-icon" aria-hidden="true">
-            <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </a>
+        <BtnAnimated
+          :text="billboard?.buttonText ?? $t('homepage.billboard.buttonText')"
+          :to="billboardUrl"
+          :external="isExternalUrl(billboardUrl)"
+          variant="on-dark"
+        />
       </div>
       <div class="billboard-section__footer">
         <h3 class="billboard-section__subtitle">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
@@ -142,44 +132,6 @@ $billboard-text-color: #FAFAFA;
     margin: 0;
   }
 
-  // #3: Responsive button width, #5: focus-visible state
-  &__button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: $billboard-text-color;
-    border-radius: $radius-full;
-    padding: 2px;
-    max-width: 17.5rem;
-    width: 100%;
-    height: 3rem;
-    text-decoration: none;
-    transition: transform 0.3s ease;
-
-    &:hover { transform: translateY(-2px); }
-
-    &:focus-visible {
-      outline: 2px solid $color-accent;
-      outline-offset: 2px;
-    }
-  }
-
-  &__button-text {
-    font-size: $font-size-base;
-    color: $color-primary;
-    padding-left: $spacing-md;
-  }
-
-  &__button-icon {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background-color: $color-primary;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $billboard-text-color;
-  }
 
   &__footer {
     display: flex;
