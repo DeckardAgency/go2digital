@@ -287,7 +287,9 @@
       @mousedown="startResize"
       @touchstart.prevent="startResizeTouch"
     >
-      <div class="locations-resize__handle"></div>
+      <div class="locations-resize__grip">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
     </div>
 
     <!-- Map View -->
@@ -1478,7 +1480,8 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   background-color: $color-background;
   position: sticky;
   top: 0;
-  contain: layout style;
+  container-type: inline-size;
+  container-name: sidebar;
 
   @include tablet { height: auto; min-height: 100dvh; border-right: none; }
 
@@ -1705,13 +1708,16 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     &:hover { opacity: 0.7; }
   }
 
-  // ── Cards Grid ──
+  // ── Cards Grid (responsive to sidebar width via container queries) ──
   &__shimmer {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem 1rem;
     padding: 1.75rem;
     overflow: hidden;
+
+    @container sidebar (max-width: 480px) { grid-template-columns: 1fr; }
+    @container sidebar (min-width: 750px) { grid-template-columns: repeat(3, 1fr); }
   }
 
   &__cards {
@@ -1723,6 +1729,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+
+    @container sidebar (max-width: 480px) { grid-template-columns: 1fr; }
+    @container sidebar (min-width: 750px) { grid-template-columns: repeat(3, 1fr); }
     @include mobile { grid-template-columns: 1fr; }
   }
 
@@ -1984,33 +1993,38 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
 // Resize handle
 .locations-resize {
-  width: 6px;
+  width: 12px;
   cursor: col-resize;
   position: relative;
   z-index: 10;
-  background: transparent;
-  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   @include tablet { display: none; }
 
   &:hover,
   &:active {
-    .locations-resize__handle {
-      opacity: 1;
+    background-color: rgba($color-accent, 0.06);
+
+    .locations-resize__grip span {
       background-color: $color-accent;
     }
   }
 
-  &__handle {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 100%;
+  &__grip {
+    display: grid;
+    grid-template-columns: repeat(2, 4px);
+    gap: 3px;
+    padding: 4px 0;
+  }
+
+  &__grip span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
     background-color: $color-border;
-    opacity: 0;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
+    transition: background-color 0.2s ease;
   }
 }
 
