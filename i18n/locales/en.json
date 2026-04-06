@@ -348,7 +348,8 @@
       "cities": "Cities",
       "environments": "Environments",
       "clearAll": "Clear all",
-      "apply": "Apply"
+      "apply": "Apply",
+      "all": "All"
     },
     "search": {
       "placeholder": "Search locations...",

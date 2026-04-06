@@ -348,7 +348,8 @@
       "cities": "Gradovi",
       "environments": "Okruženja",
       "clearAll": "Očisti sve",
-      "apply": "Primijeni"
+      "apply": "Primijeni",
+      "all": "Sve"
     },
     "search": {
       "placeholder": "Pretraži lokacije...",

@@ -83,44 +83,46 @@
         </div>
 
         <!-- Shared dropdown panel below triggers -->
-        <Transition name="dropdown">
+        <Transition name="dropdown" @after-enter="focusCitySearch">
           <div class="custom-select__dropdown" v-if="isCityDropdownOpen" data-lenis-prevent>
             <div class="custom-select__search">
               <input
+                ref="citySearchRef"
                 type="text"
                 class="custom-select__search-input"
-                :placeholder="locSearchFilterPlaceholder || 'Search...'"
+                :placeholder="locSearchFilterPlaceholder"
                 v-model="cityFilterQuery"
                 @click.stop
               >
             </div>
             <div class="custom-select__options">
               <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
-                <span>All {{ locFiltersCities }}</span>
+                <span>{{ locFiltersAll }} {{ locFiltersCities }}</span>
               </button>
               <label v-for="city in filteredCities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
                 <span>{{ city.name }}</span>
                 <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
               </label>
-              <div v-if="filteredCities.length === 0" class="custom-select__no-results">No results</div>
+              <div v-if="filteredCities.length === 0" class="custom-select__no-results">{{ locNoResults }}</div>
             </div>
           </div>
         </Transition>
 
-        <Transition name="dropdown">
+        <Transition name="dropdown" @after-enter="focusEnvSearch">
           <div class="custom-select__dropdown" v-if="isEnvDropdownOpen" data-lenis-prevent>
             <div class="custom-select__search">
               <input
+                ref="envSearchRef"
                 type="text"
                 class="custom-select__search-input"
-                :placeholder="locSearchFilterPlaceholder || 'Search...'"
+                :placeholder="locSearchFilterPlaceholder"
                 v-model="envFilterQuery"
                 @click.stop
               >
             </div>
             <div class="custom-select__options">
               <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
-                <span>All {{ locFiltersEnvironments }}</span>
+                <span>{{ locFiltersAll }} {{ locFiltersEnvironments }}</span>
               </button>
               <label v-for="env in filteredEnvironments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
                 <span>{{ env.name }}</span>
@@ -557,6 +559,7 @@ const locViewGrid = computed(() => getLocSetting('location.viewSwitcher.grid') |
 const locViewMap = computed(() => getLocSetting('location.viewSwitcher.map') || t('location.viewSwitcher.map'))
 const locMapLight = computed(() => getLocSetting('location.mapStyle.light') || t('location.mapStyle.light'))
 const locMapDark = computed(() => getLocSetting('location.mapStyle.dark') || t('location.mapStyle.dark'))
+const locFiltersAll = computed(() => getLocSetting('location.filters.all') || t('location.filters.all') || 'Sve')
 const locFiltersClearAll = computed(() => getLocSetting('location.filters.clearAll') || t('location.filters.clearAll'))
 const locFiltersApply = computed(() => getLocSetting('location.filters.apply') || t('location.filters.apply'))
 const showClearConfirm = ref(false)
@@ -628,6 +631,11 @@ const showSelectedOnly = ref(false)
 // Dropdown search filters
 const cityFilterQuery = ref('')
 const envFilterQuery = ref('')
+const citySearchRef = ref<HTMLInputElement | null>(null)
+const envSearchRef = ref<HTMLInputElement | null>(null)
+
+function focusCitySearch() { citySearchRef.value?.focus() }
+function focusEnvSearch() { envSearchRef.value?.focus() }
 
 const filteredCities = computed(() => {
   if (!cityFilterQuery.value) return cities.value
