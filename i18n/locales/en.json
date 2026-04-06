@@ -61,6 +61,11 @@
       "buttonText": "Request a Quote",
       "imageAlt": "Go2Digital billboard on Radnička Road"
     },
+    "analytics": {
+      "indicator": "Measure Campaign Success",
+      "title": "Impressions",
+      "description": "After every campaign, we send you a detailed postbuy report."
+    },
     "tracking": {
       "title": "Real-time tracking and analytics.",
       "buttonText": "Learn More",

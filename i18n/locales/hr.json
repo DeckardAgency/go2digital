@@ -61,6 +61,11 @@
       "buttonText": "Zatraži ponudu",
       "imageAlt": "Go2Digital billboard na Radničkoj cesti"
     },
+    "analytics": {
+      "indicator": "Mjerite Uspjeh Kampanje",
+      "title": "Impresije",
+      "description": "Po završetku svake kampanje, šaljemo vam detaljan postbuy report."
+    },
     "tracking": {
       "title": "Praćenje i analitika u stvarnom vremenu.",
       "buttonText": "Saznaj više",

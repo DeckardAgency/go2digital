@@ -9,6 +9,7 @@
     <HumanFocusedSection />
     <TextAnimationSection />
     <BillboardSection />
+    <AnalyticsSection />
     <TrackingSection />
     <RentalsImageSection />
     <CubeSection />
