@@ -26,17 +26,20 @@
       <div class="analytics-section__graph" ref="graphRef">
 
         <!-- Tabs -->
-        <div class="analytics-section__tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            class="analytics-section__tab"
-            :class="{ 'analytics-section__tab--active': activeTab === tab.id }"
-            @click="switchTab(tab.id)"
-          >
-            <span class="analytics-section__tab-dot" :style="{ backgroundColor: tab.color }"></span>
-            {{ tab.label }}
-          </button>
+        <div class="analytics-section__tabs-wrapper">
+          <div class="analytics-section__tabs" ref="tabsRef">
+            <span class="analytics-section__tabs-slider" ref="sliderRef"></span>
+            <button
+              v-for="(tab, i) in tabs"
+              :key="tab.id"
+              :ref="el => tabEls[i] = el as HTMLElement"
+              class="analytics-section__tab"
+              :class="{ 'analytics-section__tab--active': activeTab === tab.id }"
+              @click="switchTab(tab.id, i)"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
         </div>
 
         <div class="analytics-section__graph-inner">
@@ -69,13 +72,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import { gsap } from 'gsap'
 
 const { data: analytics } = useApi<any>('/api/singletons/homepage-analytics', { lazy: true, server: false })
 
 const graphRef = ref<HTMLElement | null>(null)
 const dotGridRef = ref<HTMLElement | null>(null)
+const tabsRef = ref<HTMLElement | null>(null)
+const sliderRef = ref<HTMLElement | null>(null)
+const tabEls = ref<HTMLElement[]>([])
 
 const rows = 20
 const cols = 31
@@ -102,7 +108,7 @@ const tabs: Tab[] = [
   {
     id: 'reach',
     label: 'Doseg',
-    color: '#60a5fa',
+    color: '#00ff88',
     yLabels: ['50k', '37.5k', '25k', '12.5k', '0'],
     curve: (c) => {
       const p = c / (cols - 1)
@@ -112,7 +118,7 @@ const tabs: Tab[] = [
   {
     id: 'engagement',
     label: 'Interakcije',
-    color: '#f59e0b',
+    color: '#00ff88',
     yLabels: ['10k', '7.5k', '5k', '2.5k', '0'],
     curve: (c) => {
       const p = c / (cols - 1)
@@ -141,10 +147,33 @@ function generateGrid(tab: Tab): boolean[][] {
 }
 
 const currentGrid = ref(generateGrid(tabs[0]))
+let activeIndex = 0
 
-function switchTab(tabId: string) {
+function moveSlider(index: number) {
+  nextTick(() => {
+    const el = tabEls.value[index]
+    const slider = sliderRef.value
+    if (!el || !slider || !tabsRef.value) return
+    const containerRect = tabsRef.value.getBoundingClientRect()
+    const elRect = el.getBoundingClientRect()
+    gsap.to(slider, {
+      left: elRect.left - containerRect.left,
+      width: elRect.width,
+      duration: 0.4,
+      ease: 'power3.inOut',
+    })
+  })
+}
+
+onMounted(() => {
+  nextTick(() => moveSlider(0))
+})
+
+function switchTab(tabId: string, index: number) {
   if (activeTab.value === tabId) return
   activeTab.value = tabId
+  activeIndex = index
+  moveSlider(index)
 
   const newGrid = generateGrid(activeTabData.value)
 
@@ -269,45 +298,55 @@ function switchTab(tabId: string) {
 
   // ─── Tabs ───────────────────────────────────────────────
 
-  &__tabs {
-    display: flex;
-    gap: 2px;
+  &__tabs-wrapper {
     padding: $spacing-lg $spacing-2xl 0;
     @include mobile { padding: $spacing-md $spacing-md 0; }
   }
 
+  &__tabs {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #293331;
+    border-radius: 100px;
+    position: relative;
+    padding: 4px;
+  }
+
+  &__tabs-slider {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 0;
+    background: #FAFAFA;
+    border-radius: 100px;
+    z-index: 1;
+    pointer-events: none;
+  }
+
   &__tab {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
-    gap: $spacing-xs;
-    padding: $spacing-xs $spacing-md;
+    padding: 0.5rem 1.25rem;
     font-size: $font-size-sm;
     font-family: inherit;
-    color: rgba(#FAFAFA, 0.4);
+    color: rgba(#FAFAFA, 0.5);
     background: transparent;
-    border: 1px solid #293331;
-    border-radius: $radius-full;
+    border: none;
+    border-radius: 100px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
     white-space: nowrap;
 
     &:hover {
-      color: rgba(#FAFAFA, 0.7);
-      border-color: rgba(#FAFAFA, 0.2);
+      color: rgba(#FAFAFA, 0.8);
     }
 
     &--active {
       color: $color-primary;
-      background: #FAFAFA;
-      border-color: #FAFAFA;
     }
-  }
-
-  &__tab-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    flex-shrink: 0;
   }
 
   // ─── Dot Grid Graph ─────────────────────────────────────
