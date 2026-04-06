@@ -29,18 +29,48 @@
       "description": "Naši premium digitalni ekrani pružaju neusporedivu kvalitetu prikaza s visokom rezolucijom, punim pokretom i širokim kutom gledanja – osiguravajući da vaša poruka bude viđena jasno, dan i noć.",
       "downloadSpecs": "Preuzmi specifikacije",
       "specs": [
-        { "label": "Rezolucija", "value": "Full HD / 4K" },
-        { "label": "Osvjetljenje", "value": "5000+ nita" },
-        { "label": "Kut gledanja", "value": "178°" },
-        { "label": "Životni vijek", "value": "100.000+ sati" },
-        { "label": "Pokret", "value": "Full Motion" },
-        { "label": "Povezivost", "value": "4G / WiFi" }
+        {
+          "label": "Rezolucija",
+          "value": "Full HD / 4K"
+        },
+        {
+          "label": "Osvjetljenje",
+          "value": "5000+ nita"
+        },
+        {
+          "label": "Kut gledanja",
+          "value": "178°"
+        },
+        {
+          "label": "Životni vijek",
+          "value": "100.000+ sati"
+        },
+        {
+          "label": "Pokret",
+          "value": "Full Motion"
+        },
+        {
+          "label": "Povezivost",
+          "value": "4G / WiFi"
+        }
       ],
       "features": [
-        { "title": "Visoka vidljivost", "description": "Ekrani s visokim osvjetljenjem vidljivi i po danu, s automatskim podešavanjem osvjetljenja za optimalnu potrošnju energije." },
-        { "title": "Dinamički sadržaj", "description": "Prilagodite poruku u stvarnom vremenu prema dobu dana, vremenskim uvjetima ili ciljnoj publici za maksimalan učinak." },
-        { "title": "Inteligentno praćenje", "description": "Napredna analitika i praćenje prikazivanja u stvarnom vremenu za potpunu transparentnost vaše kampanje." },
-        { "title": "Održivo rješenje", "description": "Energetski učinkoviti LED ekrani s niskim ugljičnim otiskom i mogućnošću napajanja iz obnovljivih izvora energije." }
+        {
+          "title": "Visoka vidljivost",
+          "description": "Ekrani s visokim osvjetljenjem vidljivi i po danu, s automatskim podešavanjem osvjetljenja za optimalnu potrošnju energije."
+        },
+        {
+          "title": "Dinamički sadržaj",
+          "description": "Prilagodite poruku u stvarnom vremenu prema dobu dana, vremenskim uvjetima ili ciljnoj publici za maksimalan učinak."
+        },
+        {
+          "title": "Inteligentno praćenje",
+          "description": "Napredna analitika i praćenje prikazivanja u stvarnom vremenu za potpunu transparentnost vaše kampanje."
+        },
+        {
+          "title": "Održivo rješenje",
+          "description": "Energetski učinkoviti LED ekrani s niskim ugljičnim otiskom i mogućnošću napajanja iz obnovljivih izvora energije."
+        }
       ]
     },
     "humanFocused": {
@@ -70,11 +100,26 @@
       "title": "Praćenje i analitika u stvarnom vremenu.",
       "buttonText": "Saznaj više",
       "features": [
-        { "title": "Prikazi u stvarnom vremenu", "description": "Pratite koliko puta je vaš oglas prikazan sa sekundnom preciznošću." },
-        { "title": "Dokaz prikazivanja", "description": "Automatski generirani izvještaji s fotografijama kao dokaz emitiranja." },
-        { "title": "Analiza publike", "description": "Detaljni podaci o demografiji i ponašanju publike na svakoj lokaciji." },
-        { "title": "Optimizacija kampanje", "description": "Prilagodite kampanju u hodu na temelju performansi i podataka." },
-        { "title": "ROI izvještaji", "description": "Mjerite povrat investicije s preciznim metrikama i benchmarkovima." }
+        {
+          "title": "Prikazi u stvarnom vremenu",
+          "description": "Pratite koliko puta je vaš oglas prikazan sa sekundnom preciznošću."
+        },
+        {
+          "title": "Dokaz prikazivanja",
+          "description": "Automatski generirani izvještaji s fotografijama kao dokaz emitiranja."
+        },
+        {
+          "title": "Analiza publike",
+          "description": "Detaljni podaci o demografiji i ponašanju publike na svakoj lokaciji."
+        },
+        {
+          "title": "Optimizacija kampanje",
+          "description": "Prilagodite kampanju u hodu na temelju performansi i podataka."
+        },
+        {
+          "title": "ROI izvještaji",
+          "description": "Mjerite povrat investicije s preciznim metrikama i benchmarkovima."
+        }
       ]
     },
     "cube": {
@@ -84,16 +129,40 @@
       "specsTitle": "Specifikacije citylight-a",
       "downloadSpecs": "Preuzmi specifikacije",
       "specs": [
-        { "label": "Format", "value": "Citylight / Totem" },
-        { "label": "Rezolucija", "value": "Full HD" },
-        { "label": "Osvjetljenje", "value": "2500 nita" },
-        { "label": "Pokret", "value": "Full Motion" },
-        { "label": "Ekran", "value": "55\" / 75\"" },
-        { "label": "Zaštita", "value": "Kaljeno staklo" }
+        {
+          "label": "Format",
+          "value": "Citylight / Totem"
+        },
+        {
+          "label": "Rezolucija",
+          "value": "Full HD"
+        },
+        {
+          "label": "Osvjetljenje",
+          "value": "2500 nita"
+        },
+        {
+          "label": "Pokret",
+          "value": "Full Motion"
+        },
+        {
+          "label": "Ekran",
+          "value": "55\" / 75\""
+        },
+        {
+          "label": "Zaštita",
+          "value": "Kaljeno staklo"
+        }
       ],
       "features": [
-        { "title": "Pješačke zone", "description": "Pozicionirani na najfrekventnijim pješačkim lokacijama za maksimalan kontakt s publikom." },
-        { "title": "Indoor & Outdoor", "description": "Dostupni u indoor i outdoor varijantama, prilagođeni specifičnostima svake lokacije." }
+        {
+          "title": "Pješačke zone",
+          "description": "Pozicionirani na najfrekventnijim pješačkim lokacijama za maksimalan kontakt s publikom."
+        },
+        {
+          "title": "Indoor & Outdoor",
+          "description": "Dostupni u indoor i outdoor varijantama, prilagođeni specifičnostima svake lokacije."
+        }
       ]
     },
     "featuredLabs": {
@@ -284,7 +353,8 @@
     "search": {
       "placeholder": "Pretraži lokacije...",
       "button": "Traži",
-      "label": "Pretraga"
+      "label": "Pretraga",
+      "filterPlaceholder": "Pretraži..."
     },
     "collection": "Kolekcija",
     "clearAll": "Očisti sve",
@@ -298,8 +368,8 @@
       "map": "Mapa"
     },
     "toast": {
-      "added": "Lokacija dodana u kolekciju",
-      "removed": "Lokacija uklonjena iz kolekcije",
+      "added": "Dodano \"{name}\" u kolekciju",
+      "removed": "Uklonjeno \"{name}\" iz kolekcije",
       "urlCopied": "URL kopiran u međuspremnik",
       "urlError": "Greška pri kopiranju URL-a"
     },
@@ -307,6 +377,7 @@
       "title": "Lokacije - Go2Digital",
       "description": "Pregledajte sve naše lokacije digitalnih ekrana u Hrvatskoj.",
       "keywords": "lokacije, digitalni ekrani, vanjsko oglašavanje, Hrvatska"
-    }
+    },
+    "confirmClear": "Jeste li sigurni da želite očistiti sve odabrane lokacije?"
   }
 }

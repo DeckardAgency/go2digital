@@ -1,12 +1,21 @@
 <template>
   <div class="locations-page" :class="[currentViewClass, { 'locations-page--dark': isDarkMode, 'locations-page--scrolled': isScrolled }]">
+    <!-- Confirm Dialog -->
+    <ConfirmDialog
+      v-model:visible="showClearConfirm"
+      :message="locConfirmClear"
+      :confirm-text="locClearAll"
+      :cancel-text="locFiltersApply"
+      @confirm="doClearAll"
+    />
+
     <!-- Sidebar -->
     <aside class="locations-sidebar" :class="{ 'locations-sidebar--dark': isDarkMode, 'locations-sidebar--scrolled': isScrolled }">
       <!-- Header -->
       <div class="locations-sidebar__header" ref="headerRef">
         <div class="locations-sidebar__title-row">
           <h1 class="locations-sidebar__title" data-split-text data-split-type="chars" data-split-trigger="none" data-split-stagger="0.02" data-split-duration="0.6">
-            {{ $t('location.title') }}
+            {{ locTitle }}
           </h1>
           <span class="locations-sidebar__count" ref="countRef">({{ totalScreens }})</span>
         </div>
@@ -16,7 +25,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m16.111 7.083-.42 10.07a1.667 1.667 0 0 1-1.664 1.597h-7.22a1.666 1.666 0 0 1-1.665-1.598l-.42-10.069M8.75 3.75v-.833c0-.46.373-.834.833-.834h1.667c.46 0 .833.374.833.834v.833M8.75 15.417v-5M12.086 15.417v-5M4.585 3.75H16.25c.92 0 1.667.747 1.667 1.667v1.666h-15V5.417c0-.92.747-1.667 1.667-1.667Z"/></svg>
           </button>
           <label class="locations-sidebar__view-toggle">
-            <span>{{ $t('location.collectionView') }}</span>
+            <span>{{ locCollectionView }}</span>
             <input type="checkbox" v-model="showSelectedOnly" class="locations-sidebar__view-checkbox" @change="toggleSelectedOnlyView">
           </label>
 
@@ -27,14 +36,14 @@
               :class="{ 'locations-sidebar__mode-btn--active': !isDarkMode }"
               @click="setMapStyle('light')"
             >
-              {{ $t('location.mapStyle.light') }}
+              {{ locMapLight }}
             </button>
             <button
               class="locations-sidebar__mode-btn"
               :class="{ 'locations-sidebar__mode-btn--active': isDarkMode }"
               @click="setMapStyle('dark')"
             >
-              {{ $t('location.mapStyle.dark') }}
+              {{ locMapDark }}
             </button>
           </div>
         </div>
@@ -50,7 +59,7 @@
           <div class="custom-select" :class="{ 'custom-select--open': isCityDropdownOpen }">
             <button class="custom-select__trigger" @click="toggleCityDropdown">
               <span class="custom-select__label">
-                {{ selectedCities.length === 1 ? getCityName(selectedCities[0]) : selectedCities.length > 1 ? `${$t('location.filters.cities')} (${selectedCities.length})` : $t('location.filters.cities') }}
+                {{ selectedCities.length === 1 ? getCityName(selectedCities[0]) : selectedCities.length > 1 ? `${locFiltersCities} (${selectedCities.length})` : locFiltersCities }}
               </span>
               <svg class="custom-select__icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>
@@ -63,7 +72,7 @@
           <div class="custom-select" :class="{ 'custom-select--open': isEnvDropdownOpen }">
             <button class="custom-select__trigger" @click="toggleEnvDropdown">
               <span class="custom-select__label">
-                {{ selectedEnvironments.length === 1 ? getEnvironmentName(selectedEnvironments[0]) : selectedEnvironments.length > 1 ? `${$t('location.filters.environments')} (${selectedEnvironments.length})` : $t('location.filters.environments') }}
+                {{ selectedEnvironments.length === 1 ? getEnvironmentName(selectedEnvironments[0]) : selectedEnvironments.length > 1 ? `${locFiltersEnvironments} (${selectedEnvironments.length})` : locFiltersEnvironments }}
               </span>
               <svg class="custom-select__icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>
@@ -76,25 +85,49 @@
         <!-- Shared dropdown panel below triggers -->
         <Transition name="dropdown">
           <div class="custom-select__dropdown" v-if="isCityDropdownOpen" data-lenis-prevent>
-            <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
-              <span>All {{ $t('location.filters.cities') }}</span>
-            </button>
-            <label v-for="city in cities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
-              <span>{{ city.name }}</span>
-              <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
-            </label>
+            <div class="custom-select__search">
+              <input
+                type="text"
+                class="custom-select__search-input"
+                :placeholder="locSearchFilterPlaceholder || 'Search...'"
+                v-model="cityFilterQuery"
+                @click.stop
+              >
+            </div>
+            <div class="custom-select__options">
+              <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
+                <span>All {{ locFiltersCities }}</span>
+              </button>
+              <label v-for="city in filteredCities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
+                <span>{{ city.name }}</span>
+                <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
+              </label>
+              <div v-if="filteredCities.length === 0" class="custom-select__no-results">No results</div>
+            </div>
           </div>
         </Transition>
 
         <Transition name="dropdown">
           <div class="custom-select__dropdown" v-if="isEnvDropdownOpen" data-lenis-prevent>
-            <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
-              <span>All {{ $t('location.filters.environments') }}</span>
-            </button>
-            <label v-for="env in environments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
-              <span>{{ env.name }}</span>
-              <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
-            </label>
+            <div class="custom-select__search">
+              <input
+                type="text"
+                class="custom-select__search-input"
+                :placeholder="locSearchFilterPlaceholder || 'Search...'"
+                v-model="envFilterQuery"
+                @click.stop
+              >
+            </div>
+            <div class="custom-select__options">
+              <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
+                <span>All {{ locFiltersEnvironments }}</span>
+              </button>
+              <label v-for="env in filteredEnvironments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
+                <span>{{ env.name }}</span>
+                <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
+              </label>
+              <div v-if="filteredEnvironments.length === 0" class="custom-select__no-results">No results</div>
+            </div>
           </div>
         </Transition>
       </div>
@@ -103,11 +136,11 @@
       <div class="locations-sidebar__mobile-buttons">
         <button class="locations-sidebar__collection-btn" @click="openSidebar">
           <span class="locations-sidebar__collection-btn-dot"></span>
-          <span class="locations-sidebar__collection-btn-text">{{ $t('location.collection') }} (<span>{{ selectedLocations.size }}</span>)</span>
+          <span class="locations-sidebar__collection-btn-text">{{ locCollection }} (<span>{{ selectedLocations.size }}</span>)</span>
         </button>
 
         <button class="locations-sidebar__filters-btn" @click="openFiltersModal">
-          <span class="locations-sidebar__filters-btn-text">{{ $t('location.filters.title') }} (<span>{{ totalFiltersCount }}</span>)</span>
+          <span class="locations-sidebar__filters-btn-text">{{ locFiltersTitle }} (<span>{{ totalFiltersCount }}</span>)</span>
         </button>
       </div>
 
@@ -116,11 +149,11 @@
         <input
           type="text"
           class="locations-sidebar__search-input"
-          :placeholder="$t('location.search.placeholder')"
+          :placeholder="locSearchPlaceholder"
           v-model="searchQuery"
           @keyup.enter="handleSearch"
         >
-        <button class="locations-sidebar__search-btn" @click="handleSearch">{{ $t('location.search.button') }}</button>
+        <button class="locations-sidebar__search-btn" @click="handleSearch">{{ locSearchButton }}</button>
       </div>
 
       <!-- Active Filters -->
@@ -142,11 +175,11 @@
           <span class="locations-sidebar__tag-close" @click="removeFilter('environment', env)">&times;</span>
         </span>
         <span v-if="searchQuery" class="locations-sidebar__tag">
-          {{ $t('location.search.label') }}: "{{ searchQuery }}"
+          {{ locSearchLabel }}: "{{ searchQuery }}"
           <span class="locations-sidebar__tag-close" @click="removeFilter('search')">&times;</span>
         </span>
         <a href="#" class="locations-sidebar__clear-all" @click.prevent="clearAllFilters">
-          {{ $t('location.clearAll') }}
+          {{ locClearAll }}
           <span>
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
               <path d="M0.5 0.5L8.75 8.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -243,10 +276,19 @@
 
         <!-- Empty State -->
         <div v-if="filteredLocations.length === 0 && !isLoading" key="empty" class="locations-sidebar__empty">
-          <p>{{ $t('location.noResults') }}</p>
+          <p>{{ locNoResults }}</p>
         </div>
       </TransitionGroup>
     </aside>
+
+    <!-- Resize Handle -->
+    <div
+      class="locations-resize"
+      @mousedown="startResize"
+      @touchstart.prevent="startResizeTouch"
+    >
+      <div class="locations-resize__handle"></div>
+    </div>
 
     <!-- Map View -->
     <main class="locations-map" :class="{ 'locations-map--dark': isDarkMode }">
@@ -257,14 +299,14 @@
           :class="{ 'locations-map__toggle--active': !isDarkMode }"
           @click="setMapStyle('light')"
         >
-          {{ $t('location.mapStyle.light') }}
+          {{ locMapLight }}
         </button>
         <button
           class="locations-map__toggle"
           :class="{ 'locations-map__toggle--active': isDarkMode }"
           @click="setMapStyle('dark')"
         >
-          {{ $t('location.mapStyle.dark') }}
+          {{ locMapDark }}
         </button>
       </div>
 
@@ -272,7 +314,7 @@
       <div class="locations-collection" :class="{ 'locations-collection--dark': isDarkMode }" @click="openSidebar">
         <span class="locations-collection__dot"></span>
         <span class="locations-collection__text">
-          {{ $t('location.collection') }} <span class="locations-collection__count">({{ selectedLocations.size }})</span>
+          {{ locCollection }} <span class="locations-collection__count">({{ selectedLocations.size }})</span>
         </span>
       </div>
 
@@ -284,7 +326,7 @@
     <aside class="locations-selection-sidebar" :class="{ 'locations-selection-sidebar--open': isSidebarOpen, 'locations-selection-sidebar--dark': isDarkMode }">
       <div class="locations-selection-sidebar__header">
         <div class="locations-selection-sidebar__title-wrapper">
-          <h2 class="locations-selection-sidebar__title">{{ $t('location.collection') }} <span>({{ selectedLocations.size }})</span></h2>
+          <h2 class="locations-selection-sidebar__title">{{ locCollection }} <span>({{ selectedLocations.size }})</span></h2>
           <button class="locations-selection-sidebar__close" @click="closeSidebar">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M10.125 1.875L1.875 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -299,7 +341,7 @@
               <path d="M11.582 9.25C13.2487 10.9167 13.2487 13.5 11.582 15.1667L9.2487 17.5C7.58203 19.1667 4.9987 19.1667 3.33203 17.5C1.66536 15.8333 1.66536 13.25 3.33203 11.5833L5.41536 9.58333" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M9.25 11.5833C7.58333 9.91667 7.58333 7.33334 9.25 5.66667L11.5833 3.33334C13.25 1.66667 15.8333 1.66667 17.5 3.33334C19.1667 5 19.1667 7.58334 17.5 9.25L15.4167 11.25" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>{{ $t('location.shareUrl') }}</span>
+            <span>{{ locShareUrl }}</span>
           </button>
 
           <button class="locations-selection-sidebar__export-btn" @click="exportToPdf">
@@ -309,7 +351,7 @@
               <path d="M18.7487 15.8333L15.4154 19.1667L12.082 15.8333" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M15.4141 18.3333L15.4149 19.1667V12.0833" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>{{ $t('location.downloadPdf') }}</span>
+            <span>{{ locDownloadPdf }}</span>
           </button>
         </div>
       </div>
@@ -320,8 +362,8 @@
           <template v-if="selectedLocations.size === 0">
             <div class="locations-selection-sidebar__empty">
               <div class="locations-selection-sidebar__empty-icon">📍</div>
-              <p class="locations-selection-sidebar__empty-text">{{ $t('location.emptyCollection') }}</p>
-              <p class="locations-selection-sidebar__empty-hint">{{ $t('location.emptyCollectionHint') }}</p>
+              <p class="locations-selection-sidebar__empty-text">{{ locEmptyCollection }}</p>
+              <p class="locations-selection-sidebar__empty-hint">{{ locEmptyCollectionHint }}</p>
             </div>
           </template>
           <template v-else>
@@ -390,7 +432,7 @@
           <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
           <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
         </svg>
-        {{ $t('location.viewSwitcher.grid') }}
+        {{ locViewGrid }}
       </button>
       <button
         class="locations-view-switcher__btn"
@@ -401,14 +443,14 @@
           <path d="M8 8.5C9.10457 8.5 10 7.60457 10 6.5C10 5.39543 9.10457 4.5 8 4.5C6.89543 4.5 6 5.39543 6 6.5C6 7.60457 6.89543 8.5 8 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M13 6.5C13 11 8 14.5 8 14.5C8 14.5 3 11 3 6.5C3 4.9087 3.63214 3.38258 4.75736 2.25736C5.88258 1.13214 7.4087 0.5 9 0.5C10.5913 0.5 12.1174 1.13214 13.2426 2.25736C14.3679 3.38258 15 4.9087 15 6.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        {{ $t('location.viewSwitcher.map') }}
+        {{ locViewMap }}
       </button>
     </div>
 
     <!-- Mobile Filters Modal -->
     <div class="locations-filters-modal" :class="{ 'locations-filters-modal--open': isFiltersModalOpen }">
       <div class="locations-filters-modal__header">
-        <h2 class="locations-filters-modal__title">{{ $t('location.filters.title') }} (<span>{{ totalFiltersCount }}</span>)</h2>
+        <h2 class="locations-filters-modal__title">{{ locFiltersTitle }} (<span>{{ totalFiltersCount }}</span>)</h2>
         <button class="locations-filters-modal__close" @click="closeFiltersModal">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M10.125 1.875L1.875 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -421,7 +463,7 @@
         <!-- Cities Accordion -->
         <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isCitiesAccordionOpen }">
           <button class="locations-filters-modal__section-header" @click="isCitiesAccordionOpen = !isCitiesAccordionOpen">
-            <span class="locations-filters-modal__section-title">{{ $t('location.filters.cities') }} (<span>{{ modalSelectedCities.length }}</span>)</span>
+            <span class="locations-filters-modal__section-title">{{ locFiltersCities }} (<span>{{ modalSelectedCities.length }}</span>)</span>
             <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -438,7 +480,7 @@
         <!-- Environments Accordion -->
         <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isEnvsAccordionOpen }">
           <button class="locations-filters-modal__section-header" @click="isEnvsAccordionOpen = !isEnvsAccordionOpen">
-            <span class="locations-filters-modal__section-title">{{ $t('location.filters.environments') }} (<span>{{ modalSelectedEnvironments.length }}</span>)</span>
+            <span class="locations-filters-modal__section-title">{{ locFiltersEnvironments }} (<span>{{ modalSelectedEnvironments.length }}</span>)</span>
             <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -454,8 +496,8 @@
       </div>
 
       <div class="locations-filters-modal__footer">
-        <button class="locations-filters-modal__btn locations-filters-modal__btn--clear" @click="clearModalFilters">{{ $t('location.filters.clearAll') }}</button>
-        <button class="locations-filters-modal__btn locations-filters-modal__btn--apply" @click="applyModalFilters">{{ $t('location.filters.apply') }}</button>
+        <button class="locations-filters-modal__btn locations-filters-modal__btn--clear" @click="clearModalFilters">{{ locFiltersClearAll }}</button>
+        <button class="locations-filters-modal__btn locations-filters-modal__btn--apply" @click="applyModalFilters">{{ locFiltersApply }}</button>
       </div>
     </div>
   </div>
@@ -478,6 +520,47 @@ useHead({
 
 // Split text composable
 const { initSplitText, playAnimation } = useSplitText()
+
+// CMS-editable translations via settings API
+const { t, locale } = useI18n()
+const { data: locSettingsData } = useApi<any[]>('/api/settings?group=location', { lazy: true, server: false })
+
+function getLocSetting(key: string): string {
+  const settings = Array.isArray(locSettingsData.value) ? locSettingsData.value : (locSettingsData.value as any)?.['hydra:member'] ?? []
+  const s = settings.find((s: any) => s.key === key)
+  if (!s?.value) return ''
+  if (s.value[locale.value]) return s.value[locale.value]
+  if (s.value.value !== undefined) return s.value.value
+  return ''
+}
+
+// All location page texts — CMS overrides with i18n fallback
+const locTitle = computed(() => getLocSetting('location.title') || t('location.title'))
+const locCollectionView = computed(() => getLocSetting('location.collectionView') || t('location.collectionView'))
+const locSearchPlaceholder = computed(() => getLocSetting('location.search.placeholder') || t('location.search.placeholder'))
+const locSearchButton = computed(() => getLocSetting('location.search.button') || t('location.search.button'))
+const locSearchFilterPlaceholder = computed(() => getLocSetting('location.search.filterPlaceholder') || t('location.search.filterPlaceholder'))
+const locFiltersCities = computed(() => getLocSetting('location.filters.cities') || t('location.filters.cities'))
+const locFiltersEnvironments = computed(() => getLocSetting('location.filters.environments') || t('location.filters.environments'))
+const locFiltersTitle = computed(() => getLocSetting('location.filters.title') || t('location.filters.title'))
+const locClearAll = computed(() => getLocSetting('location.clearAll') || t('location.clearAll'))
+const locSearchLabel = computed(() => getLocSetting('location.search.label') || t('location.search.label'))
+const locNoResults = computed(() => getLocSetting('location.noResults') || t('location.noResults'))
+const locCollection = computed(() => getLocSetting('location.collection') || t('location.collection'))
+const locShareUrl = computed(() => getLocSetting('location.shareUrl') || t('location.shareUrl'))
+const locDownloadPdf = computed(() => getLocSetting('location.downloadPdf') || t('location.downloadPdf'))
+const locEmptyCollection = computed(() => getLocSetting('location.emptyCollection') || t('location.emptyCollection'))
+const locEmptyCollectionHint = computed(() => getLocSetting('location.emptyCollectionHint') || t('location.emptyCollectionHint'))
+const locViewGrid = computed(() => getLocSetting('location.viewSwitcher.grid') || t('location.viewSwitcher.grid'))
+const locViewMap = computed(() => getLocSetting('location.viewSwitcher.map') || t('location.viewSwitcher.map'))
+const locMapLight = computed(() => getLocSetting('location.mapStyle.light') || t('location.mapStyle.light'))
+const locMapDark = computed(() => getLocSetting('location.mapStyle.dark') || t('location.mapStyle.dark'))
+const locFiltersClearAll = computed(() => getLocSetting('location.filters.clearAll') || t('location.filters.clearAll'))
+const locFiltersApply = computed(() => getLocSetting('location.filters.apply') || t('location.filters.apply'))
+const showClearConfirm = ref(false)
+const locToastAdded = computed(() => getLocSetting('location.toast.added') || t('location.toast.added'))
+const locToastRemoved = computed(() => getLocSetting('location.toast.removed') || t('location.toast.removed'))
+const locConfirmClear = computed(() => getLocSetting('location.confirmClear') || t('location.confirmClear'))
 
 // Types
 interface Location {
@@ -539,6 +622,22 @@ const selectedCities = ref<string[]>([])
 const selectedEnvironments = ref<string[]>([])
 const searchQuery = ref('')
 const showSelectedOnly = ref(false)
+
+// Dropdown search filters
+const cityFilterQuery = ref('')
+const envFilterQuery = ref('')
+
+const filteredCities = computed(() => {
+  if (!cityFilterQuery.value) return cities.value
+  const q = cityFilterQuery.value.toLowerCase()
+  return cities.value.filter(c => c.name.toLowerCase().includes(q))
+})
+
+const filteredEnvironments = computed(() => {
+  if (!envFilterQuery.value) return environments.value
+  const q = envFilterQuery.value.toLowerCase()
+  return environments.value.filter(e => e.name.toLowerCase().includes(q))
+})
 
 // Mobile Filters Modal
 const isFiltersModalOpen = ref(false)
@@ -677,12 +776,14 @@ function getEnvironmentName(id: string): string { return environments.value.find
 
 function toggleCityDropdown() {
   isCityDropdownOpen.value = !isCityDropdownOpen.value
-  if (isCityDropdownOpen.value) isEnvDropdownOpen.value = false
+  if (isCityDropdownOpen.value) { isEnvDropdownOpen.value = false; envFilterQuery.value = '' }
+  else { cityFilterQuery.value = '' }
 }
 
 function toggleEnvDropdown() {
   isEnvDropdownOpen.value = !isEnvDropdownOpen.value
-  if (isEnvDropdownOpen.value) isCityDropdownOpen.value = false
+  if (isEnvDropdownOpen.value) { isCityDropdownOpen.value = false; cityFilterQuery.value = '' }
+  else { envFilterQuery.value = '' }
 }
 
 function toggleAllCities() {
@@ -723,10 +824,10 @@ function clearAllFilters() {
 function toggleLocation(location: Location) {
   if (selectedLocations.value.has(location.id)) {
     selectedLocations.value.delete(location.id)
-    showToast(`Removed "${location.name}" from collection`)
+    showToast(locToastRemoved.value.replace('{name}', location.name))
   } else {
     selectedLocations.value.set(location.id, location)
-    showToast(`Added "${location.name}" to collection`)
+    showToast(locToastAdded.value.replace('{name}', location.name))
   }
   saveToStorage()
   updateMapMarkers()
@@ -735,7 +836,7 @@ function toggleLocation(location: Location) {
 function removeFromCollection(id: string) {
   const location = selectedLocations.value.get(id)
   selectedLocations.value.delete(id)
-  if (location) showToast(`Removed "${location.name}" from collection`)
+  if (location) showToast(locToastRemoved.value.replace('{name}', location.name))
   saveToStorage()
   updateMapMarkers()
   if (showSelectedOnly.value && selectedLocations.value.size === 0) showSelectedOnly.value = false
@@ -965,14 +1066,16 @@ function toggleSelectedOnlyView() {
 
 function clearAll() {
   if (selectedLocations.value.size === 0) { resetMapView(); return }
-  if (confirm('Are you sure you want to clear all selected locations?')) {
-    selectedLocations.value.clear()
-    saveToStorage()
-    updateMapMarkers()
-    showSelectedOnly.value = false
-    showToast('All locations cleared from collection')
-    resetMapView()
-  }
+  showClearConfirm.value = true
+}
+
+function doClearAll() {
+  selectedLocations.value.clear()
+  saveToStorage()
+  updateMapMarkers()
+  showSelectedOnly.value = false
+  showToast(locClearAll.value)
+  resetMapView()
 }
 
 function shareCollection() {
@@ -1077,7 +1180,7 @@ async function initializeMap() {
     const mapboxgl = await import('mapbox-gl')
     await import('mapbox-gl/dist/mapbox-gl.css')
     mapboxgl.default.accessToken = MAPBOX_TOKEN
-    map = new mapboxgl.default.Map({ container: mapContainer.value, style: 'mapbox://styles/mapbox/light-v11', center: [15.977897644042969, 45.80989696061219], zoom: 6 })
+    map = new mapboxgl.default.Map({ container: mapContainer.value, style: 'mapbox://styles/mapbox/light-v11', center: [15.977897644042969, 45.80989696061219], zoom: 8 })
     map.addControl(new mapboxgl.default.NavigationControl())
     map.on('load', () => { loadMapData() })
   } catch (error) { console.error('Failed to load Mapbox:', error); showToast('Failed to load map', 'error') }
@@ -1100,6 +1203,34 @@ function loadMapData() {
   map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = '' })
   map.on('mouseenter', 'unclustered-point', () => { map.getCanvas().style.cursor = 'pointer' })
   map.on('mouseleave', 'unclustered-point', () => { map.getCanvas().style.cursor = '' })
+
+  // Fit map to show all markers
+  fitMapToMarkers(features)
+}
+
+function fitMapToMarkers(features: any[]) {
+  if (!map || features.length === 0) return
+
+  const LngLatBounds = (map as any).constructor.LngLatBounds || (window as any).mapboxgl?.LngLatBounds
+  if (!LngLatBounds) {
+    // Fallback: calculate bounds manually
+    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity
+    for (const f of features) {
+      const [lng, lat] = f.geometry.coordinates
+      if (lng < minLng) minLng = lng
+      if (lng > maxLng) maxLng = lng
+      if (lat < minLat) minLat = lat
+      if (lat > maxLat) maxLat = lat
+    }
+    map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 60, maxZoom: 15, duration: 500 })
+    return
+  }
+
+  const bounds = new LngLatBounds()
+  for (const f of features) {
+    bounds.extend(f.geometry.coordinates)
+  }
+  map.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 500 })
 }
 
 function updateMapMarkers() {
@@ -1125,6 +1256,62 @@ function handleClickOutside(e: MouseEvent) {
 }
 
 watch([filteredLocations], () => { if (map && map.isStyleLoaded()) loadMapData() })
+
+// ── Sidebar Resize ──
+const sidebarWidth = ref(0)
+const isResizing = ref(false)
+const MIN_SIDEBAR = 400
+const MAX_SIDEBAR = 900
+
+function startResize(e: MouseEvent) {
+  if (window.innerWidth < 768) return // no resize on mobile
+  isResizing.value = true
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+
+  const onMove = (ev: MouseEvent) => {
+    const newWidth = Math.min(MAX_SIDEBAR, Math.max(MIN_SIDEBAR, ev.clientX))
+    sidebarWidth.value = newWidth
+    const page = document.querySelector('.locations-page') as HTMLElement
+    if (page) page.style.gridTemplateColumns = `${newWidth}px auto 1fr`
+  }
+
+  const onUp = () => {
+    isResizing.value = false
+    document.body.style.cursor = ''
+    document.body.style.userSelect = ''
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+    // Refresh map after resize
+    if (map) map.resize()
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+}
+
+function startResizeTouch(e: TouchEvent) {
+  if (window.innerWidth < 768) return
+  isResizing.value = true
+
+  const onMove = (ev: TouchEvent) => {
+    const touch = ev.touches[0]
+    const newWidth = Math.min(MAX_SIDEBAR, Math.max(MIN_SIDEBAR, touch.clientX))
+    sidebarWidth.value = newWidth
+    const page = document.querySelector('.locations-page') as HTMLElement
+    if (page) page.style.gridTemplateColumns = `${newWidth}px auto 1fr`
+  }
+
+  const onEnd = () => {
+    isResizing.value = false
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('touchend', onEnd)
+    if (map) map.resize()
+  }
+
+  document.addEventListener('touchmove', onMove, { passive: false })
+  document.addEventListener('touchend', onEnd)
+}
 
 onMounted(async () => {
   loadFromStorage()
@@ -1224,12 +1411,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
 .locations-page {
   display: grid;
-  grid-template-columns: 520px 1fr;
+  grid-template-columns: 680px auto 1fr;
   min-height: 100dvh;
   background-color: $color-background;
   contain: layout style;
 
-  @include desktop { grid-template-columns: 420px 1fr; }
+  @include desktop { grid-template-columns: 520px auto 1fr; }
   @include tablet { grid-template-columns: 1fr; }
 
   &--grid-view { @include tablet { .locations-sidebar { display: flex; } .locations-map { display: none; } } }
@@ -1275,11 +1462,13 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   // Collapsible toolbar
   &__toolbar {
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: $z-dropdown + 1;
     max-height: 500px;
     opacity: 1;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px dashed $color-border;
 
     &--collapsed {
       max-height: 0;
@@ -1289,24 +1478,65 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     }
   }
 
-  // Elements
-  &__header { padding: $spacing-lg; border-bottom: 1px solid $color-border; display: flex; align-items: center; justify-content: space-between; gap: $spacing-md; }
-  &__title-row { display: flex; align-items: baseline; gap: $spacing-sm; }
-  &__title { font-size: $font-size-xl; font-weight: 400; margin: 0; }
-  &__count { font-size: $font-size-base; color: $color-muted; }
-  &__buttons-wrapper { display: flex; align-items: center; gap: $spacing-lg; flex-wrap: wrap; }
+  // ── Header ──
+  &__header {
+    padding: 2rem 1.75rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-md;
+  }
+
+  &__title-row { display: flex; align-items: baseline; gap: 0.375rem; }
+
+  &__title {
+    font-size: 2.75rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+
+  &__count {
+    font-size: $font-size-base;
+    color: $color-muted;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+  }
+
+  &__buttons-wrapper {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    flex-shrink: 0;
+    margin-top: 0.5rem;
+  }
+
   &__clear-btn {
-    padding: $spacing-sm;
-    border: 1px solid $color-border;
+    padding: 0.5rem;
+    border: none;
     border-radius: $radius-md;
     background: transparent;
     cursor: pointer;
     @include flex-center;
-    transition: border-color $transition-base;
-    &:hover { border-color: $color-primary; }
+    color: $color-muted;
+    transition: color $transition-base;
+    &:hover { color: $color-primary; }
   }
-  &__view-toggle { display: flex; align-items: center; gap: $spacing-sm; font-size: $font-size-sm; cursor: pointer; }
+
+  &__view-toggle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-sm;
+    cursor: pointer;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid $color-border;
+    border-radius: $radius-full;
+  }
+
   &__view-checkbox { width: 1rem; height: 1rem; accent-color: $color-accent; }
+
   &__mode-switch { display: none; @include tablet { display: flex; gap: $spacing-xs; } }
   &__mode-btn {
     padding: 0.375rem 0.75rem;
@@ -1318,9 +1548,24 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     transition: all $transition-base;
     &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; }
   }
-  &__filters { padding: $spacing-lg; border-bottom: 1px solid $color-border; position: relative; z-index: $z-dropdown; @include tablet { display: none; } }
-  &__filter-group { display: flex; gap: $spacing-lg; }
-  &__mobile-buttons { display: none; padding: $spacing-md $spacing-lg; gap: $spacing-lg; border-bottom: 1px solid $color-border; @include tablet { display: flex; } }
+
+  // ── Filters ──
+  &__filters {
+    padding: 1.25rem 1.75rem;
+    position: relative;
+    z-index: $z-dropdown;
+    @include tablet { display: none; }
+  }
+
+  &__filter-group { display: flex; gap: 0.75rem; }
+
+  &__mobile-buttons {
+    display: none;
+    padding: $spacing-md 1.75rem;
+    gap: $spacing-md;
+    @include tablet { display: flex; }
+  }
+
   &__collection-btn,
   &__filters-btn {
     flex: 1;
@@ -1333,66 +1578,109 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     font-size: $font-size-sm;
     cursor: pointer;
   }
+
   &__collection-btn-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
-  &__search { display: flex; gap: $spacing-sm; padding: $spacing-lg; border-bottom: 1px solid $color-border; }
+
+  // ── Search ──
+  &__search {
+    display: flex;
+    gap: 0;
+    padding: 0 1.75rem 1.25rem;
+  }
+
   &__search-input {
     flex: 1;
-    padding: 0.75rem $spacing-md;
+    padding: 0.875rem 1.25rem;
     border: 1px solid $color-border;
-    border-radius: $radius-md;
+    border-radius: $radius-lg 0 0 $radius-lg;
+    border-right: none;
     font-size: $font-size-base;
     font-family: inherit;
+    background: transparent;
     transition: border-color $transition-base;
     &:focus { outline: none; border-color: $color-primary; }
+    &::placeholder { color: $color-muted; }
   }
+
   &__search-btn {
-    padding: 0.75rem 1.25rem;
-    border: none;
-    border-radius: $radius-md;
-    background-color: $color-primary;
-    color: $color-background;
-    font-size: $font-size-sm;
+    padding: 0.875rem 1.5rem;
+    border: 1px solid $color-border;
+    border-left: none;
+    border-radius: 0 $radius-lg $radius-lg 0;
+    background-color: $color-surface;
+    color: $color-primary;
+    font-size: $font-size-base;
     font-family: inherit;
+    font-weight: 400;
     cursor: pointer;
-    transition: opacity $transition-base;
-    &:hover { opacity: 0.9; }
+    transition: background-color $transition-base;
+    &:hover { background-color: darken(#f5f5f5, 5%); }
   }
-  &__active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: $spacing-sm; padding: $spacing-lg; border-bottom: none; }
+
+  // ── Active Filters ──
+  &__active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0 1.75rem 1.25rem;
+  }
+
   &__tag {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     padding: 0.5rem 0.875rem;
-    background-color: rgba($color-primary, 0.1);
-    border: none;
+    border: 1px solid $color-border;
     border-radius: $radius-full;
+    background: transparent;
     font-size: $font-size-sm;
-    font-weight: 500;
+    font-weight: 400;
   }
-  &__tag-close { cursor: pointer; opacity: 0.5; font-size: 0.875rem; transition: opacity $transition-fast; &:hover { opacity: 1; } }
+
+  &__tag-close {
+    cursor: pointer;
+    opacity: 0.4;
+    font-size: 1rem;
+    line-height: 1;
+    transition: opacity $transition-fast;
+    &:hover { opacity: 1; }
+  }
+
   &__clear-all {
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
     margin-left: auto;
     font-size: $font-size-sm;
-    color: $color-muted;
+    color: $color-primary;
     text-decoration: none;
-    transition: color $transition-base;
-    &:hover { color: $color-primary; }
+    font-weight: 400;
+    transition: opacity $transition-base;
+    &:hover { opacity: 0.7; }
   }
-  &__shimmer { display: grid; grid-template-columns: repeat(2, 1fr); gap: $spacing-md; padding: $spacing-lg; overflow: hidden; }
+
+  // ── Cards Grid ──
+  &__shimmer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+    padding: 1.75rem;
+    overflow: hidden;
+  }
+
   &__cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     align-items: start;
-    gap: $spacing-md;
-    padding: $spacing-lg;
+    gap: 1.5rem 1rem;
+    padding: 1.75rem;
     overflow-y: auto;
     flex: 1;
     min-height: 0;
     @include mobile { grid-template-columns: 1fr; }
   }
+
   &__empty { grid-column: 1 / -1; text-align: center; padding: $spacing-xl; color: $color-muted; }
 }
 
@@ -1403,21 +1691,22 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__trigger {
     width: 100%;
     @include flex-between;
-    padding: 0.625rem $spacing-md;
+    padding: 0.875rem 1rem;
     border: 1px solid $color-border;
-    border-radius: $radius-full;
+    border-radius: $radius-lg;
     background: transparent;
-    font-size: $font-size-sm;
+    font-size: $font-size-base;
     font-family: inherit;
     cursor: pointer;
     transition: border-color $transition-base;
-    &:hover { border-color: $color-primary; }
+    &:hover { border-color: darken(#E5E5E5, 15%); }
     .custom-select--open & { border-color: $color-primary; }
     .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; }
   }
 
   &__icon {
     flex-shrink: 0;
+    opacity: 0.4;
   }
 
   &__dropdown {
@@ -1425,16 +1714,50 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     left: $spacing-lg;
     right: $spacing-lg;
     top: 100%;
-    max-height: 320px;
-    overflow-y: auto;
+    max-height: 360px;
+    display: flex;
+    flex-direction: column;
     background-color: $color-background;
     border: 1px solid $color-border;
     border-radius: $radius-md;
     box-shadow: $shadow-md;
     margin-top: $spacing-sm;
-    padding: $spacing-sm 0;
     z-index: $z-dropdown;
     .locations-sidebar--dark & { background-color: $dark-surface; border-color: $dark-border; }
+  }
+
+  &__search {
+    padding: $spacing-sm;
+    border-bottom: 1px solid $color-border;
+    flex-shrink: 0;
+  }
+
+  &__search-input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid $color-border;
+    border-radius: $radius-sm;
+    font-size: $font-size-sm;
+    font-family: inherit;
+    background: transparent;
+    transition: border-color $transition-base;
+    &:focus { outline: none; border-color: $color-primary; }
+    &::placeholder { color: $color-muted; }
+    .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; background: $dark-background; }
+  }
+
+  &__options {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding: $spacing-xs 0;
+  }
+
+  &__no-results {
+    padding: $spacing-lg;
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $color-muted;
   }
 
   &__option {
@@ -1468,24 +1791,19 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
 .location-card {
   position: relative;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
   background-color: $color-background;
-  transition: border-color $transition-base, box-shadow $transition-base;
+  transition: opacity $transition-base;
   contain: layout style;
 
-  &:hover { border-color: $color-primary; }
-  &--selected { border-color: $color-accent; }
-  &--active { box-shadow: 0 0 0 2px $color-accent; }
+  &:hover { opacity: 0.9; }
+  &--selected .location-card__badge { background-color: rgba($color-accent, 0.15); }
+  &--active .location-card__badge { background-color: rgba($color-accent, 0.15); }
 
   &--dark {
     background-color: $dark-surface;
-    border-color: $dark-border;
-    &:hover { border-color: $dark-text; }
     .location-card__badge { background-color: $dark-surface; }
     .location-card__focus { background-color: $dark-surface; }
     .location-card__image-wrapper { background-color: $dark-background; }
-    .location-card__content { background-color: $dark-surface; }
     .location-card__city,
     .location-card__type { color: $dark-muted; }
     .location-card__name { color: $dark-text; }
@@ -1493,13 +1811,14 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__badge {
     position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
+    top: 0.625rem;
+    left: 0.625rem;
     z-index: 10;
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
     @include flex-center;
-    background-color: $color-background;
+    background-color: rgba(#fff, 0.9);
+    backdrop-filter: blur(4px);
     border-radius: $radius-sm;
     cursor: pointer;
   }
@@ -1508,14 +1827,15 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__focus {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    top: 0.625rem;
+    left: 2.75rem;
     z-index: 10;
     width: 1.75rem;
     height: 1.75rem;
     @include flex-center;
-    background-color: $color-background;
-    border-radius: 50%;
+    background-color: rgba(#fff, 0.9);
+    backdrop-filter: blur(4px);
+    border-radius: $radius-sm;
     cursor: pointer;
     transition: transform $transition-base;
     &:hover { transform: scale(1.1); }
@@ -1536,7 +1856,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__image-wrapper {
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-radius: 0.65rem 0.65rem 0 0;
+    border-radius: $radius-lg;
     background-color: $color-surface;
   }
 
@@ -1545,15 +1865,22 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     height: 100%;
     object-fit: cover;
     transition: transform $transition-slow;
-    will-change: transform;
-    .location-card:hover & { transform: scale(1.05); }
+    .location-card:hover & { transform: scale(1.03); }
   }
 
-  &__content { padding: 0.75rem; background-color: $color-background; }
-  &__meta { display: flex; align-items: center; gap: 0.375rem; margin-bottom: $spacing-xs; }
+  &__content { padding: 0.625rem 0; }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.25rem;
+  }
+
   &__city,
-  &__type { font-size: $font-size-xs; color: $color-muted; text-transform: uppercase; }
-  &__dot { font-size: 0.5rem; color: $color-muted; }
+  &__type { font-size: $font-size-xs; color: $color-muted; }
+  &__dot { font-size: 0.375rem; color: $color-muted; }
+
   &__name {
     font-size: $font-size-base;
     font-weight: 400;
@@ -1608,6 +1935,38 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+// Resize handle
+.locations-resize {
+  width: 6px;
+  cursor: col-resize;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+  transition: background-color 0.2s ease;
+
+  @include tablet { display: none; }
+
+  &:hover,
+  &:active {
+    .locations-resize__handle {
+      opacity: 1;
+      background-color: $color-accent;
+    }
+  }
+
+  &__handle {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background-color: $color-border;
+    opacity: 0;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+  }
 }
 
 // Map container

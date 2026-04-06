@@ -298,7 +298,7 @@ function switchTab(tabId: string, index: number) {
   // ─── Tabs ───────────────────────────────────────────────
 
   &__tabs-wrapper {
-    padding: $spacing-lg $spacing-2xl 0;
+    padding: 0 0 $spacing-2xl 0;
     @include mobile { padding: $spacing-md $spacing-md 0; }
   }
 
@@ -354,7 +354,7 @@ function switchTab(tabId: string, index: number) {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: $spacing-lg $spacing-2xl $spacing-2xl;
+    padding: $spacing-2xl;
     @include mobile { padding: $spacing-md; }
   }
 
@@ -392,7 +392,7 @@ function switchTab(tabId: string, index: number) {
   &__dot-col {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 14px;
     flex: 1;
 
     @include mobile { gap: 3px; }

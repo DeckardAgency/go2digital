@@ -35,8 +35,8 @@
           <h3 class="interactive-display__specs-title">{{ displayProduct?.specsTitle ?? $t('homepage.interactiveDisplay.specsTitle') }}</h3>
           <dl class="interactive-display__specs-list">
             <div
-              v-for="spec in specs"
-              :key="spec.label"
+              v-for="(spec, i) in specs"
+              :key="spec.label || i"
               class="interactive-display__spec-item"
             >
               <dt class="interactive-display__spec-label">{{ spec.label }}</dt>

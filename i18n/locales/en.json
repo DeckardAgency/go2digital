@@ -29,18 +29,48 @@
       "description": "Our premium digital screens deliver unparalleled display quality with high resolution, full motion, and wide viewing angles – ensuring your message is seen clearly, day and night.",
       "downloadSpecs": "Download specifications",
       "specs": [
-        { "label": "Resolution", "value": "Full HD / 4K" },
-        { "label": "Brightness", "value": "5000+ nits" },
-        { "label": "Viewing Angle", "value": "178°" },
-        { "label": "Lifespan", "value": "100,000+ hours" },
-        { "label": "Motion", "value": "Full Motion" },
-        { "label": "Connectivity", "value": "4G / WiFi" }
+        {
+          "label": "Resolution",
+          "value": "Full HD / 4K"
+        },
+        {
+          "label": "Brightness",
+          "value": "5000+ nits"
+        },
+        {
+          "label": "Viewing Angle",
+          "value": "178°"
+        },
+        {
+          "label": "Lifespan",
+          "value": "100,000+ hours"
+        },
+        {
+          "label": "Motion",
+          "value": "Full Motion"
+        },
+        {
+          "label": "Connectivity",
+          "value": "4G / WiFi"
+        }
       ],
       "features": [
-        { "title": "High Visibility", "description": "High-brightness screens visible even in daylight, with automatic brightness adjustment for optimal energy consumption." },
-        { "title": "Dynamic Content", "description": "Adapt your message in real-time based on time of day, weather conditions, or target audience for maximum impact." },
-        { "title": "Intelligent Tracking", "description": "Advanced analytics and real-time display monitoring for complete campaign transparency." },
-        { "title": "Sustainable Solution", "description": "Energy-efficient LED screens with low carbon footprint and renewable energy powering options." }
+        {
+          "title": "High Visibility",
+          "description": "High-brightness screens visible even in daylight, with automatic brightness adjustment for optimal energy consumption."
+        },
+        {
+          "title": "Dynamic Content",
+          "description": "Adapt your message in real-time based on time of day, weather conditions, or target audience for maximum impact."
+        },
+        {
+          "title": "Intelligent Tracking",
+          "description": "Advanced analytics and real-time display monitoring for complete campaign transparency."
+        },
+        {
+          "title": "Sustainable Solution",
+          "description": "Energy-efficient LED screens with low carbon footprint and renewable energy powering options."
+        }
       ]
     },
     "humanFocused": {
@@ -70,11 +100,26 @@
       "title": "Real-time tracking and analytics.",
       "buttonText": "Learn More",
       "features": [
-        { "title": "Real-time Displays", "description": "Track how many times your ad was shown with second-by-second precision." },
-        { "title": "Proof of Display", "description": "Automatically generated reports with photos as proof of broadcast." },
-        { "title": "Audience Analysis", "description": "Detailed data on demographics and audience behavior at each location." },
-        { "title": "Campaign Optimization", "description": "Adjust your campaign on the fly based on performance and data." },
-        { "title": "ROI Reports", "description": "Measure return on investment with precise metrics and benchmarks." }
+        {
+          "title": "Real-time Displays",
+          "description": "Track how many times your ad was shown with second-by-second precision."
+        },
+        {
+          "title": "Proof of Display",
+          "description": "Automatically generated reports with photos as proof of broadcast."
+        },
+        {
+          "title": "Audience Analysis",
+          "description": "Detailed data on demographics and audience behavior at each location."
+        },
+        {
+          "title": "Campaign Optimization",
+          "description": "Adjust your campaign on the fly based on performance and data."
+        },
+        {
+          "title": "ROI Reports",
+          "description": "Measure return on investment with precise metrics and benchmarks."
+        }
       ]
     },
     "cube": {
@@ -84,16 +129,40 @@
       "specsTitle": "Citylight Specifications",
       "downloadSpecs": "Download specifications",
       "specs": [
-        { "label": "Format", "value": "Citylight / Totem" },
-        { "label": "Resolution", "value": "Full HD" },
-        { "label": "Brightness", "value": "2500 nits" },
-        { "label": "Motion", "value": "Full Motion" },
-        { "label": "Screen", "value": "55\" / 75\"" },
-        { "label": "Protection", "value": "Tempered Glass" }
+        {
+          "label": "Format",
+          "value": "Citylight / Totem"
+        },
+        {
+          "label": "Resolution",
+          "value": "Full HD"
+        },
+        {
+          "label": "Brightness",
+          "value": "2500 nits"
+        },
+        {
+          "label": "Motion",
+          "value": "Full Motion"
+        },
+        {
+          "label": "Screen",
+          "value": "55\" / 75\""
+        },
+        {
+          "label": "Protection",
+          "value": "Tempered Glass"
+        }
       ],
       "features": [
-        { "title": "Pedestrian Zones", "description": "Positioned at the most frequented pedestrian locations for maximum audience contact." },
-        { "title": "Indoor & Outdoor", "description": "Available in indoor and outdoor variants, adapted to the specifics of each location." }
+        {
+          "title": "Pedestrian Zones",
+          "description": "Positioned at the most frequented pedestrian locations for maximum audience contact."
+        },
+        {
+          "title": "Indoor & Outdoor",
+          "description": "Available in indoor and outdoor variants, adapted to the specifics of each location."
+        }
       ]
     },
     "featuredLabs": {
@@ -284,7 +353,8 @@
     "search": {
       "placeholder": "Search locations...",
       "button": "Search",
-      "label": "Search"
+      "label": "Search",
+      "filterPlaceholder": "Search..."
     },
     "collection": "Collection",
     "clearAll": "Clear all",
@@ -298,8 +368,8 @@
       "map": "Map"
     },
     "toast": {
-      "added": "Location added to collection",
-      "removed": "Location removed from collection",
+      "added": "Added \"{name}\" to collection",
+      "removed": "Removed \"{name}\" from collection",
       "urlCopied": "URL copied to clipboard",
       "urlError": "Error copying URL"
     },
@@ -307,6 +377,7 @@
       "title": "Locations - Go2Digital",
       "description": "Browse all our digital screen locations in Croatia.",
       "keywords": "locations, digital screens, outdoor advertising, Croatia"
-    }
+    },
+    "confirmClear": "Are you sure you want to clear all selected locations?"
   }
 }

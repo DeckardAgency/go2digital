@@ -37,7 +37,7 @@
         <div class="cube-section__specs">
           <h3 class="cube-section__specs-title">{{ cubeProduct?.specsTitle ?? $t('homepage.cube.specsTitle') }}</h3>
           <dl class="cube-section__specs-list">
-            <div v-for="spec in specs" :key="spec.label" class="cube-section__spec-item">
+            <div v-for="(spec, i) in specs" :key="spec.label || i" class="cube-section__spec-item">
               <dt class="cube-section__spec-label">{{ spec.label }}</dt>
               <dd class="cube-section__spec-value">{{ spec.value }}</dd>
             </div>
@@ -61,7 +61,7 @@
   <!-- Cube Features -->
   <FeatureSection
     v-for="(feature, i) in cubeFeatures"
-    :key="feature.title"
+    :key="feature.title || `cube-feature-${i}`"
     :icon="['Ⓐ', 'Ⓑ'][i] ?? ''"
     :title="feature.title"
     :description="feature.description"
