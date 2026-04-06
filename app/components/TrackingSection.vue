@@ -7,23 +7,21 @@
         data-split-type="lines"
         data-split-trigger="view"
         data-split-duration="1.2"
-      >{{ $t('homepage.tracking.title') }}</h2>
+      >{{ trackingTitle }}</h2>
       <div class="tracking-section__cta">
-        <NuxtLink to="/kontakt" class="tracking-section__button">
-          <span class="tracking-section__button-text">{{ $t('homepage.tracking.buttonText') }}</span>
-          <span class="tracking-section__button-icon" aria-hidden="true">
-            <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true">
-              <path d="M8.5 0.5L13.5 5.5L8.5 10.5M13 5.5H0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-        </NuxtLink>
+        <BtnAnimated
+          :text="trackingButtonText"
+          :to="trackingButtonUrl"
+          :external="trackingButtonUrl.startsWith('http')"
+          variant="on-dark"
+        />
       </div>
     </div>
     <!-- #8: Semantic ordered list instead of plain divs -->
     <ol class="tracking-section__list">
       <li
         v-for="(feature, i) in features"
-        :key="feature.title"
+        :key="feature.title || i"
         class="tracking-section__item"
       >
         <span class="tracking-section__number" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
@@ -37,9 +35,25 @@
 <script setup lang="ts">
 import type { HomepageTrackingFeature } from '~/types/api'
 
-const { tm, rt } = useI18n()
+const { tm, rt, t, locale } = useI18n()
 
 const { data: trackingFeatures } = useApi<HomepageTrackingFeature[]>('/api/homepage_tracking_features', { lazy: true, server: false })
+
+// Fetch settings for title, buttonText, buttonUrl
+const { data: settingsData } = useApi<any[]>('/api/settings?group=homepage', { lazy: true, server: false })
+
+function getSetting(key: string): string {
+  const settings = Array.isArray(settingsData.value) ? settingsData.value : (settingsData.value as any)?.['hydra:member'] ?? []
+  const s = settings.find((s: any) => s.key === key)
+  if (!s?.value) return ''
+  if (s.value[locale.value]) return s.value[locale.value]
+  if (s.value.value !== undefined) return s.value.value
+  return ''
+}
+
+const trackingTitle = computed(() => getSetting('homepage.tracking.title') || t('homepage.tracking.title'))
+const trackingButtonText = computed(() => getSetting('homepage.tracking.buttonText') || t('homepage.tracking.buttonText'))
+const trackingButtonUrl = computed(() => getSetting('homepage.tracking.buttonUrl') || '/kontakt')
 
 const features = computed(() => {
   // Use API data if available
@@ -107,44 +121,6 @@ $tracking-border-color: #293331;
     @include mobile { grid-column: 1 / -1; justify-content: flex-start; }
   }
 
-  // #3: Responsive button width, #2: focus-visible state
-  &__button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: $tracking-text-color;
-    border-radius: $radius-full;
-    padding: 2px;
-    max-width: 17.5rem;
-    width: 100%;
-    height: 3rem;
-    text-decoration: none;
-    transition: transform 0.3s ease;
-
-    &:hover { transform: translateY(-2px); }
-
-    &:focus-visible {
-      outline: 2px solid $color-accent;
-      outline-offset: 2px;
-    }
-  }
-
-  &__button-text {
-    font-size: $font-size-base;
-    color: $color-primary;
-    padding-left: $spacing-md;
-  }
-
-  &__button-icon {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background-color: $color-primary;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $tracking-text-color;
-  }
 
   // #8: Reset list styles for semantic <ol>
   &__list {
@@ -195,10 +171,4 @@ $tracking-border-color: #293331;
   }
 }
 
-// #1: Accessibility — reduced motion
-@media (prefers-reduced-motion: reduce) {
-  .tracking-section__button {
-    transition: none;
-  }
-}
 </style>
