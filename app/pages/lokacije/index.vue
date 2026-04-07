@@ -2143,7 +2143,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   contain: layout style;
 
   &:hover { opacity: 0.9; }
-  &--active .location-card__badge { background-color: rgba($color-accent, 0.15); }
+  &--active .location-card__badge { }
 
   &--dark {
     background-color: $dark-surface;
