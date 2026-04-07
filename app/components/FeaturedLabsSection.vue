@@ -44,41 +44,23 @@
       </div>
     </div>
 
-    <!-- Lab Items -->
+    <!-- Lab Cards (same layout as /lab page) -->
     <div class="featured-labs__items">
       <article
         v-for="(item, index) in labItems"
         :key="index"
-        class="lab-item"
+        class="featured-labs__card"
       >
-        <div class="lab-item__header">
-          <h2 class="lab-item__title">{{ item.title }}</h2>
-          <div class="lab-item__actions">
-            <NuxtLink :to="`/lab/${item.slug}`" class="lab-item__button">
-              <span class="lab-item__button-icon lab-item__button-icon--arrow">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 15L15 5M15 5H8M15 5V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </NuxtLink>
-          </div>
-        </div>
-
-        <p class="lab-item__description">{{ item.subtitle }}</p>
-
-        <div class="lab-item__categories">
-          <span
-            v-for="(category, catIndex) in item.categories"
-            :key="catIndex"
-            class="lab-item__category"
-          >
-            {{ category }}
-          </span>
-        </div>
-
-        <div class="lab-item__image">
-          <img :src="item.image" :alt="item.title" loading="lazy">
-        </div>
+        <NuxtLink :to="`/lab/${item.slug}`" class="featured-labs__card-link">
+          <h2 class="featured-labs__card-title">{{ item.title }}</h2>
+          <p class="featured-labs__card-description">{{ item.subtitle }}</p>
+          <ul class="featured-labs__card-tags">
+            <li v-for="(cat, i) in item.categories" :key="i" class="featured-labs__card-tag">{{ cat }}</li>
+          </ul>
+          <figure class="featured-labs__card-media">
+            <img :src="item.image" :alt="item.title" loading="lazy">
+          </figure>
+        </NuxtLink>
       </article>
     </div>
   </section>
@@ -335,151 +317,82 @@ $labs-dot-size: 6px;
 // ==========================================================================
 // Lab Item Component
 // ==========================================================================
-.lab-item {
-  display: grid;
-  grid-template-columns: 3fr 2fr 3fr 2fr;
-  gap: $spacing-xl;
-  padding: $spacing-xl $spacing-xl 3rem;
+// Lab card — same layout as /lab page
+.featured-labs__card {
   border-top: 1px solid $labs-border-color;
-  align-items: start;
   transition: background-color $transition-base;
 
   @include hover {
     background-color: rgba($labs-text-color, 0.02);
 
-    .lab-item__image img {
+    .featured-labs__card-media img {
       transform: scale(1.05);
     }
   }
 
-  @include tablet {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding: 0;
-  }
-
-  // ==========================================================================
-  // Element: Header
-  // ==========================================================================
-  &__header {
-    display: contents;
+  &-link {
+    display: grid;
+    grid-template-columns: 3fr 2fr 2fr 3fr;
+    align-items: start;
+    padding: 2.5rem $spacing-xl 5rem;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 
     @include tablet {
-      display: contents;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
     }
   }
 
-  // ==========================================================================
-  // Element: Title
-  // ==========================================================================
-  &__title {
+  &-title {
     font-size: 2.125rem;
+    font-weight: 400;
     line-height: 1.2;
     letter-spacing: -0.0425rem;
     color: $labs-text-color;
-    font-weight: 400;
     margin: 0;
 
-    @include tablet {
-      order: 1;
-      padding: $spacing-xl $spacing-md 0;
-    }
+    @include tablet { order: 1; padding: $spacing-xl $spacing-md 0; }
   }
 
-  // ==========================================================================
-  // Element: Actions
-  // ==========================================================================
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xl;
-
-    @include tablet {
-      order: 5;
-      display: none;
-    }
-  }
-
-  &__button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
+  &-description {
     font-size: $font-size-base;
     line-height: 1.3;
     color: $labs-text-color;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  &__button-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &--arrow {
-      transform: rotate(0deg);
-    }
-  }
-
-  // ==========================================================================
-  // Element: Description
-  // ==========================================================================
-  &__description {
-    font-size: $font-size-base;
-    line-height: 1.3;
     opacity: $labs-muted-opacity;
     margin: 0;
 
-    @include tablet {
-      order: 2;
-      padding: $spacing-md;
-    }
+    @include tablet { order: 2; padding: $spacing-md; }
   }
 
-  // ==========================================================================
-  // Element: Categories
-  // ==========================================================================
-  &__categories {
+  &-tags {
     display: flex;
     flex-direction: column;
     gap: $spacing-xs;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-    @include tablet {
-      order: 3;
-      padding: 0 $spacing-md;
-    }
+    @include tablet { order: 3; flex-direction: row; gap: 0.75rem; padding: 0 $spacing-md; }
   }
 
-  &__category {
+  &-tag {
     font-size: $font-size-base;
     line-height: 1.3;
+    color: $labs-text-color;
 
-    @include tablet {
-      font-size: $font-size-sm;
-    }
+    @include tablet { font-size: $font-size-sm; }
   }
 
-  // ==========================================================================
-  // Element: Image
-  // ==========================================================================
-  &__image {
-    width: 100%;
+  &-media {
+    margin: 0;
     border-radius: $radius-xl;
     overflow: hidden;
-    position: relative;
     background-color: rgba($labs-text-color, 0.05);
 
-    @include tablet {
-      order: 4;
-      width: 10.25rem;
-      height: 8.125rem;
-      margin: $spacing-xl $spacing-md;
-    }
+    @include tablet { order: 4; width: 10.25rem; margin: $spacing-xl $spacing-md; }
 
     img {
       width: 100%;
