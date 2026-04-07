@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ showFooter: false })
+
 const { t } = useI18n()
 const {
   time,
