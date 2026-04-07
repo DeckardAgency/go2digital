@@ -317,6 +317,33 @@
         </button>
       </div>
 
+      <!-- Nearby Facilities -->
+      <div class="locations-map__facilities" :class="{ 'locations-map__facilities--dark': isDarkMode, 'locations-map__facilities--open': isFacilitiesOpen }">
+        <button class="locations-map__facilities-toggle" @click="isFacilitiesOpen = !isFacilitiesOpen">
+          <span class="locations-map__facilities-label">
+            {{ activeFacilities.length > 0 ? `Nearby Places (${activeFacilities.length})` : 'Nearby Places' }}
+          </span>
+          <svg class="locations-map__facilities-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>
+            <circle cx="4" cy="10" r="1.5" fill="currentColor"/><circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+        <Transition name="dropdown">
+          <div v-if="isFacilitiesOpen" class="locations-map__facilities-dropdown">
+            <label
+              v-for="facility in facilityCategories"
+              :key="facility.id"
+              class="locations-map__facilities-option"
+              :class="{ 'locations-map__facilities-option--active': activeFacilities.includes(facility.id) }"
+            >
+              <span class="locations-map__facilities-icon">{{ facility.icon }}</span>
+              <span class="locations-map__facilities-label">{{ facility.label }}</span>
+              <input type="checkbox" :value="facility.id" v-model="activeFacilities" @change="toggleFacilityLayer(facility.id)">
+            </label>
+          </div>
+        </Transition>
+      </div>
+
       <!-- Collection Badge -->
       <div class="locations-collection" :class="{ 'locations-collection--dark': isDarkMode }" @click="openSidebar">
         <span class="locations-collection__dot"></span>
@@ -866,6 +893,105 @@ function removeFromCollection(id: string) {
   saveToStorage()
   updateMapMarkers()
   if (showSelectedOnly.value && selectedLocations.value.size === 0) showSelectedOnly.value = false
+}
+
+// ── Nearby Facilities ──
+const isFacilitiesOpen = ref(false)
+const activeFacilities = ref<string[]>([])
+
+const facilityCategories = [
+  { id: 'shopping', label: 'Shopping', icon: '🛍️', overpassQuery: 'node["shop"~"supermarket|mall|department_store|convenience"](around:RADIUS,LAT,LNG);node["amenity"="marketplace"](around:RADIUS,LAT,LNG);' },
+  { id: 'food', label: 'Food & Drink', icon: '🍽️', overpassQuery: 'node["amenity"~"restaurant|cafe|bar|fast_food|pub"](around:RADIUS,LAT,LNG);' },
+  { id: 'education', label: 'Education', icon: '🎓', overpassQuery: 'node["amenity"~"school|university|college|kindergarten|library"](around:RADIUS,LAT,LNG);way["amenity"~"school|university"](around:RADIUS,LAT,LNG);' },
+]
+
+const facilityMarkers = ref<Map<string, any[]>>(new Map())
+
+async function toggleFacilityLayer(facilityId: string) {
+  if (!map) return
+
+  const category = facilityCategories.find(c => c.id === facilityId)
+  if (!category) return
+
+  if (!activeFacilities.value.includes(facilityId)) {
+    // Deactivated — remove markers
+    const markers = facilityMarkers.value.get(facilityId) || []
+    markers.forEach(m => m.remove())
+    facilityMarkers.value.delete(facilityId)
+    return
+  }
+
+  // Already loaded
+  if (facilityMarkers.value.has(facilityId)) return
+
+  // Only search when zoomed in enough (zoom >= 12)
+  const zoom = map.getZoom()
+  if (zoom < 12) {
+    map.flyTo({ zoom: 13, duration: 800 })
+    await new Promise(r => setTimeout(r, 1000))
+  }
+
+  const center = map.getCenter()
+  // Scale radius based on zoom: closer = smaller radius
+  const radius = Math.min(3000, Math.max(500, 50000 / Math.pow(2, map.getZoom() - 10)))
+
+  const query = category.overpassQuery
+    .replace(/RADIUS/g, String(Math.round(radius)))
+    .replace(/LAT/g, String(center.lat.toFixed(6)))
+    .replace(/LNG/g, String(center.lng.toFixed(6)))
+
+  const overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json][timeout:30];(${query});out center 30;`
+
+  try {
+    // Try main server, fallback to secondary
+    let resp = await fetch(overpassUrl).catch(() => null)
+    if (!resp?.ok) {
+      const backupUrl = overpassUrl.replace('overpass-api.de', 'overpass.kumi.systems')
+      resp = await fetch(backupUrl)
+    }
+    if (!resp?.ok) throw new Error('Overpass API unavailable')
+    const data = await resp.json()
+
+    const markers: any[] = []
+    const mapboxgl = await import('mapbox-gl')
+    const colorMap: Record<string, string> = { shopping: '#E91E63', food: '#FF9800', education: '#2196F3' }
+    const color = colorMap[facilityId] || '#666'
+
+    for (const el of (data.elements || [])) {
+      const lat = el.lat || el.center?.lat
+      const lng = el.lon || el.center?.lon
+      if (!lat || !lng) continue
+
+      const name = el.tags?.name || el.tags?.['name:hr'] || ''
+      if (!name) continue
+
+      const markerEl = document.createElement('div')
+      markerEl.style.cssText = `
+        width: 16px; height: 16px; border-radius: 50%;
+        background: ${color}; border: 2px solid #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      `
+      markerEl.addEventListener('mouseenter', () => { markerEl.style.transform = 'scale(1.3)' })
+      markerEl.addEventListener('mouseleave', () => { markerEl.style.transform = 'scale(1)' })
+      markerEl.title = name
+
+      const marker = new mapboxgl.default.Marker({ element: markerEl })
+        .setLngLat([lng, lat])
+        .setPopup(
+          new mapboxgl.default.Popup({ offset: 10, closeButton: false, maxWidth: '220px' })
+            .setHTML(`<div style="font-size:12px;padding:4px 0;font-family:inherit"><strong>${name}</strong><br><span style="color:#999;font-size:11px">${category.label}</span></div>`)
+        )
+        .addTo(map)
+
+      markers.push(marker)
+    }
+
+    facilityMarkers.value.set(facilityId, markers)
+  } catch (e) {
+    console.error('[Facilities] Overpass query failed:', e)
+  }
 }
 
 const focusedLocation = computed(() => {
@@ -2249,6 +2375,87 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   &__container { width: 100%; height: 100%; }
+
+  // Nearby Facilities
+  &__facilities {
+    position: absolute;
+    top: 2rem;
+    right: 11.5rem;
+    z-index: 5;
+    width: 200px;
+
+    &--dark {
+      .locations-map__facilities-toggle { background: $dark-surface; color: $dark-text; border-color: $dark-border; }
+      .locations-map__facilities-dropdown { background: $dark-surface; border-color: $dark-border; }
+      .locations-map__facilities-option { color: $dark-text; &:hover { background: rgba($dark-text, 0.05); } &--active { background: rgba($dark-text, 0.08); } }
+    }
+  }
+
+  &__facilities-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    background: #fff;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: border-color $transition-base;
+    &:hover { border-color: darken(#E5E5E5, 15%); }
+    .locations-map__facilities--open & { border-color: $color-primary; }
+  }
+
+  &__facilities-label {
+    white-space: nowrap;
+  }
+
+  &__facilities-chevron {
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+
+  &__facilities-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid $color-border;
+    border-radius: $radius-lg;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 0.375rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__facilities-option {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: $radius-md;
+    cursor: pointer;
+    font-size: $font-size-sm;
+    transition: background $transition-base;
+
+    &:hover { background: rgba($color-primary, 0.04); }
+    &--active { background: rgba($color-accent, 0.08); }
+
+    input { display: none; }
+  }
+
+  &__facilities-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  &__facilities-label {
+    flex: 1;
+  }
 }
 
 
