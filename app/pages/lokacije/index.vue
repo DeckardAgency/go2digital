@@ -183,9 +183,7 @@
         <a href="#" class="locations-sidebar__clear-all" @click.prevent="clearAllFilters">
           {{ locClearAll }}
           <span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
-              <path d="M0.5 0.5L8.75 8.75" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            &times;
           </span>
         </a>
       </div>
@@ -329,6 +327,8 @@
 
       <!-- Map Container -->
       <div class="locations-map__container" ref="mapContainer"></div>
+
+      <!-- Info card is rendered via Mapbox Popup in focusOnLocation -->
     </main>
 
     <!-- Selection Sidebar -->
@@ -868,18 +868,93 @@ function removeFromCollection(id: string) {
   if (showSelectedOnly.value && selectedLocations.value.size === 0) showSelectedOnly.value = false
 }
 
+const focusedLocation = computed(() => {
+  if (!focusedLocationId.value) return null
+  return locations.value.find(l => l.id === focusedLocationId.value) || null
+})
+
+let activePopup: any = null
+
 function focusOnLocation(location: Location) {
+  // Close existing popup
+  if (activePopup) { activePopup.remove(); activePopup = null }
+
   if (focusedLocationId.value === location.id) {
-    focusedLocationId.value = null
-    updateMapMarkers()
-    resetMapView()
+    closeFocusedLocation()
     return
   }
+
   focusedLocationId.value = location.id
   activeLocationId.value = location.id
   if (window.innerWidth <= 768) switchMobileView('map')
   if (map) map.flyTo({ center: [location.lng, location.lat], zoom: 15, duration: 1500 })
   updateMapMarkers()
+
+  // Show Mapbox popup at marker position
+  if (map) {
+    const imgHtml = location.image
+      ? `<div class="location-infocard__image"><img src="${location.image}" alt="${location.name}"></div>`
+      : ''
+
+    const html = `
+      <div class="location-infocard">
+        ${imgHtml}
+        <div class="location-infocard__body">
+          <h3 class="location-infocard__name">${location.name}</h3>
+          <div class="location-infocard__footer">
+            <a class="location-infocard__link" data-slug="${location.slug}">
+              View Location
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M4 10L10 4M10 4H5.5M10 4V8.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <button class="location-infocard__close" data-close>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+
+    import('mapbox-gl').then((mapboxgl) => {
+      activePopup = new mapboxgl.default.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        maxWidth: '320px',
+        offset: [0, -15],
+        className: 'location-popup',
+      })
+        .setLngLat([location.lng, location.lat])
+        .setHTML(html)
+        .addTo(map)
+
+      // Bind events after popup is added to DOM
+      setTimeout(() => {
+        const popupEl = activePopup?.getElement()
+        if (!popupEl) return
+
+        popupEl.querySelector('[data-close]')?.addEventListener('click', () => closeFocusedLocation())
+        popupEl.querySelector('[data-slug]')?.addEventListener('click', (e: Event) => {
+          e.preventDefault()
+          const slug = (e.currentTarget as HTMLElement).dataset.slug
+          if (slug) {
+            closeFocusedLocation()
+            animateToDetail(location, e as MouseEvent)
+          }
+        })
+      }, 50)
+    })
+  }
+}
+
+function closeFocusedLocation() {
+  if (activePopup) { activePopup.remove(); activePopup = null }
+  focusedLocationId.value = null
+  activeLocationId.value = null
+  updateMapMarkers()
+  resetMapView()
 }
 
 function openLocationDetail(location: Location) { focusOnLocation(location) }
@@ -1620,13 +1695,16 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__clear-btn {
     padding: 0.5rem;
     border: none;
-    border-radius: $radius-md;
+    border-radius: $radius-sm;
     background: transparent;
     cursor: pointer;
     @include flex-center;
-    color: $color-muted;
-    transition: color $transition-base;
-    &:hover { color: $color-primary; }
+    color: $color-primary;
+    transition: background $transition-base;
+
+    &:hover {
+      background:$color-border;
+    }
   }
 
   &__view-toggle {
@@ -1637,7 +1715,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
     padding: 0.5rem 0.875rem;
     border: 1px solid $color-border;
-    border-radius: $radius-full;
+    border-radius: $radius-sm;
   }
 
   &__view-checkbox { width: 1rem; height: 1rem; accent-color: $color-accent; }
@@ -1697,7 +1775,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     flex: 1;
     padding: 1rem;
     border: 1px solid $color-border;
-    border-radius: $radius-lg 0 0 $radius-lg;
+    border-radius: $radius-md 0 0 $radius-md;
     border-right: none;
     font-size: $font-size-base;
     font-family: inherit;
@@ -1711,7 +1789,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     padding: 0.875rem 1.5rem;
     border: 1px solid $color-border;
     border-left: none;
-    border-radius: 0 $radius-lg $radius-lg 0;
+    border-radius: 0 $radius-md $radius-md 0;
     background-color: $color-surface;
     color: $color-primary;
     font-size: $font-size-base;
@@ -1804,7 +1882,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     @include flex-between;
     padding: 1rem;
     border: 1px solid $color-border;
-    border-radius: $radius-lg;
+    border-radius: $radius-md;
     background: transparent;
     font-size: $font-size-base;
     font-family: inherit;
@@ -1860,7 +1938,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     overflow-y: auto;
     flex: 1;
     min-height: 0;
-    padding: $spacing-xs 0;
   }
 
   &__no-results {
@@ -2147,13 +2224,13 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__controls {
     position: absolute;
-    top: $spacing-md;
-    left: $spacing-md;
+    top: $spacing-xl;
+    left: $spacing-xl;
     display: flex;
     gap: $spacing-xs;
     z-index: 10;
     background-color: $color-background;
-    border-radius: $radius-full;
+    border-radius: $radius-sm;
     padding: $spacing-xs;
     box-shadow: $shadow-sm;
     @include tablet { display: none; }
@@ -2162,7 +2239,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__toggle {
     padding: $spacing-sm $spacing-md;
     border: none;
-    border-radius: $radius-full;
+    border-radius: $radius-sm;
     background: transparent;
     font-size: $font-size-sm;
     font-family: inherit;
@@ -2174,17 +2251,18 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &__container { width: 100%; height: 100%; }
 }
 
+
 // Collection badge
 .locations-collection {
   position: absolute;
-  top: $spacing-md;
-  right: $spacing-md;
+  top: $spacing-xl;
+  right: $spacing-2xl;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
   padding: 0.75rem 1.25rem;
   background-color: $color-background;
-  border-radius: $radius-full;
+  border-radius: $radius-sm;
   box-shadow: $shadow-sm;
   cursor: pointer;
   z-index: 10;
@@ -2417,5 +2495,84 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   &--error { background-color: #f44336; }
   &--warning { background-color: #ff9800; }
   &--dark { background-color: $color-background; color: $color-primary; }
+}
+</style>
+
+<!-- Unscoped styles for Mapbox popup (rendered outside Vue scope) -->
+<style lang="scss">
+.location-popup {
+  .mapboxgl-popup-content {
+    padding: 0;
+    border-radius: 1rem;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+  }
+
+  .mapboxgl-popup-tip {
+    display: none;
+  }
+}
+
+.location-infocard {
+  width: 300px;
+
+  &__image {
+    width: 100%;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__body {
+    padding: 1.25rem;
+  }
+
+  &__name {
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin: 0 0 1.25rem;
+    color: #03120F;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: #03120F;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px solid #03120F;
+    padding-bottom: 0.125rem;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.7; }
+  }
+
+  &__close {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #E5E5E5;
+    border-radius: 0.5rem;
+    background: none;
+    cursor: pointer;
+    color: #03120F;
+    transition: border-color 0.2s;
+    &:hover { border-color: #03120F; }
+  }
 }
 </style>
