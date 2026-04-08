@@ -71,10 +71,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { gsap } from 'gsap'
+import type { HomepageAnalyticsTab } from '~/types/api'
 
 const { data: analytics } = useApi<any>('/api/singletons/homepage-analytics', { lazy: true, server: false })
+const { data: apiTabs } = useApi<HomepageAnalyticsTab[]>('/api/homepage_analytics_tabs', { lazy: true, server: false })
 
 const graphRef = ref<HTMLElement | null>(null)
 const dotGridRef = ref<HTMLElement | null>(null)
@@ -93,44 +95,49 @@ interface Tab {
   curve: (c: number) => number
 }
 
-const tabs: Tab[] = [
-  {
-    id: 'impressions',
-    label: 'Impresije',
-    color: '#00ff88',
-    yLabels: ['120k', '90k', '60k', '30k', '0'],
-    curve: (c) => {
-      const p = c / (cols - 1)
-      return Math.pow(p, 0.7) * rows * 0.85 + Math.sin(c * 0.8) * 1.5
-    },
+// Predefined curve functions mapped by type
+const curveFunctions: Record<string, (c: number) => number> = {
+  rising: (c) => {
+    const p = c / (cols - 1)
+    return Math.pow(p, 0.7) * rows * 0.85 + 1
   },
-  {
-    id: 'reach',
-    label: 'Doseg',
-    color: '#00ff88',
-    yLabels: ['50k', '37.5k', '25k', '12.5k', '0'],
-    curve: (c) => {
-      const p = c / (cols - 1)
-      return Math.pow(p, 0.5) * rows * 0.7 + Math.cos(c * 0.6) * 2
-    },
+  gradual: (c) => {
+    const p = c / (cols - 1)
+    return Math.pow(p, 0.5) * rows * 0.75 + 1
   },
-  {
-    id: 'engagement',
-    label: 'Interakcije',
-    color: '#00ff88',
-    yLabels: ['10k', '7.5k', '5k', '2.5k', '0'],
-    curve: (c) => {
-      const p = c / (cols - 1)
-      return (Math.sin(p * Math.PI) * rows * 0.6) + Math.sin(c * 1.2) * 1.5 + rows * 0.15
-    },
+  bell: (c) => {
+    const p = c / (cols - 1)
+    return Math.exp(-Math.pow((p - 0.5) * 3, 2)) * rows * 0.75 + rows * 0.15
   },
+}
+
+const defaultTabs: Tab[] = [
+  { id: 'impressions', label: 'Impresije', color: '#00ff88', yLabels: ['120k', '90k', '60k', '30k', '0'], curve: curveFunctions.rising },
+  { id: 'reach', label: 'Doseg', color: '#00ff88', yLabels: ['50k', '37.5k', '25k', '12.5k', '0'], curve: curveFunctions.gradual },
+  { id: 'engagement', label: 'Interakcije', color: '#00ff88', yLabels: ['10k', '7.5k', '5k', '2.5k', '0'], curve: curveFunctions.bell },
 ]
 
-const activeTab = ref('impressions')
+const tabs = computed<Tab[]>(() => {
+  if (apiTabs.value && apiTabs.value.length > 0) {
+    return apiTabs.value.map((t, i) => ({
+      id: t.id,
+      label: t.label ?? `Tab ${i + 1}`,
+      color: '#00ff88',
+      yLabels: Array.isArray(t.yLabels) && t.yLabels.length === 5 ? t.yLabels : ['100', '75', '50', '25', '0'],
+      curve: curveFunctions[t.curveType] ?? curveFunctions.rising,
+    }))
+  }
+  return defaultTabs
+})
 
-const activeTabData = computed(() => tabs.find(t => t.id === activeTab.value)!)
-const activeColor = computed(() => activeTabData.value.color)
-const activeYLabels = computed(() => activeTabData.value.yLabels)
+const activeTab = ref('')
+
+const activeTabData = computed(() => {
+  const found = tabs.value.find(t => t.id === activeTab.value)
+  return found ?? tabs.value[0]
+})
+const activeColor = computed(() => activeTabData.value?.color ?? '#00ff88')
+const activeYLabels = computed(() => activeTabData.value?.yLabels ?? [])
 
 function generateGrid(tab: Tab): boolean[][] {
   const grid: boolean[][] = []
@@ -145,7 +152,7 @@ function generateGrid(tab: Tab): boolean[][] {
   return grid
 }
 
-const currentGrid = ref(generateGrid(tabs[0]))
+const currentGrid = ref(generateGrid(defaultTabs[0]))
 let activeIndex = 0
 
 function moveSlider(index: number) {
@@ -164,9 +171,15 @@ function moveSlider(index: number) {
   })
 }
 
-onMounted(() => {
-  nextTick(() => moveSlider(0))
-})
+// Initialize active tab and grid when tabs data is available
+watch(tabs, (newTabs) => {
+  if (newTabs.length > 0) {
+    activeTab.value = newTabs[0].id
+    activeIndex = 0
+    currentGrid.value = generateGrid(newTabs[0])
+    nextTick(() => moveSlider(0))
+  }
+}, { immediate: true })
 
 function switchTab(tabId: string, index: number) {
   if (activeTab.value === tabId) return
@@ -186,6 +199,11 @@ function switchTab(tabId: string, index: number) {
       stagger: { each: 0.003, from: 'random' },
       ease: 'power2.in',
       onComplete: () => {
+        // Clear all GSAP inline styles before Vue re-renders the grid
+        if (dotGridRef.value) {
+          const allDots = dotGridRef.value.querySelectorAll('.analytics-section__dot')
+          allDots.forEach(dot => gsap.set(dot, { clearProps: 'all' }))
+        }
         currentGrid.value = newGrid
         nextTick(() => {
           if (!dotGridRef.value) return

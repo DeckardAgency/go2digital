@@ -191,6 +191,15 @@ export interface HomepagePossibility {
   description: string | null
 }
 
+export interface HomepageAnalyticsTab {
+  id: string
+  sortOrder: number
+  curveType: 'rising' | 'gradual' | 'bell'
+  yLabels: string[] | null
+  locale: string
+  label: string | null
+}
+
 export interface HomepageRentalsImage {
   id: string
   image: MediaRef | null
