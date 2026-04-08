@@ -214,7 +214,7 @@ function destroy() {
   flex-direction: column;
   padding: $spacing-2xl;
   box-sizing: border-box;
-  z-index: 30;
+  z-index: 40;
 
   @include desktop {
     padding: $spacing-lg;
