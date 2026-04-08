@@ -133,38 +133,37 @@ $tracking-border-color: #293331;
   &__item {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    padding: $spacing-lg $spacing-2xl;
+    padding: $spacing-2xl $spacing-2xl 12rem;
     border-top: 1px solid $tracking-border-color;
     align-items: start;
-    @include tablet { padding: $spacing-lg; }
-    @include mobile { padding: $spacing-md; gap: $spacing-sm; }
+    @include tablet { padding: $spacing-xl $spacing-lg 8rem; }
+    @include mobile { padding: $spacing-lg $spacing-md 5rem; gap: $spacing-sm; }
   }
 
   // #10: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__number {
     grid-column: 1 / 2;
-    font-size: $font-size-sm;
+    font-size: $font-size-lg;
     color: rgba($tracking-text-color, 0.6);
-    padding-top: 0.25rem;
     @include mobile { grid-column: 1 / 3; }
   }
 
   &__feature {
     grid-column: 2 / 6;
-    font-size: $font-size-base;
+    font-size: $font-size-xl;
     font-weight: 400;
     line-height: 1.3;
     color: $tracking-text-color;
     margin: 0;
-    @include mobile { grid-column: 3 / -1; }
+    @include mobile { grid-column: 3 / -1; font-size: $font-size-lg; }
   }
 
   // #7: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__description {
     grid-column: 6 / 10;
-    font-size: $font-size-base;
+    font-size: $font-size-md;
     font-weight: 400;
-    line-height: 1.3;
+    line-height: 1.4;
     color: rgba($tracking-text-color, 0.6);
     margin: 0;
     @include mobile { grid-column: 3 / -1; }
