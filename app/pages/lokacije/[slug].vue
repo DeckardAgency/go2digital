@@ -6,8 +6,35 @@
         <picture v-if="heroImage" class="location-detail__hero-picture">
           <source media="(min-width: 1024px)" :srcset="heroImageOriginal">
           <source media="(min-width: 768px)" :srcset="heroImageLarge">
-          <img :src="heroImageMedium" :alt="totem?.name" class="location-detail__hero-image">
+          <img
+            :src="heroImageMedium"
+            :alt="totem?.name"
+            class="location-detail__hero-image"
+            :style="{ objectPosition: `${focalX}% ${focalY}%` }"
+          >
         </picture>
+        <FocalPointEditor
+          v-if="isAdmin && totem?.id"
+          ref="focalEditorRef"
+          :image-url="heroImageOriginal || ''"
+          :initial-x="focalX"
+          :initial-y="focalY"
+          :totem-id="totem.id"
+          :token="adminToken!"
+          @saved="onFocalSaved"
+          @close="() => {}"
+        />
+        <button
+          v-if="isAdmin"
+          class="location-detail__focal-btn"
+          @click="focalEditorRef?.open()"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Focal Point
+        </button>
       </div>
 
       <div class="location-detail__hero-info" ref="heroInfoRef">
@@ -252,6 +279,19 @@ const CDN_BASE = 'https://cdn.go2digital.hr'
 const route = useRoute()
 const slug = route.params.slug as string
 
+// Admin auth for focal point editor
+const { isAdmin, adminToken, checkAdmin } = useAdminAuth()
+const focalEditorRef = ref<{ open: () => void } | null>(null)
+const focalX = ref(50)
+const focalY = ref(50)
+
+onMounted(() => checkAdmin())
+
+function onFocalSaved(x: number, y: number) {
+  focalX.value = x
+  focalY.value = y
+}
+
 function toSlug(name: string): string {
   return name
     .toLowerCase()
@@ -300,6 +340,14 @@ const matchedData = computed(() => {
 
 const totem = computed(() => matchedData.value?.totem || null)
 const cityName = computed(() => matchedData.value?.cityName || '')
+
+// Sync focal point from totem data
+watch(totem, (t) => {
+  if (t) {
+    focalX.value = t.image_focal_x ?? 50
+    focalY.value = t.image_focal_y ?? 50
+  }
+}, { immediate: true })
 
 // Responsive hero images — full quality on desktop, smaller on mobile
 const heroImageOriginal = computed(() => {
@@ -726,6 +774,7 @@ definePageMeta({
 }
 
 .location-detail__hero-image-wrapper {
+  position: relative;
   width: calc(100vw - #{$spacing-2xl} * 2);
   margin-left: $spacing-2xl;
   height: 35vh;
@@ -755,6 +804,30 @@ definePageMeta({
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.location-detail__focal-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
 }
 
 .location-detail__hero-info {
