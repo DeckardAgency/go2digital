@@ -3,22 +3,28 @@
     <!-- Hero -->
     <section class="location-detail__hero" ref="heroRef">
       <div class="location-detail__hero-image-wrapper" ref="imageWrapperRef">
-        <picture v-if="heroImage" class="location-detail__hero-picture">
-          <source media="(min-width: 1024px)" :srcset="heroImageOriginal">
-          <source media="(min-width: 768px)" :srcset="heroImageLarge">
+        <template v-if="heroImage">
           <img
-            :src="heroImageMedium"
+            :src="heroImageLarge"
             :alt="totem?.name"
-            class="location-detail__hero-image"
+            class="location-detail__hero-image location-detail__hero-image--desktop"
             :style="{ objectPosition: `${focalX}% ${focalY}%` }"
           >
-        </picture>
+          <img
+            :src="heroImageLarge"
+            :alt="totem?.name"
+            class="location-detail__hero-image location-detail__hero-image--mobile"
+            :style="{ objectPosition: `${focalMobileX}% ${focalMobileY}%` }"
+          >
+        </template>
         <FocalPointEditor
           v-if="isAdmin && totem?.id"
           ref="focalEditorRef"
-          :image-url="heroImageOriginal || ''"
+          :image-url="heroImageLarge || ''"
           :initial-x="focalX"
           :initial-y="focalY"
+          :initial-mobile-x="focalMobileX"
+          :initial-mobile-y="focalMobileY"
           :totem-id="totem.id"
           :token="adminToken!"
           @saved="onFocalSaved"
@@ -284,12 +290,16 @@ const { isAdmin, adminToken, checkAdmin } = useAdminAuth()
 const focalEditorRef = ref<{ open: () => void } | null>(null)
 const focalX = ref(50)
 const focalY = ref(50)
+const focalMobileX = ref(50)
+const focalMobileY = ref(50)
 
 onMounted(() => checkAdmin())
 
-function onFocalSaved(x: number, y: number) {
-  focalX.value = x
-  focalY.value = y
+function onFocalSaved(dx: number, dy: number, mx: number, my: number) {
+  focalX.value = dx
+  focalY.value = dy
+  focalMobileX.value = mx
+  focalMobileY.value = my
 }
 
 function toSlug(name: string): string {
@@ -346,6 +356,8 @@ watch(totem, (t) => {
   if (t) {
     focalX.value = t.image_focal_x ?? 50
     focalY.value = t.image_focal_y ?? 50
+    focalMobileX.value = t.image_focal_mobile_x ?? 50
+    focalMobileY.value = t.image_focal_mobile_y ?? 50
   }
 }, { immediate: true })
 
@@ -794,16 +806,23 @@ definePageMeta({
   }
 }
 
-.location-detail__hero-picture {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 .location-detail__hero-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+
+  &--mobile {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .location-detail__hero-image--desktop {
+    display: none;
+  }
+  .location-detail__hero-image--mobile {
+    display: block;
+  }
 }
 
 .location-detail__focal-btn {

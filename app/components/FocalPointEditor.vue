@@ -81,12 +81,14 @@ const props = defineProps<{
   imageUrl: string
   initialX: number
   initialY: number
+  initialMobileX: number
+  initialMobileY: number
   totemId: string
   token: string
 }>()
 
 const emit = defineEmits<{
-  saved: [x: number, y: number]
+  saved: [dx: number, dy: number, mx: number, my: number]
   close: []
 }>()
 
@@ -126,12 +128,14 @@ const markerTick = ref(0)
 watch([() => currentPoint.value.x, () => currentPoint.value.y, markerTick], () => {})
 
 function open() {
-  const x = props.initialX ?? 50
-  const y = props.initialY ?? 50
-  desktopPoint.x = x; desktopPoint.y = y
-  mobilePoint.x = x; mobilePoint.y = y
-  originalDesktop.x = x; originalDesktop.y = y
-  originalMobile.x = x; originalMobile.y = y
+  const dx = props.initialX ?? 50
+  const dy = props.initialY ?? 50
+  const mx = props.initialMobileX ?? 50
+  const my = props.initialMobileY ?? 50
+  desktopPoint.x = dx; desktopPoint.y = dy
+  mobilePoint.x = mx; mobilePoint.y = my
+  originalDesktop.x = dx; originalDesktop.y = dy
+  originalMobile.x = mx; originalMobile.y = my
   mode.value = 'desktop'
   dirty.value = false
   isOpen.value = true
@@ -181,6 +185,8 @@ async function save() {
       body: {
         imageFocalX: Math.round(desktopPoint.x * 10) / 10,
         imageFocalY: Math.round(desktopPoint.y * 10) / 10,
+        imageFocalMobileX: Math.round(mobilePoint.x * 10) / 10,
+        imageFocalMobileY: Math.round(mobilePoint.y * 10) / 10,
       },
     })
     originalDesktop.x = desktopPoint.x; originalDesktop.y = desktopPoint.y
@@ -188,7 +194,7 @@ async function save() {
     dirty.value = false
     isOpen.value = false
     document.body.style.overflow = ''
-    emit('saved', desktopPoint.x, desktopPoint.y)
+    emit('saved', desktopPoint.x, desktopPoint.y, mobilePoint.x, mobilePoint.y)
   } catch (err) {
     console.error('Failed to save focal point:', err)
   } finally {
