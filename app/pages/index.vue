@@ -39,10 +39,11 @@ const sectionComponents: Record<string, any> = {
   'products': resolveComponent('CubeSection'),
   'interactive-display': resolveComponent('InteractiveDisplaySection'),
   'interactive-description': resolveComponent('InteractiveDescriptionSection'),
+  'possibilities': resolveComponent('PossibilitiesSection'),
 }
 
 const defaultOrder = [
-  'hero', 'horizontal-scroll', 'why-section', 'custom-image',
+  'hero', 'horizontal-scroll', 'possibilities', 'why-section', 'custom-image',
   'custom-solution', 'featured-labs', 'human-focused', 'text-animation',
   'billboard', 'analytics', 'tracking', 'rentals-image',
   'products', 'interactive-display', 'interactive-description',

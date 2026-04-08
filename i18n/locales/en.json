@@ -218,6 +218,10 @@
         "tag": "Locations",
         "description": "Our network of digital screens shapes the way brands communicate with audiences. Each display becomes a moment of attention, a message in motion, and an opportunity to highlight what truly deserves to be seen."
       }
+    },
+    "possibilities": {
+      "label": "Possibilities",
+      "subtitle": "All possibilities of digital screens"
     }
   },
   "nav": {

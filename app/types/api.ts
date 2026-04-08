@@ -183,6 +183,14 @@ export interface HomepageTrackingFeature {
   description: string | null
 }
 
+export interface HomepagePossibility {
+  id: string
+  sortOrder: number
+  locale: string
+  title: string | null
+  description: string | null
+}
+
 export interface HomepageRentalsImage {
   id: string
   image: MediaRef | null

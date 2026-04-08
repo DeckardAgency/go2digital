@@ -218,6 +218,10 @@
         "tag": "Lokacije",
         "description": "Naša mreža digitalnih ekrana oblikuje način na koji brendovi komuniciraju s publikom. Svaki prikaz postaje trenutak pažnje, poruka u pokretu i prilika da se istakne ono što zaista vrijedi vidjeti."
       }
+    },
+    "possibilities": {
+      "label": "Mogućnosti",
+      "subtitle": "Sve mogućnosti digitalnih ekrana"
     }
   },
   "nav": {

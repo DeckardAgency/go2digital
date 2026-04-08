@@ -1861,12 +1861,11 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   // ── Filters ──
   &__filters {
     padding: 2rem;
-    position: relative;
     z-index: $z-dropdown;
     @include tablet { display: none; }
   }
 
-  &__filter-group { display: flex; gap: 0.75rem; }
+  &__filter-group { display: flex; gap: 0.75rem; position: relative; }
 
   &__mobile-buttons {
     display: none;
@@ -1923,7 +1922,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     font-weight: 400;
     cursor: pointer;
     transition: background-color $transition-base;
-    &:hover { background-color: darken(#f5f5f5, 5%); }
+    &:hover { background-color: #e8e8e8; }
   }
 
   // ── Active Filters ──
@@ -2014,7 +2013,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     font-family: inherit;
     cursor: pointer;
     transition: border-color $transition-base;
-    &:hover { border-color: darken(#E5E5E5, 15%); }
+    &:hover { border-color: #b8b8b8; }
     .custom-select--open & { border-color: $color-primary; }
     .locations-sidebar--dark & { border-color: $dark-border; color: $dark-text; }
   }
@@ -2026,8 +2025,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__dropdown {
     position: absolute;
-    left: $spacing-lg;
-    right: $spacing-lg;
+    left: 0;
+    right: 0;
+    top: 100%;
     max-height: 360px;
     display: flex;
     flex-direction: column;
@@ -2102,7 +2102,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
       transition: border-color 0.15s ease;
 
       &:checked {
-        border-color: darken($color-border, 10%);
+        border-color: #c8c8c8;
       }
 
       &:checked::after {
@@ -2405,7 +2405,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: border-color $transition-base;
-    &:hover { border-color: darken(#E5E5E5, 15%); }
+    &:hover { border-color: #b8b8b8; }
     .locations-map__facilities--open & { border-color: $color-primary; }
   }
 
