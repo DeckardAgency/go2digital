@@ -8,6 +8,7 @@
     <div class="billboard-section__content">
       <div class="billboard-section__header">
         <h2
+          ref="titleRef"
           class="billboard-section__title"
           data-split-text
           data-split-type="lines"
@@ -40,6 +41,7 @@ const { data: billboard } = useApi<HomepageBillboard>('/api/singletons/homepage-
 const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.image, 'large'))
 const billboardUrl = computed(() => billboard.value?.buttonUrl || '/kontakt')
 
+const titleRef = ref<HTMLElement | null>(null)
 const imageWrapperRef = ref<HTMLElement | null>(null)
 const webglActive = ref(false)
 let webglInstance: WebGLHoverInstance | null = null
@@ -106,11 +108,11 @@ $billboard-text-color: #FAFAFA;
   }
 
   &__content {
-    grid-column: 8 / 12;
+    grid-column: 7 / -1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: $spacing-2xl 0;
+    padding: $spacing-2xl 0 $spacing-2xl $spacing-2xl;
     height: 56.25rem;
     @include tablet { grid-column: 1 / -1; height: auto; padding: $spacing-xl 0; gap: $spacing-2xl; }
   }
@@ -124,10 +126,10 @@ $billboard-text-color: #FAFAFA;
 
   // #2: Use SCSS variable instead of hardcoded color
   &__title {
-    font-size: clamp(1.5rem, 3vw, 3.125rem);
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
     font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.0625rem;
+    line-height: 1.1;
+    letter-spacing: -0.03rem;
     color: $billboard-text-color;
     margin: 0;
   }
@@ -140,9 +142,10 @@ $billboard-text-color: #FAFAFA;
   }
 
   &__subtitle {
-    font-size: $font-size-base;
+    font-size: clamp(1.25rem, 2.5vw, 2rem);
     font-weight: 400;
-    line-height: 1.3;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
     color: $billboard-text-color;
     margin: 0;
   }

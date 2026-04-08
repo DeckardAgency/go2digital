@@ -78,6 +78,9 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
   // Store original text for accessibility
   element.setAttribute('aria-label', text)
 
+  // Capture width BEFORE clearing content (empty flex children can collapse to 0)
+  const measuredWidth = element.offsetWidth
+
   // Clear element
   element.innerHTML = ''
 
@@ -147,7 +150,7 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
       temp.style.cssText = `
         position:absolute;
         visibility:hidden;
-        width:${element.offsetWidth}px;
+        width:${measuredWidth}px;
         font:${computedStyle.font};
         letter-spacing:${computedStyle.letterSpacing};
         word-spacing:${computedStyle.wordSpacing};
