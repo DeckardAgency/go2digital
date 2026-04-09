@@ -156,12 +156,16 @@ export function getCardTransitionData() {
  * Stores slug + image in sessionStorage so the listing page can animate
  * the clone from hero size down to the exact target card position.
  */
-export function goBackWithTransition(basePath: string, slug: string, heroImage: string, heroElement?: HTMLElement | null) {
+export function goBackWithTransition(basePath: string, slug: string, heroImage: string, heroElement?: HTMLElement | null, focalPoint?: { x: number; y: number }) {
   if (isNavigating) return
   isNavigating = true
 
   sessionStorage.setItem('returnSlug', slug)
   sessionStorage.setItem('returnImage', heroImage)
+  if (focalPoint) {
+    sessionStorage.setItem('returnFocalX', String(focalPoint.x))
+    sessionStorage.setItem('returnFocalY', String(focalPoint.y))
+  }
 
   // Capture the hero element's CURRENT dimensions (it may have been
   // expanded by ScrollTrigger). If no element provided, use defaults.
@@ -208,11 +212,12 @@ export function goBackWithTransition(basePath: string, slug: string, heroImage: 
     document.body.appendChild(clone)
   }
   clone.src = heroImage
+  const fp = focalPoint ? `object-position: ${focalPoint.x}% ${focalPoint.y}%;` : ''
   clone.style.cssText = `
     position: fixed; top: ${cloneTop}; left: ${cloneLeft};
     width: ${cloneWidth}; height: ${cloneHeight};
     object-fit: cover; z-index: 10001; pointer-events: none;
-    border-radius: ${cloneRadius};
+    border-radius: ${cloneRadius}; ${fp}
   `
 
   ;(window as any).__skipPageTransition = true
@@ -254,6 +259,11 @@ export function playReturnToCardAnimation(
     document.body.appendChild(overlay)
   }
 
+  const returnFocalX = sessionStorage.getItem('returnFocalX') || '50'
+  const returnFocalY = sessionStorage.getItem('returnFocalY') || '50'
+  sessionStorage.removeItem('returnFocalX')
+  sessionStorage.removeItem('returnFocalY')
+
   if (!clone) {
     const heroLeft = vw <= 768 ? '0px' : vw <= 1024 ? '1.5rem' : '3rem'
     const heroWidth = vw <= 768 ? '100vw' : vw <= 1024 ? 'calc(100vw - 3rem)' : 'calc(100vw - 6rem)'
@@ -267,6 +277,7 @@ export function playReturnToCardAnimation(
       width: ${heroWidth}; height: 50vh;
       object-fit: cover; z-index: 10001; pointer-events: none;
       border-radius: ${heroRadius};
+      object-position: ${returnFocalX}% ${returnFocalY}%;
     `
     document.body.appendChild(clone)
   }

@@ -754,7 +754,7 @@ function setupScrollAnimation() {
 }
 
 function goBack() {
-  goBackWithTransition('/lokacije', slug, heroImage.value, imageWrapperRef.value)
+  goBackWithTransition('/lokacije', slug, heroImage.value, imageWrapperRef.value, { x: focalX.value, y: focalY.value })
 }
 
 function shareLocation() {
