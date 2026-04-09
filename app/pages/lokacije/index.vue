@@ -262,7 +262,16 @@
                 v-if="location.image"
                 :src="location.image"
                 :alt="location.name"
-                class="location-card__image"
+                class="location-card__image location-card__image--desktop"
+                :style="{ objectPosition: `${location.focalX}% ${location.focalY}%` }"
+                loading="lazy"
+              >
+              <img
+                v-if="location.image"
+                :src="location.image"
+                :alt="location.name"
+                class="location-card__image location-card__image--mobile"
+                :style="{ objectPosition: `${location.focalMobileX}% ${location.focalMobileY}%` }"
                 loading="lazy"
               >
             </div>
@@ -426,7 +435,8 @@
               </div>
               <div class="location-card__link" @click.stop="animateToDetail(location, $event)">
                 <div class="location-card__image-wrapper">
-                  <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image">
+                  <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image location-card__image--desktop" :style="{ objectPosition: `${location.focalX}% ${location.focalY}%` }">
+                  <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image location-card__image--mobile" :style="{ objectPosition: `${location.focalMobileX}% ${location.focalMobileY}%` }">
                 </div>
                 <div class="location-card__content">
                   <div class="location-card__meta">
@@ -611,6 +621,10 @@ interface Location {
   lng: number
   image: string
   screens: number
+  focalX: number
+  focalY: number
+  focalMobileX: number
+  focalMobileY: number
 }
 
 interface City {
@@ -746,7 +760,11 @@ function parseLocData(data: any[]) {
         lat: totem.location?.[0] || 0,
         lng: totem.location?.[1] || 0,
         image: imageUrl,
-        screens: totem.screens || 1
+        screens: totem.screens || 1,
+        focalX: totem.image_focal_x ?? 50,
+        focalY: totem.image_focal_y ?? 50,
+        focalMobileX: totem.image_focal_mobile_x ?? 50,
+        focalMobileY: totem.image_focal_mobile_y ?? 50,
       })
     }
   }
@@ -1258,6 +1276,8 @@ function animateToDetail(location: Location, event: MouseEvent) {
   sessionStorage.setItem('locationTransitionName', location.name)
   sessionStorage.setItem('locationTransitionCity', location.city)
   sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
+  sessionStorage.setItem('locationTransitionFocalX', String(location.focalX))
+  sessionStorage.setItem('locationTransitionFocalY', String(location.focalY))
 
   const tl = gsap.timeline({
     onComplete: () => {
@@ -1278,6 +1298,9 @@ function animateToDetail(location: Location, event: MouseEvent) {
       }, 2000)
     }
   })
+
+  // Animate clone's object-position to match the detail page focal point
+  clone.style.objectPosition = `${location.focalX}% ${location.focalY}%`
 
   // Clone expands to hero size — overlay snaps opaque at the end (no flash)
   tl.to(clone, {
@@ -1861,11 +1884,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   // ── Filters ──
   &__filters {
     padding: 2rem;
-    z-index: $z-dropdown;
+    position: relative;
+    z-index: $z-dropdown + 1;
     @include tablet { display: none; }
   }
 
-  &__filter-group { display: flex; gap: 0.75rem; position: relative; }
+  &__filter-group { display: flex; gap: 0.75rem; position: relative; z-index: $z-dropdown + 2; }
 
   &__mobile-buttons {
     display: none;
@@ -2027,7 +2051,6 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     position: absolute;
     left: 0;
     right: 0;
-    top: 100%;
     max-height: 360px;
     display: flex;
     flex-direction: column;
@@ -2227,6 +2250,13 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     object-fit: cover;
     transition: transform $transition-slow;
     .location-card:hover & { transform: scale(1.03); }
+
+    &--mobile { display: none; }
+
+    @include tablet {
+      &--desktop { display: none; }
+      &--mobile { display: block; }
+    }
   }
 
   &__content { padding: 0.625rem 0; }

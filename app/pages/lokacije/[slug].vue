@@ -288,12 +288,22 @@ const slug = route.params.slug as string
 // Admin auth for focal point editor
 const { isAdmin, adminToken, checkAdmin } = useAdminAuth()
 const focalEditorRef = ref<{ open: () => void } | null>(null)
-const focalX = ref(50)
-const focalY = ref(50)
+
+// Initialize focal point from transition data (prevents jump when clone is removed)
+const storedFocalX = import.meta.client ? parseFloat(sessionStorage.getItem('locationTransitionFocalX') || '50') : 50
+const storedFocalY = import.meta.client ? parseFloat(sessionStorage.getItem('locationTransitionFocalY') || '50') : 50
+
+const focalX = ref(storedFocalX)
+const focalY = ref(storedFocalY)
 const focalMobileX = ref(50)
 const focalMobileY = ref(50)
 
-onMounted(() => checkAdmin())
+onMounted(() => {
+  checkAdmin()
+  // Clean up transition data
+  sessionStorage.removeItem('locationTransitionFocalX')
+  sessionStorage.removeItem('locationTransitionFocalY')
+})
 
 function onFocalSaved(dx: number, dy: number, mx: number, my: number) {
   focalX.value = dx
