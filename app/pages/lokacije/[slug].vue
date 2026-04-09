@@ -5,13 +5,13 @@
       <div class="location-detail__hero-image-wrapper" ref="imageWrapperRef">
         <template v-if="heroImage">
           <img
-            :src="heroImageLarge"
+            :src="heroImageWebp || heroImageLarge"
             :alt="totem?.name"
             class="location-detail__hero-image location-detail__hero-image--desktop"
             :style="{ objectPosition: `${focalX}% ${focalY}%` }"
           >
           <img
-            :src="heroImageLarge"
+            :src="heroImageWebp || heroImageLarge"
             :alt="totem?.name"
             class="location-detail__hero-image location-detail__hero-image--mobile"
             :style="{ objectPosition: `${focalMobileX}% ${focalMobileY}%` }"
@@ -392,6 +392,14 @@ const heroImageMedium = computed(() => {
 // Backward compat alias
 const heroImage = computed(() => heroImageOriginal.value)
 
+// WebP proxy URL for hero image
+const heroImageWebp = computed(() => {
+  const img = totem.value?.images?.[0]
+  const path = img?.large || img?.main
+  if (!path) return null
+  return `${apiBase}/api/image-proxy?url=${encodeURIComponent(path)}`
+})
+
 const galleryImages = computed(() => {
   if (!totem.value?.images) return []
   return totem.value.images.map((img: any) => resolveUrl(img.main || img.large || img.thumbnail || ''))
@@ -762,8 +770,30 @@ function navigateToLocation(loc: any) {
   navigateTo(`/lokacije/${locSlug}`)
 }
 
+// SEO — use CMS seo data with fallback
+const { locale } = useI18n()
+
+const seo = computed(() => {
+  const s = totem.value?.seo
+  if (!s) return null
+  const t = s.translations?.[locale.value] || s.translations?.hr || null
+  return { ...s, ...t }
+})
+
 useHead({
-  title: () => `${locationName.value} - Lokacije`
+  title: () => seo.value?.title || `${locationName.value} - Lokacije`,
+  meta: () => [
+    ...(seo.value?.description ? [{ name: 'description', content: seo.value.description }] : []),
+    ...(seo.value?.keywords ? [{ name: 'keywords', content: seo.value.keywords }] : []),
+    ...(seo.value?.robots ? [{ name: 'robots', content: seo.value.robots }] : []),
+    // Open Graph
+    { property: 'og:title', content: seo.value?.ogTitle || seo.value?.title || `${locationName.value} - Lokacije` },
+    ...(seo.value?.ogDescription ? [{ property: 'og:description', content: seo.value.ogDescription }] : []),
+    ...(seo.value?.ogType ? [{ property: 'og:type', content: seo.value.ogType }] : []),
+    // Twitter
+    ...(seo.value?.twitterCard ? [{ name: 'twitter:card', content: seo.value.twitterCard }] : []),
+  ],
+  ...(seo.value?.canonicalUrl ? { link: [{ rel: 'canonical', href: seo.value.canonicalUrl }] } : {}),
 })
 
 definePageMeta({

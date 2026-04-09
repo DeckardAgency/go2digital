@@ -106,9 +106,7 @@ import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/us
 import type { LabProject, LabCategory } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
-useHead({
-  title: 'Go2Labs - Go2Digital'
-})
+useSeo('singleton/lab-page', null, 'Go2Labs - Go2Digital')
 
 const { locale, t } = useI18n()
 

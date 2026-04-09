@@ -236,9 +236,7 @@ import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/us
 import type { BlogPost, BlogCategory } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
-useHead({
-  title: 'Blog - Go2Digital'
-})
+useSeo('singleton/blog-page', null, 'Blog - Go2Digital')
 
 const { locale, t } = useI18n()
 

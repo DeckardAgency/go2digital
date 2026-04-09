@@ -31,9 +31,7 @@ watch(time, (newVal) => {
 }, { immediate: true })
 
 // SEO
-useHead({
-  title: t('contact.seo.title')
-})
+useSeo('singleton/contact-page', null, t('contact.seo.title'))
 
 // Watch for weather data to load, then init split text
 watch(temperature, (newVal) => {

@@ -11,9 +11,7 @@
 <script setup lang="ts">
 const { t } = useI18n()
 
-useHead({
-  title: `${t('nav.about')} - Go2Digital`
-})
+useSeo('singleton/team-page', null, `${t('nav.about')} - Go2Digital`)
 </script>
 
 <style scoped lang="scss">

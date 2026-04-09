@@ -243,7 +243,7 @@ function goBack() {
   goBackWithTransition('/lab', slug, displayImage.value, imageWrapperRef.value)
 }
 
-useHead({ title: computed(() => `${title.value} - Go2Labs`) })
+useSeo('lab-projects', computed(() => project.value?.id), computed(() => `${title.value} - Go2Labs`))
 definePageMeta({ showFooter: false })
 </script>
 

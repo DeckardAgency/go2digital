@@ -176,9 +176,7 @@ import type { EsgPageContent, EsgPillar, EsgCard, EsgVisionBadge } from '~/types
 
 gsap.registerPlugin(ScrollTrigger)
 
-useHead({
-  title: 'ESG - Go2Digital'
-})
+useSeo('singleton/esg-page', null, 'ESG - Go2Digital')
 
 // Fetch ESG data from API
 const { data: esgContent } = await useApi<EsgPageContent>('/api/singletons/esg-page-content')

@@ -211,7 +211,7 @@ function goBack() {
   goBackWithTransition('/blog', slug, displayImage.value, imageWrapperRef.value)
 }
 
-useHead({ title: computed(() => `${title.value} - Blog`) })
+useSeo('blog-posts', computed(() => post.value?.id), computed(() => `${title.value} - Blog`))
 definePageMeta({ showFooter: false })
 </script>
 
