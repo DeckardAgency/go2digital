@@ -6,12 +6,43 @@ interface TransitionOptions {
   image: string
   title: string
   meta?: string
+  /** Extra key-value pairs to store in sessionStorage */
+  extraData?: Record<string, string>
+  /** Focal point for the clone's object-position */
+  focalPoint?: { x: number; y: number }
 }
 
 let isNavigating = false
 
+/** Wait for N animation frames */
+function waitFrames(n: number): Promise<void> {
+  return new Promise(resolve => {
+    let count = 0
+    function tick() {
+      if (++count >= n) resolve()
+      else requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  })
+}
+
+/** Get responsive hero target rect (matches detail page hero layout) */
+function getHeroTargetRect(): { left: number; width: number; top: number; height: number; radius: string } {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  if (vw <= 768) {
+    return { left: 0, width: vw, top: 0, height: vh * 0.35, radius: '0' }
+  } else if (vw <= 1024) {
+    const margin = 24 // 1.5rem
+    return { left: margin, width: vw - margin * 2, top: 0, height: vh * 0.5, radius: '0 0 0.75rem 0.75rem' }
+  }
+  const margin = 48 // 3rem
+  return { left: margin, width: vw - margin * 2, top: 0, height: vh * 0.5, radius: '0 0 0.75rem 0.75rem' }
+}
+
 /**
- * Animate a card image to expand and navigate to detail page
+ * Animate a card image to expand and navigate to detail page.
+ * Uses GPU-accelerated transform instead of layout properties.
  */
 export function animateCardToDetail(event: MouseEvent, options: TransitionOptions, cardSelector: string, imageSelector: string) {
   if (isNavigating) return
@@ -33,32 +64,34 @@ export function animateCardToDetail(event: MouseEvent, options: TransitionOption
     return
   }
 
-  const imgRect = img.getBoundingClientRect()
+  const startRect = img.getBoundingClientRect()
+  const target = getHeroTargetRect()
 
-  // Clone the image
+  // Clone the image at its current position
   const clone = img.cloneNode(true) as HTMLElement
   clone.style.cssText = `
     position: fixed;
-    top: ${imgRect.top}px;
-    left: ${imgRect.left}px;
-    width: ${imgRect.width}px;
-    height: ${imgRect.height}px;
+    top: ${startRect.top}px;
+    left: ${startRect.left}px;
+    width: ${startRect.width}px;
+    height: ${startRect.height}px;
     object-fit: cover;
     z-index: 10001;
     pointer-events: none;
     border-radius: 0.65rem;
+    will-change: transform, border-radius;
+    transform-origin: top left;
   `
+  if (options.focalPoint) {
+    clone.style.objectPosition = `${options.focalPoint.x}% ${options.focalPoint.y}%`
+  }
   document.body.appendChild(clone)
 
   // White overlay
   const overlay = document.createElement('div')
   overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: #ffffff;
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
+    position: fixed; inset: 0; background: #ffffff;
+    z-index: 10000; opacity: 0; pointer-events: none;
   `
   document.body.appendChild(overlay)
 
@@ -66,71 +99,47 @@ export function animateCardToDetail(event: MouseEvent, options: TransitionOption
   sessionStorage.setItem('cardTransitionImage', options.image)
   sessionStorage.setItem('cardTransitionTitle', options.title)
   if (options.meta) sessionStorage.setItem('cardTransitionMeta', options.meta)
+  if (options.extraData) {
+    for (const [key, value] of Object.entries(options.extraData)) {
+      sessionStorage.setItem(key, value)
+    }
+  }
+
+  // Calculate GPU transform delta
+  const dx = target.left - startRect.left
+  const dy = target.top - startRect.top
+  const sx = target.width / startRect.width
+  const sy = target.height / startRect.height
 
   const tl = gsap.timeline({
     onComplete: () => {
       ;(window as any).__skipPageTransition = true
       navigateTo(`${options.basePath}/${options.slug}`)
 
-      // Keep clone visible until new page renders to prevent flash
-      // page:finish fires after Suspense resolves, then we can safely remove
       const nuxtApp = useNuxtApp()
-      const removeClone = () => {
-        // Small delay for the new page's image to render
+      nuxtApp.hooks.hookOnce('page:finish', () => {
         requestAnimationFrame(() => {
           clone.remove()
           overlay.remove()
           isNavigating = false
         })
-      }
-
-      // Listen for page:finish (Suspense resolved, new page rendered)
-      nuxtApp.hooks.hookOnce('page:finish', removeClone)
-
-      // Fallback: remove after 2s if page:finish never fires
+      })
       setTimeout(() => {
-        if (clone.parentNode) {
-          clone.remove()
-          overlay.remove()
-          isNavigating = false
-        }
+        if (clone.parentNode) { clone.remove(); overlay.remove(); isNavigating = false }
       }, 2000)
     }
   })
 
-  // Calculate responsive target dimensions to match detail page hero exactly
-  const vw = window.innerWidth
-  let targetLeft: string
-  let targetWidth: string
-  let targetRadius: string
-
-  if (vw <= 768) {
-    // Mobile: no margin, no border-radius (matches .lab-detail__hero @include mobile)
-    targetLeft = '0px'
-    targetWidth = '100vw'
-    targetRadius = '0'
-  } else if (vw <= 1024) {
-    // Tablet: margin 1.5rem each side (matches $spacing-lg)
-    targetLeft = '1.5rem'
-    targetWidth = 'calc(100vw - 3rem)'
-    targetRadius = '0 0 0.75rem 0.75rem'
-  } else {
-    // Desktop: margin 3rem each side (matches $spacing-2xl)
-    targetLeft = '3rem'
-    targetWidth = 'calc(100vw - 6rem)'
-    targetRadius = '0 0 0.75rem 0.75rem'
-  }
-
-  // Animate clone expanding to hero size — no white overlay fade during animation.
-  // Overlay snaps opaque at the end to cover the page swap.
+  // GPU-accelerated expand: translate + scale instead of top/left/width/height
   tl.to(clone, {
-    top: 0,
-    left: targetLeft,
-    width: targetWidth,
-    height: '50vh',
-    borderRadius: targetRadius,
+    x: dx,
+    y: dy,
+    scaleX: sx,
+    scaleY: sy,
+    borderRadius: target.radius,
     duration: 0.5,
-    ease: 'power3.inOut'
+    ease: 'power3.inOut',
+    force3D: true,
   }, 0)
   .set(overlay, { opacity: 1 }, 0.45)
 }
@@ -143,7 +152,6 @@ export function getCardTransitionData() {
   const title = sessionStorage.getItem('cardTransitionTitle') || ''
   const meta = sessionStorage.getItem('cardTransitionMeta') || ''
 
-  // Clean up
   sessionStorage.removeItem('cardTransitionImage')
   sessionStorage.removeItem('cardTransitionTitle')
   sessionStorage.removeItem('cardTransitionMeta')
@@ -153,8 +161,7 @@ export function getCardTransitionData() {
 
 /**
  * Navigate back with reverse animation.
- * Stores slug + image in sessionStorage so the listing page can animate
- * the clone from hero size down to the exact target card position.
+ * Creates a clone at current hero position, navigates, then playReturnToCardAnimation shrinks it.
  */
 export function goBackWithTransition(basePath: string, slug: string, heroImage: string, heroElement?: HTMLElement | null, focalPoint?: { x: number; y: number }) {
   if (isNavigating) return
@@ -167,8 +174,6 @@ export function goBackWithTransition(basePath: string, slug: string, heroImage: 
     sessionStorage.setItem('returnFocalY', String(focalPoint.y))
   }
 
-  // Capture the hero element's CURRENT dimensions (it may have been
-  // expanded by ScrollTrigger). If no element provided, use defaults.
   let cloneTop: string, cloneLeft: string, cloneWidth: string, cloneHeight: string, cloneRadius: string
 
   if (heroElement) {
@@ -180,16 +185,12 @@ export function goBackWithTransition(basePath: string, slug: string, heroImage: 
     cloneHeight = `${rect.height}px`
     cloneRadius = style.borderRadius
   } else {
-    const vw = window.innerWidth
-    cloneTop = '0px'
-    if (vw <= 768) {
-      cloneLeft = '0px'; cloneWidth = '100vw'; cloneRadius = '0'
-    } else if (vw <= 1024) {
-      cloneLeft = '1.5rem'; cloneWidth = 'calc(100vw - 3rem)'; cloneRadius = '0 0 0.75rem 0.75rem'
-    } else {
-      cloneLeft = '3rem'; cloneWidth = 'calc(100vw - 6rem)'; cloneRadius = '0 0 0.75rem 0.75rem'
-    }
-    cloneHeight = '50vh'
+    const t = getHeroTargetRect()
+    cloneTop = `${t.top}px`
+    cloneLeft = `${t.left}px`
+    cloneWidth = `${t.width}px`
+    cloneHeight = `${t.height}px`
+    cloneRadius = t.radius
   }
 
   // White overlay behind clone
@@ -204,7 +205,7 @@ export function goBackWithTransition(basePath: string, slug: string, heroImage: 
     z-index: 10000; opacity: 1; pointer-events: none;
   `
 
-  // Hero image clone on top — matches current hero element exactly
+  // Hero image clone
   let clone = document.getElementById('return-transition-clone') as HTMLImageElement
   if (!clone) {
     clone = document.createElement('img')
@@ -217,38 +218,35 @@ export function goBackWithTransition(basePath: string, slug: string, heroImage: 
     position: fixed; top: ${cloneTop}; left: ${cloneLeft};
     width: ${cloneWidth}; height: ${cloneHeight};
     object-fit: cover; z-index: 10001; pointer-events: none;
-    border-radius: ${cloneRadius}; ${fp}
+    border-radius: ${cloneRadius}; will-change: transform, border-radius;
+    transform-origin: top left; ${fp}
   `
 
   ;(window as any).__skipPageTransition = true
   navigateTo(basePath)
-  isNavigating = false
+  // Don't reset isNavigating — playReturnToCardAnimation will handle it
 }
 
 /**
  * On the listing page, play the return animation:
- * clone starts at hero size, shrinks to the target card, overlay fades out.
- *
- * @param slug - the slug to find the target card
- * @param imageSrc - the hero image URL
- * @param cardSelector - CSS selector for card elements (e.g. '.blog-card')
- * @param imageSelector - CSS selector for the card image inside the card
- * @param slugAttr - data attribute on the card that holds the slug (e.g. 'data-slug')
+ * clone starts at hero size, GPU-shrinks to the target card, overlay fades out.
  */
-export function playReturnToCardAnimation(
+export async function playReturnToCardAnimation(
   slug: string,
   imageSrc: string,
   cardSelector: string,
   imageSelector: string,
   slugAttr: string = 'data-slug'
 ) {
-  const vw = window.innerWidth
-
-  // Reuse clone + overlay created by goBackWithTransition (they persist across navigation)
   let clone = document.getElementById('return-transition-clone') as HTMLElement
   let overlay = document.getElementById('return-transition-overlay') as HTMLElement
 
-  // Fallback: create them if not found (e.g. direct page load with returnSlug)
+  const returnFocalX = sessionStorage.getItem('returnFocalX') || '50'
+  const returnFocalY = sessionStorage.getItem('returnFocalY') || '50'
+  sessionStorage.removeItem('returnFocalX')
+  sessionStorage.removeItem('returnFocalY')
+
+  // Fallback: create clone/overlay if not found
   if (!overlay) {
     overlay = document.createElement('div')
     overlay.id = 'return-transition-overlay'
@@ -259,104 +257,97 @@ export function playReturnToCardAnimation(
     document.body.appendChild(overlay)
   }
 
-  const returnFocalX = sessionStorage.getItem('returnFocalX') || '50'
-  const returnFocalY = sessionStorage.getItem('returnFocalY') || '50'
-  sessionStorage.removeItem('returnFocalX')
-  sessionStorage.removeItem('returnFocalY')
-
   if (!clone) {
-    const heroLeft = vw <= 768 ? '0px' : vw <= 1024 ? '1.5rem' : '3rem'
-    const heroWidth = vw <= 768 ? '100vw' : vw <= 1024 ? 'calc(100vw - 3rem)' : 'calc(100vw - 6rem)'
-    const heroRadius = vw <= 768 ? '0' : '0 0 0.75rem 0.75rem'
-
+    const t = getHeroTargetRect()
     clone = document.createElement('img')
     clone.id = 'return-transition-clone'
     ;(clone as HTMLImageElement).src = imageSrc
     clone.style.cssText = `
-      position: fixed; top: 0; left: ${heroLeft};
-      width: ${heroWidth}; height: 50vh;
+      position: fixed; top: ${t.top}px; left: ${t.left}px;
+      width: ${t.width}px; height: ${t.height}px;
       object-fit: cover; z-index: 10001; pointer-events: none;
-      border-radius: ${heroRadius};
+      border-radius: ${t.radius}; will-change: transform, border-radius;
+      transform-origin: top left;
       object-position: ${returnFocalX}% ${returnFocalY}%;
     `
     document.body.appendChild(clone)
   }
 
-  // Delay until after page:finish (which resets scroll) has fired.
-  // onMounted runs before page:finish, so we wait for nextTick + rAF.
-  nextTick(() => {
-  requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    const targetCard = document.querySelector(`${cardSelector}[${slugAttr}="${slug}"]`) as HTMLElement
-    let targetImg: HTMLElement | null = null
+  // Wait for page layout to settle (replaces 5-deep rAF pyramid)
+  await nextTick()
+  await waitFrames(2)
 
-    if (targetCard) {
-      targetImg = targetCard.querySelector(imageSelector) as HTMLElement
+  const targetCard = document.querySelector(`${cardSelector}[${slugAttr}="${slug}"]`) as HTMLElement
+  let targetImg: HTMLElement | null = null
 
-      // Scroll the card into view — overlay covers everything so user doesn't see the jump
-      // Check if card is inside a scrollable container (e.g. lokacije sidebar)
-      const scrollParent = targetCard.closest('[data-lenis-prevent]') as HTMLElement
-      if (scrollParent) {
-        // Card is in a scrollable sidebar — scroll within that container
-        const cardTop = targetCard.offsetTop
-        const containerHeight = scrollParent.clientHeight
-        const cardHeight = targetCard.offsetHeight
-        scrollParent.scrollTop = cardTop - (containerHeight / 2) + (cardHeight / 2)
-      } else {
-        // Card is in the main page scroll — use Lenis
-        const { $lenis } = useNuxtApp()
-        if ($lenis) {
-          $lenis.scrollTo(targetCard, { offset: -(window.innerHeight / 2) + (targetCard.offsetHeight / 2), immediate: true, force: true })
-        }
+  if (targetCard) {
+    targetImg = targetCard.querySelector(imageSelector) as HTMLElement
+
+    // Scroll card into view (overlay covers the jump)
+    const scrollParent = targetCard.closest('[data-lenis-prevent]') as HTMLElement
+    if (scrollParent) {
+      const cardTop = targetCard.offsetTop
+      const containerHeight = scrollParent.clientHeight
+      const cardHeight = targetCard.offsetHeight
+      scrollParent.scrollTop = cardTop - (containerHeight / 2) + (cardHeight / 2)
+    } else {
+      const { $lenis } = useNuxtApp()
+      if ($lenis) {
+        $lenis.scrollTo(targetCard, { offset: -(window.innerHeight / 2) + (targetCard.offsetHeight / 2), immediate: true, force: true })
       }
     }
+  }
 
-    // Wait extra frames for scroll position and layout to settle
-    requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      let targetRect: DOMRect
+  // Wait for scroll to settle
+  await waitFrames(2)
 
-      if (targetImg) {
-        targetRect = targetImg.getBoundingClientRect()
-      } else {
-        // Fallback: center of viewport
-        targetRect = new DOMRect(vw / 2 - 150, window.innerHeight / 2 - 100, 300, 200)
-      }
+  const cloneRect = clone.getBoundingClientRect()
+  let targetRect: DOMRect
 
-      const tl = gsap.timeline({
-        onComplete: () => {
-          clone.remove()
-          overlay.remove()
-        }
-      })
+  if (targetImg) {
+    targetRect = targetImg.getBoundingClientRect()
+  } else {
+    const vw = window.innerWidth
+    targetRect = new DOMRect(vw / 2 - 150, window.innerHeight / 2 - 100, 300, 200)
+  }
 
-      // Fade out overlay to reveal the listing page
-      tl.to(overlay, {
-        opacity: 0,
-        duration: 0.4,
-        ease: 'power2.inOut'
-      })
+  // Calculate GPU transform delta from current clone position to card
+  const dx = targetRect.left - cloneRect.left
+  const dy = targetRect.top - cloneRect.top
+  const sx = targetRect.width / cloneRect.width
+  const sy = targetRect.height / cloneRect.height
 
-      // Shrink clone from hero to card position
-      tl.to(clone, {
-        top: targetRect.top,
-        left: targetRect.left,
-        width: targetRect.width,
-        height: targetRect.height,
-        borderRadius: '0.65rem',
-        duration: 0.5,
-        ease: 'power3.inOut'
-      }, 0)
-
-      // Fade out clone at the end
-      tl.to(clone, {
-        opacity: 0,
-        duration: 0.15,
-        ease: 'power2.in'
-      }, 0.45)
-    })
-    })
+  const tl = gsap.timeline({
+    onComplete: () => {
+      clone.remove()
+      overlay.remove()
+      isNavigating = false
+    }
   })
-  })
-  })
+
+  // Fade overlay to reveal listing
+  tl.to(overlay, {
+    opacity: 0,
+    duration: 0.4,
+    ease: 'power2.inOut'
+  }, 0)
+
+  // GPU-accelerated shrink to card position
+  tl.to(clone, {
+    x: dx,
+    y: dy,
+    scaleX: sx,
+    scaleY: sy,
+    borderRadius: '0.65rem',
+    duration: 0.5,
+    ease: 'power3.inOut',
+    force3D: true,
+  }, 0)
+
+  // Fade out clone at the end
+  tl.to(clone, {
+    opacity: 0,
+    duration: 0.15,
+    ease: 'power2.in'
+  }, 0.45)
 }

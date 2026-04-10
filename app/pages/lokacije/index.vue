@@ -552,7 +552,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { gsap } from 'gsap'
-import { playReturnToCardAnimation } from '~/composables/useCardTransition'
+import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/useCardTransition'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 // Page meta - hide footer on this page
@@ -1218,101 +1218,23 @@ function playReturnAnimation(slug: string, imageSrc: string) {
   })
 }
 
-let isNavigating = false
-
 function animateToDetail(location: Location, event: MouseEvent) {
-  if (isNavigating) return
-  isNavigating = true
-
-  // Find the card and its image
-  const card = (event.target as HTMLElement).closest('.location-card') as HTMLElement
-  if (!card) { navigateTo(`/lokacije/${location.slug}`); return }
-
-  const img = card.querySelector('.location-card__image') as HTMLImageElement
-  if (!img) { navigateTo(`/lokacije/${location.slug}`); return }
-
-  const imgRect = img.getBoundingClientRect()
-
-  // Create a clone of the image for the transition
-  const clone = img.cloneNode(true) as HTMLImageElement
-  clone.style.cssText = `
-    position: fixed;
-    top: ${imgRect.top}px;
-    left: ${imgRect.left}px;
-    width: ${imgRect.width}px;
-    height: ${imgRect.height}px;
-    object-fit: cover;
-    z-index: 10001;
-    pointer-events: none;
-    border-radius: 0.65rem;
-  `
-  document.body.appendChild(clone)
-
-  // Fade out the rest of the page
-  const overlay = document.createElement('div')
-  overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: #ffffff;
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
-  `
-  document.body.appendChild(overlay)
-
-  // Calculate responsive target to match detail page hero
-  const vw = window.innerWidth
-  let targetLeft: string, targetWidth: string, targetRadius: string
-  if (vw <= 768) {
-    targetLeft = '0px'; targetWidth = '100vw'; targetRadius = '0'
-  } else if (vw <= 1024) {
-    targetLeft = '1.5rem'; targetWidth = 'calc(100vw - 3rem)'; targetRadius = '0 0 0.75rem 0.75rem'
-  } else {
-    targetLeft = '3rem'; targetWidth = 'calc(100vw - 6rem)'; targetRadius = '0 0 0.75rem 0.75rem'
-  }
-
-  // Store transition data
-  sessionStorage.setItem('locationTransitionImage', location.image)
-  sessionStorage.setItem('locationTransitionName', location.name)
-  sessionStorage.setItem('locationTransitionCity', location.city)
-  sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
-  sessionStorage.setItem('locationTransitionFocalX', String(location.focalX))
-  sessionStorage.setItem('locationTransitionFocalY', String(location.focalY))
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      ;(window as any).__skipPageTransition = true
-      navigateTo(`/lokacije/${location.slug}`)
-
-      // Keep clone until new page renders
-      const nuxtApp = useNuxtApp()
-      nuxtApp.hooks.hookOnce('page:finish', () => {
-        requestAnimationFrame(() => {
-          clone.remove()
-          overlay.remove()
-          isNavigating = false
-        })
-      })
-      setTimeout(() => {
-        if (clone.parentNode) { clone.remove(); overlay.remove(); isNavigating = false }
-      }, 2000)
-    }
-  })
-
-  // Animate clone's object-position to match the detail page focal point
-  clone.style.objectPosition = `${location.focalX}% ${location.focalY}%`
-
-  // Clone expands to hero size — overlay snaps opaque at the end (no flash)
-  tl.to(clone, {
-    top: 0,
-    left: targetLeft,
-    width: targetWidth,
-    height: '35vh',
-    borderRadius: targetRadius,
-    duration: 0.5,
-    ease: 'power3.inOut'
-  }, 0)
-  .set(overlay, { opacity: 1 }, 0.45)
+  animateCardToDetail(event, {
+    slug: location.slug,
+    basePath: '/lokacije',
+    image: location.image,
+    title: location.name,
+    meta: location.city,
+    focalPoint: { x: location.focalX, y: location.focalY },
+    extraData: {
+      locationTransitionImage: location.image,
+      locationTransitionName: location.name,
+      locationTransitionCity: location.city,
+      locationTransitionEnv: location.environments?.[0] || '',
+      locationTransitionFocalX: String(location.focalX),
+      locationTransitionFocalY: String(location.focalY),
+    },
+  }, '.location-card', '.location-card__image')
 }
 function openSidebar() { isSidebarOpen.value = true }
 function closeSidebar() { isSidebarOpen.value = false }
