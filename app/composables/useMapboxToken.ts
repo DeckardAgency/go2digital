@@ -1,5 +1,3 @@
-const FALLBACK_TOKEN = 'MAPBOX_TOKEN_REMOVED'
-
 let cachedToken: string | null = null
 
 export async function useMapboxToken(): Promise<string> {
@@ -20,9 +18,8 @@ export async function useMapboxToken(): Promise<string> {
       return token
     }
   } catch {
-    // fallback
+    // no token available
   }
 
-  cachedToken = FALLBACK_TOKEN
-  return FALLBACK_TOKEN
+  return ''
 }
