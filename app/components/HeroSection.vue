@@ -11,6 +11,38 @@ const { t } = useI18n()
 
 const { data: hero } = useApi<HomepageHero>('/api/singletons/homepage-hero', { lazy: true, server: false })
 
+// Title text — combined into one string with newline for split-text to detect as line break
+const titleText = computed(() => {
+  const line1 = hero.value?.titleLine1 ?? t('hero.titleLine1')
+  const line2 = hero.value?.titleLine2 ?? t('hero.titleLine2')
+  return `${line1}\n${line2}`
+})
+
+// Re-split all text elements when API data arrives (split-text destroys Vue bindings)
+function reSplitElement(el: HTMLElement | null, text: string) {
+  if (!el) return
+  el.classList.remove('split-text-ready')
+  el.textContent = text
+  requestAnimationFrame(() => {
+    if (!el) return
+    initSplitText(el.parentElement!)
+    const splitEls = getSplitElements(el)
+    if (splitEls) {
+      gsap.set(splitEls, { clipPath: 'inset(0 0 0% 0)', y: 0 })
+    }
+  })
+}
+
+watch(() => hero.value?.titleLine1, (v) => {
+  if (!v) return
+  nextTick(() => {
+    reSplitElement(titleRef.value, titleText.value)
+    reSplitElement(badgeTextRef.value, hero.value?.kicker ?? t('hero.kicker'))
+    reSplitElement(headingRef.value, hero.value?.heading ?? t('hero.heading'))
+    reSplitElement(descriptionRef.value, hero.value?.description ?? t('hero.description'))
+  })
+})
+
 // Video URLs from API with fallback to local files
 const desktopVideoSrc = computed(() => {
   const video = hero.value?.video
@@ -474,7 +506,7 @@ onUnmounted(() => {
             data-split-trigger="load"
             data-split-duration="0.5"
             data-split-delay="0.1"
-          >{{ hero?.titleLine1 ?? t('hero.titleLine1') }}<br/>{{ hero?.titleLine2 ?? t('hero.titleLine2') }}</h1>
+          >{{ titleText }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
