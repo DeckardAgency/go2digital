@@ -3,10 +3,6 @@
     <div class="tracking-section__header">
       <h2
         class="tracking-section__title"
-        data-split-text
-        data-split-type="lines"
-        data-split-trigger="view"
-        data-split-duration="1.2"
       >{{ trackingTitle }}</h2>
       <div class="tracking-section__cta">
         <BtnAnimated

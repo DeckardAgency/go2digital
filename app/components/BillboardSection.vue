@@ -10,10 +10,6 @@
         <h2
           ref="titleRef"
           class="billboard-section__title"
-          data-split-text
-          data-split-type="lines"
-          data-split-trigger="view"
-          data-split-duration="1.2"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
         <BtnAnimated
           :text="billboard?.buttonText ?? $t('homepage.billboard.buttonText')"

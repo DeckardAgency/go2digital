@@ -8,10 +8,6 @@
           <span class="analytics-section__indicator-text">{{ analytics?.indicator ?? $t('homepage.analytics.indicator') }}</span>
         </div>
         <h2 class="analytics-section__title"
-          data-split-text
-          data-split-type="lines"
-          data-split-trigger="view"
-          data-split-duration="1.2"
         >{{ analytics?.title ?? $t('homepage.analytics.title') }}</h2>
       </div>
     </div>

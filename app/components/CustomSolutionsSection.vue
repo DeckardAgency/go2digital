@@ -10,12 +10,6 @@
     <header class="custom-solutions__header">
       <h2
         class="custom-solutions__title"
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="1.2"
-        data-split-y="80"
-        data-split-stagger="0.10"
-        data-split-indent="30%"
       >
         {{ customSolution?.title ?? $t('homepage.customSolutions.title') }}
       </h2>

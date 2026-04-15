@@ -6,10 +6,6 @@
         <div class="interactive-display__header">
           <h2
             class="interactive-display__title"
-            data-split-text
-            data-split-type="lines"
-            data-split-trigger="view"
-            data-split-duration="1.2"
           >{{ displayProduct?.title ?? $t('homepage.interactiveDisplay.title') }}</h2>
           <span class="interactive-display__number" aria-hidden="true">2</span>
           <div class="interactive-display__badge">

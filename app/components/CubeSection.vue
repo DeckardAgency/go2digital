@@ -6,10 +6,6 @@
         <div class="cube-section__header">
           <h2
             class="cube-section__title"
-            data-split-text
-            data-split-type="lines"
-            data-split-trigger="view"
-            data-split-duration="1.2"
           >{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</h2>
           <span class="cube-section__number" aria-hidden="true">1</span>
           <div class="cube-section__badge">

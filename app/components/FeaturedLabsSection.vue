@@ -14,11 +14,6 @@
           <div class="featured-labs__title-wrapper">
             <h1
               class="featured-labs__title"
-              data-split-text
-              data-split-type="lines"
-              data-split-duration="1.2"
-              data-split-y="80"
-              data-split-stagger="0.10"
             >
               {{ sectionTitle }}
             </h1>

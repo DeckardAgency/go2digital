@@ -6,11 +6,6 @@
         <span class="why-section__label-dot"></span>
         <span
           class="why-section__label-text"
-          data-split-text
-          data-split-type="words"
-          data-split-duration="1.2"
-          data-split-y="80"
-          data-split-stagger="0.10"
         >
           {{ whySection?.label ?? $t('whySection.label') }}
         </span>
@@ -18,12 +13,6 @@
 
       <h1
         class="why-section__headline"
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="1.2"
-        data-split-delay="0.2"
-        data-split-y="80"
-        data-split-stagger="0.10"
       >
         {{ whySection?.headline ?? $t('whySection.headline') }}
       </h1>
