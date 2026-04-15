@@ -69,10 +69,8 @@ async function loadSectionOrder() {
   orderLoaded.value = true
 }
 
-// Load on client
+// Load section order on client only (API may not be reachable during SSR on Vercel)
 onMounted(() => loadSectionOrder())
-// Also try SSR
-loadSectionOrder()
 
 const orderedSections = computed(() =>
   sectionOrder.value
