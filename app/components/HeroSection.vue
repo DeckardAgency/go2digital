@@ -13,9 +13,7 @@ const { data: hero } = useApi<HomepageHero>('/api/singletons/homepage-hero', { l
 
 // Title text — combined into one string with newline for split-text to detect as line break
 const titleText = computed(() => {
-  const line1 = 'Vaš brend'
-  const line2 = 'u prvom planu.'
-  return `${line1}\n${line2}`
+  return 'Vaš brend<br/>u prvom planu.'
 })
 
 // Re-split all text elements when API data arrives (split-text destroys Vue bindings)
@@ -495,7 +493,7 @@ onUnmounted(() => {
       <div class="hero-section__main">
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
-          <h1 ref="titleRef" class="hero-section__title">{{ titleText }}</h1>
+          <h1 ref="titleRef" class="hero-section__title" v-html="titleText"></h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
