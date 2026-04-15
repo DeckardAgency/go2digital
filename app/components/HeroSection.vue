@@ -496,12 +496,6 @@ onUnmounted(() => {
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
           <h1
-            ref="titleRef"
-            class="hero-section__title"
-            data-split-text
-            data-split-trigger="load"
-            data-split-duration="0.5"
-            data-split-delay="0.1"
           >{{ titleText }}</h1>
         </div>
 
@@ -512,21 +506,12 @@ onUnmounted(() => {
             <span
               ref="badgeTextRef"
               class="hero-section__badge-text"
-              data-split-text
-              data-split-type="lines"
-              data-split-trigger="load"
-              data-split-duration="0.5"
-              data-split-delay="0.15"
             >{{ hero?.kicker ?? t('hero.kicker') }}</span>
           </div>
 
           <h2
             ref="headingRef"
             class="hero-section__heading"
-            data-split-text
-            data-split-trigger="load"
-            data-split-duration="0.5"
-            data-split-delay="0.2"
           >
             {{ hero?.heading ?? t('hero.heading') }}
           </h2>
@@ -534,10 +519,6 @@ onUnmounted(() => {
           <p
             ref="descriptionRef"
             class="hero-section__description"
-            data-split-text
-            data-split-trigger="load"
-            data-split-duration="0.5"
-            data-split-delay="0.25"
           >
             {{ hero?.description ?? t('hero.description') }}
           </p>
@@ -549,11 +530,6 @@ onUnmounted(() => {
             <span
               ref="scrollTextRef"
               class="hero-section__scroll-text"
-              data-split-text
-              data-split-type="lines"
-              data-split-trigger="load"
-              data-split-duration="0.5"
-              data-split-delay="0.3"
             >
               {{ hero?.scrollDownLabel ?? t('hero.scrollDown') }}
             </span>
