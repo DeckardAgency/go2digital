@@ -62,7 +62,7 @@
   <FeatureSection
     v-for="(feature, i) in cubeFeatures"
     :key="feature.title || `cube-feature-${i}`"
-    :icon="['Ⓐ', 'Ⓑ'][i] ?? ''"
+    :icon="feature.icon || ['Ⓐ', 'Ⓑ', 'Ⓒ', 'Ⓓ'][i] || ''"
     :title="feature.title"
     :description="feature.description"
   />
@@ -71,12 +71,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
-import type { HomepageProduct } from '~/types/api'
+import type { HomepageProduct, HomepageProductFeature } from '~/types/api'
 
 const { tm, rt } = useI18n()
 
 const { data: cubeProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=cube', { lazy: true, server: false })
 const cubeProduct = computed(() => cubeProducts.value?.[0] ?? null)
+
+// Fetch all product features and filter by product IRI
+const { data: allCubeFeatures } = useApi<any>('/api/homepage_product_features', { lazy: true, server: false })
+const cubeFeatureData = computed(() => {
+  const items = allCubeFeatures.value?.member || allCubeFeatures.value?.['hydra:member'] || (Array.isArray(allCubeFeatures.value) ? allCubeFeatures.value : [])
+  const productIri = cubeProduct.value?.['@id'] || (cubeProduct.value?.id ? `/api/homepage_products/${cubeProduct.value.id}` : '')
+  if (!productIri) return []
+  return items.filter((f: any) => f.product === productIri)
+})
 
 const sectionRef = ref<HTMLElement | null>(null)
 const panelsRef = ref<HTMLElement | null>(null)
@@ -104,17 +113,17 @@ const specs = computed(() => {
 })
 
 const cubeFeatures = computed(() => {
-  // Use API data if available
-  if (cubeProduct.value?.features && cubeProduct.value.features.length > 0) {
-    return cubeProduct.value.features.map(f => ({
+  if (cubeFeatureData.value && cubeFeatureData.value.length > 0) {
+    return cubeFeatureData.value.map(f => ({
+      icon: f.icon ?? '',
       title: f.title ?? '',
       description: f.description ?? ''
     }))
   }
-  // Fallback to i18n
   const raw = (tm as any)('homepage.cube.features')
   if (Array.isArray(raw)) {
     return raw.map((f: any) => ({
+      icon: '',
       title: rt(f.title),
       description: rt(f.description)
     }))

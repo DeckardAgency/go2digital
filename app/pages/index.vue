@@ -7,20 +7,13 @@
         :is="section.component"
       />
     </template>
-    <FeatureSection
-      v-for="(feature, i) in features"
-      :key="'feature-' + i"
-      :icon="feature.icon"
-      :title="feature.title"
-      :description="feature.description"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const { t, tm, rt } = useI18n()
+const { t } = useI18n()
 
 // Section component map
 const sectionComponents: Record<string, any> = {
@@ -87,19 +80,6 @@ const orderedSections = computed(() =>
     .map(id => ({ id, component: sectionComponents[id] }))
 )
 
-const featureIcons = ['Ⓐ', 'Ⓑ', 'Ⓒ', 'Ⓓ']
-
-const features = computed(() => {
-  const raw = (tm as any)('homepage.interactiveDisplay.features')
-  if (Array.isArray(raw)) {
-    return raw.map((f: any, i: number) => ({
-      icon: featureIcons[i] || `${i + 1}`,
-      title: rt(f.title),
-      description: rt(f.description)
-    }))
-  }
-  return []
-})
 
 useHead({
   title: 'Homepage - Go2Digital'

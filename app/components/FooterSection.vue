@@ -74,7 +74,7 @@ const contactInfo = computed(() => {
     }))
   }
   return [
-    { label: 'E-mail', value: 'sales@go2digital.com', href: 'mailto:sales@go2digital.com', external: false },
+    { label: 'E-mail', value: 'info@go2digital.hr', href: 'mailto:info@go2digital.hr', external: false },
     { label: 'Phone', value: '+385 1 483 9192', href: 'tel:+38514839192', external: false },
     { label: 'Location', value: 'Radnička cesta 52, 10 000 Zagreb', href: 'https://www.google.com/maps/dir/?api=1&destination=Radnička+cesta+52,+10000+Zagreb,+Croatia', external: true }
   ]

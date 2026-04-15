@@ -47,17 +47,34 @@
       </div>
     </div>
   </section>
+
+  <!-- Interactive Display Features -->
+  <FeatureSection
+    v-for="(feature, i) in displayFeatures"
+    :key="feature.title || `display-feature-${i}`"
+    :icon="feature.icon || featureIcons[i] || `${i + 1}`"
+    :title="feature.title"
+    :description="feature.description"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
-import type { HomepageProduct } from '~/types/api'
+import type { HomepageProduct, HomepageProductFeature } from '~/types/api'
 
 const { tm, rt } = useI18n()
 
 const { data: displayProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=display', { lazy: true, server: false })
 const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
+
+const { data: allDisplayFeatures } = useApi<any>('/api/homepage_product_features', { lazy: true, server: false })
+const displayFeatureData = computed(() => {
+  const items = allDisplayFeatures.value?.member || allDisplayFeatures.value?.['hydra:member'] || (Array.isArray(allDisplayFeatures.value) ? allDisplayFeatures.value : [])
+  const productIri = displayProduct.value?.['@id'] || (displayProduct.value?.id ? `/api/homepage_products/${displayProduct.value.id}` : '')
+  if (!productIri) return []
+  return items.filter((f: any) => f.product === productIri)
+})
 
 const sectionRef = ref<HTMLElement | null>(null)
 const panelsRef = ref<HTMLElement | null>(null)
@@ -78,6 +95,27 @@ const specs = computed(() => {
     return raw.map((s: any) => ({
       label: rt(s.label),
       value: rt(s.value)
+    }))
+  }
+  return []
+})
+
+const featureIcons = ['Ⓐ', 'Ⓑ', 'Ⓒ', 'Ⓓ']
+
+const displayFeatures = computed(() => {
+  if (displayFeatureData.value && displayFeatureData.value.length > 0) {
+    return displayFeatureData.value.map(f => ({
+      icon: f.icon ?? '',
+      title: f.title ?? '',
+      description: f.description ?? ''
+    }))
+  }
+  const raw = (tm as any)('homepage.interactiveDisplay.features')
+  if (Array.isArray(raw)) {
+    return raw.map((f: any) => ({
+      icon: '',
+      title: rt(f.title),
+      description: rt(f.description)
     }))
   }
   return []
