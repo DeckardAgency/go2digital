@@ -282,8 +282,9 @@ const createAnimation = () => {
     }, 0.5)
   }
 
-  // Text hide using reverse split text animation (clip-path)
-  const splitTextElements = [
+  // Hide text elements on scroll — animate parent elements directly
+  // (works regardless of split-text state or API data timing)
+  const textElements = [
     titleRef.value,
     badgeTextRef.value,
     headingRef.value,
@@ -291,18 +292,13 @@ const createAnimation = () => {
     scrollTextRef.value
   ].filter(Boolean) as HTMLElement[]
 
-  splitTextElements.forEach((el, index) => {
-    const splitEls = getSplitElements(el)
-
-    if (splitEls && splitEls.length > 0) {
-      timeline!.to(splitEls, {
-        clipPath: 'inset(100% 0 0 0)',
-        y: -30,
-        duration: 0.4,
-        stagger: 0.02,
-        ease: 'power2.in'
-      }, 0.05 + (index * 0.03))
-    }
+  textElements.forEach((el, index) => {
+    timeline!.to(el, {
+      opacity: 0,
+      y: -30,
+      duration: 0.4,
+      ease: 'power2.in'
+    }, 0.05 + (index * 0.03))
   })
 
   // Hide badge dot with scale (#6: using ref)
