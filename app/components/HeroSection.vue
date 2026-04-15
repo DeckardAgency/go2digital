@@ -13,8 +13,8 @@ const { data: hero } = useApi<HomepageHero>('/api/singletons/homepage-hero', { l
 
 // Title text — combined into one string with newline for split-text to detect as line break
 const titleText = computed(() => {
-  const line1 = hero.value?.titleLine1 ?? t('hero.titleLine1')
-  const line2 = hero.value?.titleLine2 ?? t('hero.titleLine2')
+  const line1 = 'Vaš brend'
+  const line2 = 'u prvom planu.'
   return `${line1}\n${line2}`
 })
 
