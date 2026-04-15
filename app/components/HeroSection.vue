@@ -31,15 +31,15 @@ function reSplitElement(el: HTMLElement | null, text: string) {
   })
 }
 
-watch(() => hero.value?.titleLine1, (v) => {
-  if (!v) return
-  nextTick(() => {
-    reSplitElement(titleRef.value, titleText.value)
-    reSplitElement(badgeTextRef.value, hero.value?.kicker ?? t('hero.kicker'))
-    reSplitElement(headingRef.value, hero.value?.heading ?? t('hero.heading'))
-    reSplitElement(descriptionRef.value, hero.value?.description ?? t('hero.description'))
-  })
-})
+// watch(() => hero.value?.titleLine1, (v) => {
+//   if (!v) return
+//   nextTick(() => {
+//     reSplitElement(titleRef.value, titleText.value)
+//     reSplitElement(badgeTextRef.value, hero.value?.kicker ?? t('hero.kicker'))
+//     reSplitElement(headingRef.value, hero.value?.heading ?? t('hero.heading'))
+//     reSplitElement(descriptionRef.value, hero.value?.description ?? t('hero.description'))
+//   })
+// })
 
 // Video URLs from API with fallback to local files
 const desktopVideoSrc = computed(() => {
