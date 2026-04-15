@@ -495,7 +495,7 @@ onUnmounted(() => {
       <div class="hero-section__main">
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
-          <h1 ref="titleRef" class="hero-section__title">Vaš brend <br> u prvom planu.</h1>
+          <h1 ref="titleRef" class="hero-section__title">{{ titleText }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
