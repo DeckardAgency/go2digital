@@ -502,7 +502,7 @@ onUnmounted(() => {
             data-split-trigger="load"
             data-split-duration="0.5"
             data-split-delay="0.1"
-          >{{ titleText }} 11</h1>
+          >{{ titleText }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
