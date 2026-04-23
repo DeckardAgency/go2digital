@@ -2,7 +2,7 @@
   <div class="lab">
     <!-- Header Section -->
     <header class="lab__header">
-      <div class="lab__label">
+      <div :class="['lab__label', typoClass('label')]">
         <span class="lab__dot"></span>
         <span
           data-split-text
@@ -13,7 +13,7 @@
       </div>
 
       <p
-        class="lab__intro"
+        :class="['lab__intro', typoClass('intro')]"
         data-split-text
         data-split-type="lines"
         data-split-duration="0.6"
@@ -29,8 +29,7 @@
         <button
           v-for="category in categories"
           :key="category.slug"
-          class="lab__filter"
-          :class="{ 'lab__filter--active': selectedCategory === category.slug }"
+          :class="['lab__filter', typoClass('filter'), { 'lab__filter--active': selectedCategory === category.slug }]"
           @click="filterByCategory(category.slug)"
         >
           <span v-if="selectedCategory === category.slug" class="lab__filter-dot"></span>
@@ -40,14 +39,14 @@
 
       <div class="lab__title-group">
         <h1
-          class="lab__title"
+          :class="['lab__title', typoClass('pageTitle')]"
           data-split-text
           data-split-type="chars"
           data-split-duration="0.6"
           data-split-stagger="0.03"
           data-split-delay="0.3"
         >{{ $t('lab.title') }}</h1>
-        <span class="lab__count">({{ filteredLabs.length }})</span>
+        <span :class="['lab__count', typoClass('count')]">({{ filteredLabs.length }})</span>
       </div>
     </section>
 
@@ -62,13 +61,13 @@
         @mouseleave="onLabLeave"
       >
         <div class="lab-card__link" @click="onCardClick(lab, $event)">
-          <h2 class="lab-card__title">{{ lab.shortTitle || lab.title }}</h2>
-          <p class="lab-card__description">{{ lab.subtitle }}</p>
+          <h2 :class="['lab-card__title', typoClass('cardTitle')]">{{ lab.shortTitle || lab.title }}</h2>
+          <p :class="['lab-card__description', typoClass('cardDescription')]">{{ lab.subtitle }}</p>
           <ul class="lab-card__tags">
             <li
               v-for="cat in getLabCategoryNames(lab)"
               :key="cat.slug"
-              class="lab-card__tag"
+              :class="['lab-card__tag', typoClass('cardTag')]"
             >{{ cat.name }}</li>
           </ul>
           <figure class="lab-card__media">
@@ -83,7 +82,7 @@
 
       <!-- Empty State -->
       <div v-if="filteredLabs.length === 0" class="lab__empty">
-        <p class="lab__empty-text">{{ $t('lab.noResults') }}</p>
+        <p :class="['lab__empty-text', typoClass('emptyText')]">{{ $t('lab.noResults') }}</p>
         <button class="lab__empty-action" @click="filterByCategory('')">
           {{ $t('lab.viewAll') }}
         </button>
@@ -110,6 +109,25 @@ useSeo('singleton/lab-page', null, 'Go2Labs - Go2Digital')
 
 const { locale, t } = useI18n()
 
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  label: 'eyebrow',
+  intro: 'hero-heading',
+  filter: 'label-micro',
+  pageTitle: 'display-huge',
+  count: 'body-sm',
+  cardTitle: 'card-title',
+  cardDescription: 'body',
+  cardTag: 'body-sm',
+  emptyText: 'body',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['lab-list'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
+
 // Custom cursor ref
 const labCursor = ref<HTMLElement | null>(null)
 
@@ -126,7 +144,7 @@ const categories = computed(() => {
 
 // Fetch lab projects from API — re-fetches when category changes
 const categoryQuery = computed(() => {
-  const query: Record<string, any> = { status: 'published', itemsPerPage: 50 }
+  const query: Record<string, any> = { status: 'published', itemsPerPage: 200 }
   if (selectedCategory.value) {
     query['categories.slug'] = selectedCategory.value
   }
@@ -325,7 +343,6 @@ $grid-padding-mobile: 1rem;
     display: flex;
     align-items: flex-start;
     gap: 0.25rem;
-    font-size: 0.75rem;
     text-transform: capitalize;
 
     @include mobile {
@@ -350,21 +367,7 @@ $grid-padding-mobile: 1rem;
   // ==========================================================================
   &__intro {
     grid-column: 4 / -1;
-    font-size: 3.125rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.0625rem;
     margin: 0;
-
-    @include tablet {
-      font-size: 2rem;
-    }
-
-    @include mobile {
-      font-size: 1.375rem;
-      line-height: 1.2;
-      letter-spacing: -0.0425rem;
-    }
   }
 
   // ==========================================================================
@@ -414,8 +417,6 @@ $grid-padding-mobile: 1rem;
     padding: 0.625rem 1.25rem;
     border: 1px solid $color-border;
     border-radius: 999px;
-    font-size: 0.75rem;
-    line-height: 1.3;
     font-family: inherit;
     color: $color-primary;
     background: transparent;
@@ -471,22 +472,7 @@ $grid-padding-mobile: 1rem;
   // ==========================================================================
   &__title {
     display: flex;
-    font-size: 17.5rem;
-    font-weight: 400;
-    line-height: 0.8;
-    letter-spacing: -1.05rem;
     margin: 0;
-
-    @include tablet {
-      font-size: 10rem;
-      letter-spacing: -0.5rem;
-    }
-
-    @include mobile {
-      font-size: 3.125rem;
-      letter-spacing: -0.0625rem;
-      line-height: 1;
-    }
   }
 
   // ==========================================================================
@@ -494,8 +480,6 @@ $grid-padding-mobile: 1rem;
   // ==========================================================================
   &__count {
     margin-bottom: auto;
-    font-size: 1rem;
-    line-height: 1.3;
   }
 
   // ==========================================================================
@@ -515,7 +499,6 @@ $grid-padding-mobile: 1rem;
   }
 
   &__empty-text {
-    font-size: 1rem;
     color: $color-muted;
     margin: 0 0 1.25rem;
   }
@@ -578,10 +561,6 @@ $grid-padding-mobile: 1rem;
   // Element: Title
   // ==========================================================================
   &__title {
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.0425rem;
     margin: 0;
 
     @include mobile {
@@ -594,8 +573,6 @@ $grid-padding-mobile: 1rem;
   // Element: Description
   // ==========================================================================
   &__description {
-    font-size: 1rem;
-    line-height: 1.3;
     color: $color-muted;
     margin: 0;
 
@@ -627,12 +604,7 @@ $grid-padding-mobile: 1rem;
   // Element: Tag
   // ==========================================================================
   &__tag {
-    font-size: 1rem;
-    line-height: 1.3;
-
-    @include mobile {
-      font-size: 0.75rem;
-    }
+    // typography provided via preset
   }
 
   // ==========================================================================

@@ -4,7 +4,7 @@
     <section class="esg-page__hero">
       <div class="esg-page__hero-title">
         <h1
-          class="esg-page__display-title"
+          :class="['esg-page__display-title', typoClass('displayTitle')]"
           data-split-text
           data-split-type="chars"
           data-split-duration="0.6"
@@ -14,7 +14,7 @@
       <div class="esg-page__hero-label">
         <span class="esg-page__bullet"></span>
         <span
-          class="esg-page__label-text"
+          :class="['esg-page__label-text', typoClass('label')]"
           data-split-text
           data-split-type="lines"
           data-split-duration="0.4"
@@ -29,7 +29,7 @@
       <div class="esg-page__intro-grid">
         <div class="esg-page__intro-left">
           <p
-            class="esg-page__intro-small"
+            :class="['esg-page__intro-small', typoClass('introSmall')]"
             data-split-text
             data-split-type="lines"
             data-split-duration="0.5"
@@ -38,7 +38,7 @@
         </div>
         <div class="esg-page__intro-right">
           <p
-            class="esg-page__intro-large"
+            :class="['esg-page__intro-large', typoClass('introLarge')]"
             data-split-text
             data-split-type="lines"
             data-split-duration="0.6"
@@ -47,7 +47,7 @@
           >{{ esgContent?.introLarge ?? $t('esg.intro.large') }}</p>
 
           <div class="esg-page__download-btn">
-            <a href="#" class="esg-page__action-link">
+            <a href="#" :class="['esg-page__action-link', typoClass('actionLink')]">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.5 12.5V15.8333C17.5 16.2754 17.3244 16.6993 17.0118 17.0118C16.6993 17.3244 16.2754 17.5 15.8333 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M5.83203 8.33334L9.9987 12.5L14.1654 8.33334" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -67,9 +67,9 @@
         :key="pillar.id"
         class="esg-page__pillar"
       >
-        <div class="esg-page__pillar-number">{{ String(index + 1).padStart(2, '0') }}</div>
-        <div class="esg-page__pillar-title">{{ pillar.title }}</div>
-        <div class="esg-page__pillar-desc">{{ pillar.description }}</div>
+        <div :class="['esg-page__pillar-number', typoClass('pillarNumber')]">{{ String(index + 1).padStart(2, '0') }}</div>
+        <div :class="['esg-page__pillar-title', typoClass('pillarTitle')]">{{ pillar.title }}</div>
+        <div :class="['esg-page__pillar-desc', typoClass('pillarDesc')]">{{ pillar.description }}</div>
       </div>
     </section>
 
@@ -107,7 +107,7 @@
               <path d="M22.9332 14.0503L20.8563 5.05028C20.6468 4.14282 19.8388 3.5 18.9075 3.5H6.0895C5.15819 3.5 4.35014 4.14282 4.14072 5.05028L2.0638 14.0503C1.77459 15.3035 2.72641 16.5 4.01258 16.5H20.9844C22.2706 16.5 23.2224 15.3035 22.9332 14.0503Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ esgCards?.[0]?.text ?? $t('esg.cards.card1') }}</p>
+          <p :class="['esg-page__card-text', typoClass('cardText')]">{{ esgCards?.[0]?.text ?? $t('esg.cards.card1') }}</p>
         </div>
 
         <div ref="card2" class="esg-page__card">
@@ -117,7 +117,7 @@
               <path d="M10.5 22.5C12.2072 22.5 13.8977 22.1637 15.4749 21.5104C17.0521 20.8571 18.4852 19.8996 19.6924 18.6924C20.8996 17.4852 21.8571 16.0521 22.5104 14.4749C23.1637 12.8977 23.5 11.2072 23.5 9.5V2.5C20.0522 2.5 16.7456 3.86964 14.3076 6.30761C11.8696 8.74558 10.5 12.0522 10.5 15.5V22.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ esgCards?.[1]?.text ?? $t('esg.cards.card2') }}</p>
+          <p :class="['esg-page__card-text', typoClass('cardText')]">{{ esgCards?.[1]?.text ?? $t('esg.cards.card2') }}</p>
         </div>
 
         <div ref="card3" class="esg-page__card">
@@ -127,7 +127,7 @@
               <path d="M15.5 7.5H22.5V14.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="esg-page__card-text">{{ esgCards?.[2]?.text ?? $t('esg.cards.card3') }}</p>
+          <p :class="['esg-page__card-text', typoClass('cardText')]">{{ esgCards?.[2]?.text ?? $t('esg.cards.card3') }}</p>
         </div>
       </div>
     </section>
@@ -135,10 +135,10 @@
     <!-- Vision Section -->
     <section ref="visionSection" class="esg-page__vision">
       <div class="esg-page__vision-header">
-        <h2 class="esg-page__vision-title">{{ $t('esg.vision.title') }}</h2><!-- vision title stays in i18n -->
+        <h2 :class="['esg-page__vision-title', typoClass('visionTitle')]">{{ $t('esg.vision.title') }}</h2><!-- vision title stays in i18n -->
         <div class="esg-page__vision-label">
           <span class="esg-page__bullet"></span>
-          <span class="esg-page__label-text">{{ $t('esg.vision.label') }}</span>
+          <span :class="['esg-page__label-text', typoClass('label')]">{{ $t('esg.vision.label') }}</span>
         </div>
       </div>
 
@@ -146,23 +146,23 @@
         <div class="esg-page__vision-diagram">
           <div ref="diagramCircle" class="esg-page__diagram-circle">
             <div class="esg-page__diagram-marker esg-page__diagram-marker--1">
-              <span ref="badge1" class="esg-page__diagram-badge">001</span>
+              <span ref="badge1" :class="['esg-page__diagram-badge', typoClass('diagramBadge')]">001</span>
             </div>
             <div class="esg-page__diagram-marker esg-page__diagram-marker--2">
-              <span ref="badge2" class="esg-page__diagram-badge esg-page__diagram-badge--dim">002</span>
+              <span ref="badge2" :class="['esg-page__diagram-badge', 'esg-page__diagram-badge--dim', typoClass('diagramBadge')]">002</span>
             </div>
             <div class="esg-page__diagram-marker esg-page__diagram-marker--3">
-              <span ref="badge3" class="esg-page__diagram-badge esg-page__diagram-badge--dim">003</span>
+              <span ref="badge3" :class="['esg-page__diagram-badge', 'esg-page__diagram-badge--dim', typoClass('diagramBadge')]">003</span>
             </div>
 
             <div class="esg-page__diagram-info">
-              <h3 ref="diagramTitle" class="esg-page__diagram-title">{{ badgeContent[1].title }}</h3>
-              <p ref="diagramDesc" class="esg-page__diagram-desc">{{ badgeContent[1].desc }}</p>
+              <h3 ref="diagramTitle" :class="['esg-page__diagram-title', typoClass('diagramTitle')]">{{ badgeContent[1].title }}</h3>
+              <p ref="diagramDesc" :class="['esg-page__diagram-desc', typoClass('diagramDesc')]">{{ badgeContent[1].desc }}</p>
             </div>
           </div>
         </div>
 
-        <p class="esg-page__scroll-hint">{{ $t('esg.vision.scrollHint') }}</p>
+        <p :class="['esg-page__scroll-hint', typoClass('scrollHint')]">{{ $t('esg.vision.scrollHint') }}</p>
       </div>
     </section>
   </div>
@@ -177,6 +177,30 @@ import type { EsgPageContent, EsgPillar, EsgCard, EsgVisionBadge } from '~/types
 gsap.registerPlugin(ScrollTrigger)
 
 useSeo('singleton/esg-page', null, 'ESG - Go2Digital')
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  displayTitle: 'display-huge',
+  label: 'eyebrow',
+  introSmall: 'body',
+  introLarge: 'body-lg',
+  actionLink: 'body',
+  pillarNumber: 'number-responsive',
+  pillarTitle: 'section-title',
+  pillarDesc: 'body',
+  cardText: 'body',
+  visionTitle: 'section-title',
+  diagramBadge: 'label-micro',
+  diagramTitle: 'body',
+  diagramDesc: 'body-sm',
+  scrollHint: 'eyebrow-tight',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['esg'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 // Fetch ESG data from API
 const { data: esgContent } = await useApi<EsgPageContent>('/api/singletons/esg-page-content')
@@ -562,9 +586,6 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__label-text {
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 0.9;
     color: $esg-color-accent;
   }
 
@@ -588,22 +609,8 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__display-title {
-    font-size: 8.75rem;
-    font-weight: 400;
-    line-height: 0.8;
-    letter-spacing: -0.06em;
     color: $esg-color-accent;
     margin: 0;
-
-    @include from-wide {
-      font-size: 17.5rem;
-    }
-
-    @include mobile {
-      font-size: 5.375rem;
-      line-height: 0.85;
-      letter-spacing: -0.03em;
-    }
   }
 
   &__hero-label {
@@ -647,34 +654,17 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__intro-small {
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     margin: 0;
 
     @include mobile {
-      font-size: 0.875rem;
       opacity: 0.6;
     }
   }
 
   &__intro-large {
-    font-size: 1.75rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.02em;
     color: $esg-color-accent;
     margin: 0;
-
-    @include from-wide {
-      font-size: 3.125rem;
-    }
-
-    @include mobile {
-      font-size: 1.375rem;
-      line-height: 1.1;
-    }
   }
 
   &__download-btn {
@@ -689,9 +679,6 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
     display: inline-flex;
     align-items: center;
     gap: 0.625rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     text-decoration: none;
     padding-bottom: 0.25rem;
@@ -704,10 +691,6 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
 
     svg {
       flex-shrink: 0;
-    }
-
-    @include mobile {
-      font-size: 0.875rem;
     }
   }
 
@@ -734,53 +717,22 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
 
   &__pillar-number {
     grid-column: 1 / 2;
-    font-size: 1.5rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
     color: $esg-color-accent;
-
-    @include from-wide {
-      font-size: 2rem;
-    }
-
-    @include mobile {
-      font-size: 1.125rem;
-    }
   }
 
   &__pillar-title {
     grid-column: 3 / 6;
-    font-size: 1.5rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.02em;
     color: $esg-color-accent;
-
-    @include from-wide {
-      font-size: 2rem;
-    }
-
-    @include mobile {
-      font-size: 1.25rem;
-    }
   }
 
   &__pillar-desc {
     grid-column: 8 / 12;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     opacity: 0.4;
 
     @include from-wide {
       max-width: 29rem;
       margin-left: auto;
-    }
-
-    @include mobile {
-      font-size: 0.875rem;
     }
   }
 
@@ -938,14 +890,10 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__card-text {
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: #FAFAFA;
     margin: 0;
 
     @include mobile {
-      font-size: 0.875rem;
       color: $esg-color-accent;
     }
   }
@@ -985,20 +933,11 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__vision-title {
-    font-size: 2rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.02em;
     color: $esg-color-accent;
     margin: 0;
     max-width: 28.5rem;
 
-    @include from-wide {
-      font-size: 3.125rem;
-    }
-
     @include mobile {
-      font-size: 1.5rem;
       max-width: 100%;
     }
   }
@@ -1089,9 +1028,6 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
     padding: 0.25rem 0.5rem;
     background-color: $esg-color-accent;
     border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-background;
     transition: opacity 0.3s ease, transform 0.3s ease;
 
@@ -1105,7 +1041,6 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
     }
 
     @include mobile {
-      font-size: 0.625rem;
       padding: 0.1875rem 0.375rem;
     }
   }
@@ -1121,40 +1056,26 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
   }
 
   &__diagram-title {
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     margin: 0 0 1.25rem 0;
     transition: opacity 0.2s ease;
 
     @include mobile {
-      font-size: 0.875rem;
       margin: 0 0 0.75rem 0;
     }
   }
 
   &__diagram-desc {
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     opacity: 0.4;
     margin: 0;
     transition: opacity 0.2s ease;
-
-    @include mobile {
-      font-size: 0.75rem;
-    }
   }
 
   &__scroll-hint {
     position: absolute;
     left: 0;
     top: 50%;
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $esg-color-accent;
     text-transform: capitalize;
 

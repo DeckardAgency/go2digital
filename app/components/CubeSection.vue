@@ -5,12 +5,12 @@
         <!-- Header -->
         <div class="cube-section__header">
           <h2
-            class="cube-section__title"
+            :class="['cube-section__title', typoClass('title')]"
           >{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</h2>
-          <span class="cube-section__number" aria-hidden="true">1</span>
+          <span :class="['cube-section__number', typoClass('number')]" aria-hidden="true">1</span>
           <div class="cube-section__badge">
             <span class="cube-section__badge-dot" aria-hidden="true"></span>
-            <span class="cube-section__badge-text">{{ cubeProduct?.badge ?? $t('homepage.cube.badge') }}</span>
+            <span :class="['cube-section__badge-text', typoClass('badge')]">{{ cubeProduct?.badge ?? $t('homepage.cube.badge') }}</span>
           </div>
         </div>
 
@@ -31,11 +31,11 @@
 
         <!-- Specifications -->
         <div class="cube-section__specs">
-          <h3 class="cube-section__specs-title">{{ cubeProduct?.specsTitle ?? $t('homepage.cube.specsTitle') }}</h3>
+          <h3 :class="['cube-section__specs-title', typoClass('specsTitle')]">{{ cubeProduct?.specsTitle ?? $t('homepage.cube.specsTitle') }}</h3>
           <dl class="cube-section__specs-list">
             <div v-for="(spec, i) in specs" :key="spec.label || i" class="cube-section__spec-item">
-              <dt class="cube-section__spec-label">{{ spec.label }}</dt>
-              <dd class="cube-section__spec-value">{{ spec.value }}</dd>
+              <dt :class="['cube-section__spec-label', typoClass('specLabel')]">{{ spec.label }}</dt>
+              <dd :class="['cube-section__spec-value', typoClass('specValue')]">{{ spec.value }}</dd>
             </div>
           </dl>
         </div>
@@ -47,10 +47,10 @@
   <section class="cube-description">
     <div class="cube-description__indicator">
       <span class="cube-description__indicator-dot" aria-hidden="true"></span>
-      <span class="cube-description__indicator-text">{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</span>
+      <span :class="['cube-description__indicator-text', typoClass('descIndicator')]">{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</span>
     </div>
     <header class="cube-description__header">
-      <h2 class="cube-description__title">{{ cubeProduct?.description ?? $t('homepage.cube.description') }}</h2>
+      <h2 :class="['cube-description__title', typoClass('descTitle')]">{{ cubeProduct?.description ?? $t('homepage.cube.description') }}</h2>
     </header>
   </section>
 
@@ -73,6 +73,24 @@ const { tm, rt } = useI18n()
 
 const { data: cubeProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=cube', { lazy: true, server: false })
 const cubeProduct = computed(() => cubeProducts.value?.[0] ?? null)
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  title: 'cube-title',
+  number: 'cube-number',
+  badge: 'eyebrow-tight',
+  specsTitle: 'card-title',
+  specLabel: 'body-sm',
+  specValue: 'body-sm',
+  descIndicator: 'eyebrow-tight',
+  descTitle: 'display-md',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['products'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 // Fetch all product features and filter by product IRI
 const { data: allCubeFeatures } = useApi<any>('/api/homepage_product_features', { lazy: true, server: false })
@@ -250,25 +268,16 @@ $cube-bg: #FAFAFA;
 
   &__title {
     grid-column: 1 / 7;
-    font-size: 5.375rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.16rem;
     color: $color-primary;
     margin: 0;
     white-space: pre-line;
-    @include desktop { font-size: 4rem; }
-    @include mobile { grid-column: 1 / 11; order: 3; font-size: 3.125rem; }
+    @include mobile { grid-column: 1 / 11; order: 3; }
   }
 
   &__number {
     grid-column: 8 / 9;
-    font-size: 12.0625rem;
-    font-weight: 400;
-    line-height: 1;
     color: $color-primary;
-    @include desktop { font-size: 8rem; }
-    @include mobile { grid-column: 12 / 13; order: 2; font-size: 5.375rem; }
+    @include mobile { grid-column: 12 / 13; order: 2; }
   }
 
   &__badge {
@@ -282,7 +291,7 @@ $cube-bg: #FAFAFA;
   }
 
   &__badge-dot { width: 0.375rem; height: 0.375rem; background-color: $color-primary; border-radius: 50%; }
-  &__badge-text { font-size: $font-size-sm; line-height: 0.9; color: $color-primary; }
+  &__badge-text { color: $color-primary; }
 
   &__visual {
     grid-column: 1 / 7;
@@ -337,10 +346,6 @@ $cube-bg: #FAFAFA;
   }
 
   &__specs-title {
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.04rem;
     color: $color-primary;
     margin: 0 0 $spacing-md;
   }
@@ -355,8 +360,8 @@ $cube-bg: #FAFAFA;
     border-bottom: 1px solid $color-border;
   }
 
-  &__spec-label { font-size: $font-size-base; line-height: 1.3; color: $color-primary; }
-  &__spec-value { font-size: $font-size-base; line-height: 1.3; color: $color-muted; margin: 0; text-align: right; }
+  &__spec-label { color: $color-primary; }
+  &__spec-value { color: $color-muted; margin: 0; text-align: right; }
 }
 
 // #1: Accessibility — reduced motion
@@ -389,7 +394,7 @@ $cube-bg: #FAFAFA;
     @include mobile { grid-column: 1 / -1; }
 
     &-dot { width: 0.5rem; height: 0.5rem; background-color: $color-primary; border-radius: 50%; margin-top: 0.1rem; margin-right: 0.5rem; flex-shrink: 0; }
-    &-text { font-size: $font-size-sm; font-weight: 400; line-height: 0.9; color: $color-primary; text-transform: uppercase; }
+    &-text { color: $color-primary; text-transform: uppercase; }
   }
 
   &__header {
@@ -401,17 +406,13 @@ $cube-bg: #FAFAFA;
   }
 
   &__title {
-    font-size: 3.125rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.0625rem;
     color: $color-primary;
     text-indent: 20rem;
     margin: 0;
 
-    @include desktop { font-size: 2.5rem; text-indent: 12rem; }
-    @include tablet { font-size: 2rem; text-indent: 6rem; }
-    @include mobile { font-size: 1.5rem; text-indent: 0; }
+    @include desktop { text-indent: 12rem; }
+    @include tablet { text-indent: 6rem; }
+    @include mobile { text-indent: 0; }
   }
 }
 </style>

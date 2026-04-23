@@ -4,7 +4,7 @@
       <img v-if="rentalsImageSrc" :src="rentalsImageSrc" alt="" class="rentals-image__bg" ref="imgRef" />
       <div v-else class="rentals-image__placeholder" ref="imgRef"></div>
       <div class="rentals-image__overlay">
-        <span class="rentals-image__text" ref="textRef">{{ rentalsImage?.text ?? 'RENTALS' }}</span>
+        <span :class="['rentals-image__text', typoClass('text')]" ref="textRef">{{ rentalsImage?.text ?? 'RENTALS' }}</span>
       </div>
     </div>
   </section>
@@ -20,6 +20,15 @@ import { resolveMediaUrl } from '~/utils/media'
 gsap.registerPlugin(ScrollTrigger)
 
 const { data: rentalsImage } = useApi<HomepageRentalsImage>('/api/singletons/homepage-rentals-image', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  text: 'display-outline',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (rentalsImage.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 
 const rentalsImageSrc = computed(() => resolveMediaUrl((rentalsImage.value as any)?.image, 'large'))
 
@@ -100,9 +109,6 @@ onUnmounted(() => {
   }
 
   &__text {
-    font-size: clamp(4rem, 15vw, 15rem);
-    font-weight: 400;
-    letter-spacing: -0.04em;
     color: transparent;
     -webkit-text-stroke: 2px rgba(#FAFAFA, 0.6);
     text-transform: uppercase;

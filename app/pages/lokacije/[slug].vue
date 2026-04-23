@@ -901,11 +901,13 @@ definePageMeta({
 }
 
 .location-detail__title {
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  // old .location-show__title: 3.125rem/400/1/-0.0625rem (mobile 1.75rem/1.1)
+  font-size: clamp(1.75rem, 4vw, 3.125rem);
   font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  line-height: 1;
+  letter-spacing: -0.0625rem;
   margin: 0;
+  @include tablet { line-height: 1.1; }
 }
 
 .location-detail__specs {
@@ -918,14 +920,16 @@ definePageMeta({
 
 .location-detail__spec-label {
   display: block;
-  font-size: $font-size-sm;
+  font-size: 0.875rem;              // old .location-hero__detail-label: 0.875rem
+  font-weight: 400;
+  letter-spacing: 0.01875rem;
   color: $color-muted;
   margin-bottom: $spacing-xs;
 }
 
 .location-detail__spec-value {
   display: block;
-  font-size: $font-size-base;
+  font-size: 1rem;                  // old .location-hero__detail-value: 1rem
   font-weight: 500;
 }
 
@@ -947,11 +951,13 @@ definePageMeta({
   padding: 0;
   border: none;
   background: none;
-  font-size: $font-size-sm;
+  font-size: 0.875rem;              // old .location-hero__action-btn: 0.875rem
+  font-weight: 500;
   font-family: inherit;
   color: $color-primary;
   cursor: pointer;
   transition: opacity $transition-base;
+  @include tablet { font-size: 0.8125rem; }
   &:hover { opacity: 0.6; }
 
   input[type="checkbox"] {
@@ -982,16 +988,22 @@ definePageMeta({
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  font-size: $font-size-sm;
+  font-size: 0.75rem;               // old .location-info__about-title: 0.75rem/400 capitalize
+  font-weight: 400;
+  line-height: 0.975rem;
+  text-transform: capitalize;
   color: $color-muted;
   align-self: start;
 }
 
 .location-detail__about-text {
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  line-height: 1.6;
+  // old .location-info__about-description: 2.125rem/400/2.3375rem  (tablet 1.125rem)
+  font-size: clamp(1.125rem, 3vw, 2.125rem);
+  line-height: 1.1;
+  letter-spacing: -0.02125rem;
   font-weight: 400;
   margin: 0;
+  @include tablet { font-size: 1.125rem; }
 }
 
 // Dot indicator
@@ -1032,11 +1044,12 @@ definePageMeta({
 
 .location-detail__map-label {
   display: block;
-  font-size: $font-size-base;
-  font-weight: 400;
+  font-size: 0.8125rem;             // old .location-info__map-label: 0.8125rem/500 (mobile 0.75rem)
+  font-weight: 500;
   color: $color-primary;
   padding: 0 $spacing-2xl $spacing-md;
   @include tablet { padding: 0 $spacing-lg $spacing-sm; }
+  @include mobile { font-size: 0.75rem; }
 }
 
 .location-detail__map-container {
@@ -1131,7 +1144,8 @@ definePageMeta({
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  font-size: $font-size-sm;
+  font-size: 0.875rem;              // old .gallery__label: 0.875rem/500
+  font-weight: 500;
   white-space: nowrap;
   color: $color-primary;
 }
@@ -1158,7 +1172,9 @@ definePageMeta({
 }
 
 .location-detail__gallery-counter {
-  font-size: $font-size-sm;
+  font-size: 0.75rem;               // old .location-show__gallery-counter: 0.75rem/400/1.3
+  font-weight: 400;
+  line-height: 1.3;
   color: $color-muted;
   min-width: 1.5rem;
   text-align: right;
@@ -1179,23 +1195,26 @@ definePageMeta({
 }
 
 .location-detail__stats-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 400;
-  line-height: 1.1;
+  // old .location-statistics__title: 2.625rem/300 (tablet 2rem)
+  font-size: clamp(2rem, 4vw, 2.625rem);
+  font-weight: 300;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   margin: 0;
+  @include tablet { font-size: 2rem; }
 }
 
 .location-detail__stats-period {
-  font-size: $font-size-base;
+  font-size: 1rem;                  // old: 1rem/400
   color: $color-muted;
   vertical-align: super;
   font-weight: 400;
 }
 
 .location-detail__stats-type {
-  font-size: $font-size-base;
+  font-size: 0.875rem;              // old .location-statistics__metric-label: 0.875rem/500 capitalize
   font-weight: 500;
+  text-transform: capitalize;
   color: $color-primary;
   flex-shrink: 0;
 }
@@ -1237,23 +1256,29 @@ definePageMeta({
   display: flex;
   align-items: center;
   gap: $spacing-sm;
-  font-size: $font-size-sm;
+  font-size: 0.75rem;               // old .location-show__stat-label: 0.75rem/400/0.9 capitalize
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: capitalize;
   color: $color-muted;
   padding-top: 0.25rem;
 }
 
 .location-detail__stat-value {
-  font-size: clamp(3rem, 7vw, 5.5rem);
+  // old .location-show__stat-value: 7.875rem/400/0.8/-0.315rem (mobile 5rem/-0.2rem)
+  font-size: clamp(5rem, 10vw, 7.875rem);
   font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.03em;
+  line-height: 0.8;
+  letter-spacing: -0.315rem;
   color: $color-primary;
+  @include mobile { font-size: 5rem; letter-spacing: -0.2rem; }
 }
 
 .location-detail__stat-desc {
-  font-size: $font-size-base;
+  font-size: 1rem;                  // old .location-show__stat-desc: 1rem/400/1.3
+  font-weight: 400;
+  line-height: 1.3;
   color: $color-muted;
-  line-height: 1.6;
   max-width: 300px;
 
   @include tablet { max-width: 100%; }
@@ -1266,15 +1291,17 @@ definePageMeta({
 }
 
 .location-detail__nearby-title {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 400;
-  line-height: 1.1;
+  // old .nearby-locations__title: 2.625rem/300 (tablet 2rem)
+  font-size: clamp(2rem, 4vw, 2.625rem);
+  font-weight: 300;
+  line-height: 1.2;
   letter-spacing: -0.02em;
   margin: 0 0 2rem;
+  @include tablet { font-size: 2rem; }
 }
 
 .location-detail__nearby-count {
-  font-size: $font-size-base;
+  font-size: 1rem;                  // old .nearby-locations__count: 1rem/400
   color: $color-muted;
   vertical-align: super;
   font-weight: 400;
@@ -1318,13 +1345,17 @@ definePageMeta({
 }
 
 .location-detail__nearby-city {
-  font-size: $font-size-xs;
+  font-size: 0.75rem;               // old .location-show__nearby-city: 0.75rem/400/1.3 capitalize
+  font-weight: 400;
+  line-height: 1.3;
+  text-transform: capitalize;
   color: $color-muted;
 }
 
 .location-detail__nearby-name {
-  font-size: $font-size-base;
+  font-size: 1rem;                  // old .location-show__nearby-name: 1rem/400/1.3
   font-weight: 400;
+  line-height: 1.3;
   color: $color-primary;
 }
 
@@ -1338,7 +1369,9 @@ definePageMeta({
   background: $color-primary;
   color: #fff;
   border-radius: $radius-full;
-  font-size: $font-size-sm;
+  font-size: 0.875rem;              // old .location-show-toast: 0.875rem/400/1.3
+  font-weight: 400;
+  line-height: 1.3;
   font-family: $font-family;
   z-index: 10010;
   white-space: nowrap;

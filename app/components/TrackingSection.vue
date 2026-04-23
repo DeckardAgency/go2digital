@@ -2,7 +2,7 @@
   <section class="tracking-section">
     <div class="tracking-section__header">
       <h2
-        class="tracking-section__title"
+        :class="['tracking-section__title', typoClass('title')]"
       >{{ trackingTitle }}</h2>
       <div class="tracking-section__cta">
         <BtnAnimated
@@ -20,9 +20,9 @@
         :key="feature.title || i"
         class="tracking-section__item"
       >
-        <span class="tracking-section__number" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
-        <h3 class="tracking-section__feature">{{ feature.title }}</h3>
-        <p class="tracking-section__description">{{ feature.description }}</p>
+        <span :class="['tracking-section__number', typoClass('number')]" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
+        <h3 :class="['tracking-section__feature', typoClass('feature')]">{{ feature.title }}</h3>
+        <p :class="['tracking-section__description', typoClass('description')]">{{ feature.description }}</p>
       </li>
     </ol>
   </section>
@@ -34,6 +34,20 @@ import type { HomepageTrackingFeature } from '~/types/api'
 const { tm, rt, t, locale } = useI18n()
 
 const { data: trackingFeatures } = useApi<HomepageTrackingFeature[]>('/api/homepage_tracking_features', { lazy: true, server: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  title: 'tracking-title',
+  number: 'number-lg',
+  feature: 'feature-title',
+  description: 'body',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['tracking'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 // Fetch settings for title, buttonText, buttonUrl
 const { data: settingsData } = useApi<any[]>('/api/settings?group=homepage', { lazy: true, server: false })
@@ -100,10 +114,6 @@ $tracking-border-color: #293331;
 
   &__title {
     grid-column: 1 / 6;
-    font-size: clamp(1.5rem, 3vw, 3.125rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.0625rem;
     color: $tracking-text-color;
     margin: 0;
     @include tablet { grid-column: 1 / 8; }
@@ -139,27 +149,20 @@ $tracking-border-color: #293331;
   // #10: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__number {
     grid-column: 1 / 2;
-    font-size: $font-size-lg;
     color: rgba($tracking-text-color, 0.6);
     @include mobile { grid-column: 1 / 3; }
   }
 
   &__feature {
     grid-column: 2 / 6;
-    font-size: $font-size-xl;
-    font-weight: 400;
-    line-height: 1.3;
     color: $tracking-text-color;
     margin: 0;
-    @include mobile { grid-column: 3 / -1; font-size: $font-size-lg; }
+    @include mobile { grid-column: 3 / -1; }
   }
 
   // #7: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__description {
     grid-column: 6 / 10;
-    font-size: $font-size-md;
-    font-weight: 400;
-    line-height: 1.4;
     color: rgba($tracking-text-color, 0.6);
     margin: 0;
     @include mobile { grid-column: 3 / -1; }

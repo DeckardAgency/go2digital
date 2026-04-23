@@ -189,7 +189,7 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
           lines.push(currentLine)
           currentLine = []
         }
-        currentLine.push(words[i])
+        if (words[i] !== undefined) currentLine.push(words[i])
         lastTop = rect.top
       })
       if (currentLine.length) lines.push(currentLine)
@@ -231,6 +231,7 @@ function splitText(element: HTMLElement, type: 'lines' | 'words' | 'chars', inde
 export const useSplitText = () => {
   const processedElements = new WeakSet<HTMLElement>()
   const animatedElements = new WeakSet<HTMLElement>()
+  const mutationObservers = new Map<HTMLElement, MutationObserver>()
   let observer: IntersectionObserver | null = null
 
   const initSplitText = (container?: HTMLElement | Document) => {
@@ -273,6 +274,46 @@ export const useSplitText = () => {
       // Store references
       ;(element as any)._splitElements = splitElements
       ;(element as any)._splitOptions = options
+      ;(element as any)._splitOriginalText = element.getAttribute('aria-label') || ''
+
+      // Watch for text content changes (e.g. Vue reactivity updating after API data arrives)
+      if (!mutationObservers.has(element)) {
+        const mo = new MutationObserver(() => {
+          // Extract current text from split-line divs
+          const currentText = Array.from(element.querySelectorAll('.split-line, .split-word, .split-char'))
+            .map(el => el.textContent).join(' ').trim()
+          // Also check direct text nodes (Vue may inject text outside split divs)
+          const directText = Array.from(element.childNodes)
+            .filter(n => n.nodeType === 3 && n.textContent?.trim())
+            .map(n => n.textContent?.trim()).join(' ')
+
+          const prevText = (element as any)._splitOriginalText || ''
+          const newText = directText || ''
+
+          // If Vue injected new text content (direct text nodes exist alongside split divs)
+          if (directText && directText !== prevText) {
+            mo.disconnect()
+            // Re-split with new text
+            element.classList.remove('split-text-ready')
+            element.textContent = directText
+            const newSplitElements = splitText(element, options.type, options.indent)
+            ;(element as any)._splitElements = newSplitElements
+            ;(element as any)._splitOriginalText = directText
+
+            if (animatedElements.has(element)) {
+              // Already animated — show immediately
+              gsap.set(newSplitElements, { clipPath: 'inset(0 0 0% 0)', y: 0 })
+            } else {
+              gsap.set(newSplitElements, { clipPath: 'inset(0 0 100% 0)', y: options.y })
+            }
+
+            // Re-observe for future changes
+            mo.observe(element, { childList: true, characterData: true, subtree: true })
+          }
+        })
+        mo.observe(element, { childList: true, characterData: true, subtree: true })
+        mutationObservers.set(element, mo)
+      }
 
       // Trigger animation
       if (options.trigger === 'load') {
@@ -316,6 +357,8 @@ export const useSplitText = () => {
   const destroy = () => {
     observer?.disconnect()
     observer = null
+    mutationObservers.forEach(mo => mo.disconnect())
+    mutationObservers.clear()
   }
 
   // Get split elements from a parent element

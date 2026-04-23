@@ -27,6 +27,11 @@
 }
 
 html {
+  // Fluid root font-size — mirrors old site (assets/styles/base/_base.scss:7).
+  // Scales from 16px at 1440px to 24px at ~2900px, then caps.
+  // All rem-based values site-wide scale proportionally with viewport width.
+  font-size: clamp(1rem, 0.5rem + 0.55vw, 1.5rem);
+
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
@@ -77,26 +82,53 @@ html.lenis body {
   pointer-events: none;
 }
 
-// Base Styles
+// Base Styles (typography mirrors old site exactly)
+// Source: go2digital/assets/styles/base/_typography.scss + abstracts/_mixins.scss (heading-style, body-text)
+// Old site defines h1–h3 only with sizes (responsive); h4–h6 inherit browser defaults.
 // --------------------------------------------------------------------------
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-family);
-  line-height: 1.6;
+  font-family: $font-family-primary;
+  font-weight: $font-weight-regular;
   color: var(--color-text);
   background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+// Heading defaults per old `_mixins.scss` @mixin heading-style
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  line-height: 1.2;
+  font-family: $font-family-primary;
+  font-weight: $font-weight-regular;           // old heading-style: regular 400
+  line-height: $line-height-old-snug;          // old: 1.2
+  letter-spacing: $letter-spacing-tight;       // old: -0.025em
 }
 
+// h1 responsive scale — old _typography.scss lines 3–13
+h1 {
+  font-size: $font-size-old-4xl;               // 2.5rem  (base)
+  @media (min-width: 768px) { font-size: $font-size-old-5xl; }   // 3rem (md)
+  @media (min-width: 1024px) { font-size: $font-size-old-6xl; }  // 3.75rem (lg)
+}
+
+// h2 responsive scale — old _typography.scss lines 15–21
+h2 {
+  font-size: $font-size-old-2xl;               // 1.5rem (base)
+  @media (min-width: 768px) { font-size: $font-size-old-3xl; }   // 2rem (md)
+}
+
+// h3 responsive scale — old _typography.scss lines 23–29
+h3 {
+  font-size: $font-size-old-xl;                // 1.25rem (base)
+  @media (min-width: 768px) { font-size: $font-size-old-2xl; }   // 1.5rem (md)
+}
+
+// p — old _typography.scss: @include body-text (line-height: 1.6)
 p {
   margin: 0;
+  line-height: $line-height-old-loose;         // 1.6
 }
 
 ul, ol {

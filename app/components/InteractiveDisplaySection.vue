@@ -5,12 +5,12 @@
         <!-- Header -->
         <div class="interactive-display__header">
           <h2
-            class="interactive-display__title"
+            :class="['interactive-display__title', typoClass('title')]"
           >{{ displayProduct?.title ?? $t('homepage.interactiveDisplay.title') }}</h2>
-          <span class="interactive-display__number" aria-hidden="true">2</span>
+          <span :class="['interactive-display__number', typoClass('number')]" aria-hidden="true">2</span>
           <div class="interactive-display__badge">
             <span class="interactive-display__badge-dot" aria-hidden="true"></span>
-            <span class="interactive-display__badge-text">{{ displayProduct?.badge ?? $t('homepage.interactiveDisplay.badge') }}</span>
+            <span :class="['interactive-display__badge-text', typoClass('badge')]">{{ displayProduct?.badge ?? $t('homepage.interactiveDisplay.badge') }}</span>
           </div>
         </div>
 
@@ -28,15 +28,15 @@
 
         <!-- Specifications -->
         <div class="interactive-display__specs">
-          <h3 class="interactive-display__specs-title">{{ displayProduct?.specsTitle ?? $t('homepage.interactiveDisplay.specsTitle') }}</h3>
+          <h3 :class="['interactive-display__specs-title', typoClass('specsTitle')]">{{ displayProduct?.specsTitle ?? $t('homepage.interactiveDisplay.specsTitle') }}</h3>
           <dl class="interactive-display__specs-list">
             <div
               v-for="(spec, i) in specs"
               :key="spec.label || i"
               class="interactive-display__spec-item"
             >
-              <dt class="interactive-display__spec-label">{{ spec.label }}</dt>
-              <dd class="interactive-display__spec-value">{{ spec.value }}</dd>
+              <dt :class="['interactive-display__spec-label', typoClass('specLabel')]">{{ spec.label }}</dt>
+              <dd :class="['interactive-display__spec-value', typoClass('specValue')]">{{ spec.value }}</dd>
             </div>
           </dl>
         </div>
@@ -63,6 +63,22 @@ const { tm, rt } = useI18n()
 
 const { data: displayProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=display', { lazy: true, server: false })
 const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  title: 'cube-title',
+  number: 'cube-number',
+  badge: 'eyebrow-tight',
+  specsTitle: 'card-title',
+  specLabel: 'body-sm',
+  specValue: 'body-sm',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['interactive-display'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 const { data: allDisplayFeatures } = useApi<any>('/api/homepage_product_features', { lazy: true, server: false })
 const displayFeatureData = computed(() => {
@@ -236,25 +252,16 @@ $display-bg: #FAFAFA;
 
   &__title {
     grid-column: 1 / 7;
-    font-size: 5.375rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.16rem;
     color: $color-primary;
     margin: 0;
     white-space: pre-line;
-    @include desktop { font-size: 4rem; }
-    @include mobile { grid-column: 1 / 11; order: 3; font-size: 3.125rem; }
+    @include mobile { grid-column: 1 / 11; order: 3; }
   }
 
   &__number {
     grid-column: 8 / 9;
-    font-size: 12.0625rem;
-    font-weight: 400;
-    line-height: 1;
     color: $color-primary;
-    @include desktop { font-size: 8rem; }
-    @include mobile { grid-column: 12 / 13; order: 2; font-size: 5.375rem; }
+    @include mobile { grid-column: 12 / 13; order: 2; }
   }
 
   &__badge {
@@ -275,8 +282,6 @@ $display-bg: #FAFAFA;
   }
 
   &__badge-text {
-    font-size: $font-size-sm;
-    line-height: 0.9;
     color: $color-primary;
   }
 
@@ -335,10 +340,6 @@ $display-bg: #FAFAFA;
   }
 
   &__specs-title {
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.04rem;
     color: $color-primary;
     margin: 0 0 $spacing-md;
   }
@@ -358,14 +359,10 @@ $display-bg: #FAFAFA;
   }
 
   &__spec-label {
-    font-size: $font-size-base;
-    line-height: 1.3;
     color: $color-primary;
   }
 
   &__spec-value {
-    font-size: $font-size-base;
-    line-height: 1.3;
     color: $color-muted;
     margin: 0;
     text-align: right;

@@ -9,7 +9,7 @@
       <div class="billboard-section__header">
         <h2
           ref="titleRef"
-          class="billboard-section__title"
+          :class="['billboard-section__title', typoClass('title')]"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
         <BtnAnimated
           :text="billboard?.buttonText ?? $t('homepage.billboard.buttonText')"
@@ -19,8 +19,8 @@
         />
       </div>
       <div class="billboard-section__footer">
-        <h3 class="billboard-section__subtitle">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
-        <p class="billboard-section__description">{{ billboard?.description ?? $t('homepage.billboard.description') }}</p>
+        <h3 :class="['billboard-section__subtitle', typoClass('subtitle')]">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
+        <p :class="['billboard-section__description', typoClass('description')]">{{ billboard?.description ?? $t('homepage.billboard.description') }}</p>
       </div>
     </div>
   </section>
@@ -33,6 +33,17 @@ import { resolveMediaUrl } from '~/utils/media'
 import type { WebGLHoverInstance } from '~/composables/useWebGLHover'
 
 const { data: billboard } = useApi<HomepageBillboard>('/api/singletons/homepage-billboard', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  title: 'billboard-title',
+  subtitle: 'billboard-subtitle',
+  description: 'body-sm',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (billboard.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 
 const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.image, 'large'))
 const billboardUrl = computed(() => billboard.value?.buttonUrl || '/kontakt')
@@ -120,12 +131,7 @@ $billboard-text-color: #FAFAFA;
     align-items: flex-start;
   }
 
-  // #2: Use SCSS variable instead of hardcoded color
   &__title {
-    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.03rem;
     color: $billboard-text-color;
     margin: 0;
   }
@@ -138,19 +144,12 @@ $billboard-text-color: #FAFAFA;
   }
 
   &__subtitle {
-    font-size: clamp(1.25rem, 2.5vw, 2rem);
-    font-weight: 400;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
     color: $billboard-text-color;
     margin: 0;
   }
 
   // #4: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__description {
-    font-size: $font-size-base;
-    font-weight: 400;
-    line-height: 1.3;
     color: rgba($billboard-text-color, 0.6);
     margin: 0;
   }

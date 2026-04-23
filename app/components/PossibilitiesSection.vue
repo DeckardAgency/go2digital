@@ -4,15 +4,15 @@
     <div class="possibilities__header">
       <div class="possibilities__label">
         <span class="possibilities__label-dot"></span>
-        <span class="possibilities__label-text">{{ label }}</span>
+        <span :class="['possibilities__label-text', typoClass('label')]">{{ label }}</span>
       </div>
-      <p class="possibilities__subtitle">{{ subtitle }}</p>
+      <p :class="['possibilities__subtitle', typoClass('subtitle')]">{{ subtitle }}</p>
     </div>
 
     <!-- Main content: 3-column layout -->
     <div class="possibilities__content">
       <!-- Left: Counter -->
-      <div class="possibilities__counter" ref="counterRef">
+      <div :class="['possibilities__counter', typoClass('counter')]" ref="counterRef">
         ({{ counterDisplay }})
       </div>
 
@@ -21,8 +21,7 @@
         <p
           v-for="(item, index) in items"
           :key="index"
-          class="possibilities__item"
-          :class="{ 'possibilities__item--active': index === activeIndex }"
+          :class="['possibilities__item', typoClass('item'), { 'possibilities__item--active': index === activeIndex }]"
           :ref="el => itemRefs[index] = el as HTMLElement"
         >
           {{ item.title }}
@@ -31,7 +30,7 @@
 
       <!-- Right: Description -->
       <div class="possibilities__description" ref="descriptionRef">
-        <p>{{ displayedDescription }}</p>
+        <p :class="typoClass('description')">{{ displayedDescription }}</p>
       </div>
     </div>
 
@@ -51,6 +50,21 @@ gsap.registerPlugin(ScrollTrigger)
 const { t } = useI18n()
 
 const { data: possibilitiesData } = useApi<HomepagePossibility[]>('/api/homepage_possibilities', { lazy: true, server: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  label: 'eyebrow',
+  subtitle: 'eyebrow',
+  counter: 'number-lg',
+  item: 'possibilities-item',
+  description: 'body-xs',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['possibilities'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 const label = computed(() => t('homepage.possibilities.label'))
 const subtitle = computed(() => t('homepage.possibilities.subtitle'))
@@ -248,16 +262,10 @@ function destroy() {
   }
 
   &__label-text {
-    font-size: $font-size-sm;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
   }
 
   &__subtitle {
-    font-size: $font-size-sm;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     margin: 0;
   }
@@ -279,10 +287,6 @@ function destroy() {
 
   // ── Counter ──
   &__counter {
-    font-family: var(--font-family);
-    font-size: $font-size-lg;
-    font-weight: 400;
-    line-height: 1;
     color: $color-primary;
     align-self: center;
 
@@ -303,10 +307,6 @@ function destroy() {
   }
 
   &__item {
-    font-family: var(--font-family);
-    font-size: clamp(1.5rem, 2.8vw, 2.25rem);
-    font-weight: 400;
-    line-height: 1.35;
     color: $color-primary;
     opacity: 0.15;
     margin: 0;
@@ -316,10 +316,6 @@ function destroy() {
       font-weight: 500;
       opacity: 1;
     }
-
-    @include tablet {
-      font-size: clamp(1.125rem, 4vw, 1.5rem);
-    }
   }
 
   // ── Description ──
@@ -328,10 +324,6 @@ function destroy() {
     align-self: center;
 
     p {
-      font-family: var(--font-family);
-      font-size: $font-size-sm;
-      font-weight: 400;
-      line-height: 1.5;
       color: $color-primary;
       opacity: 0.6;
       margin: 0;

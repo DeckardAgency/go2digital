@@ -2,17 +2,17 @@
   <section class="human-focused">
     <div class="human-focused__indicator">
       <span class="human-focused__indicator-dot"></span>
-      <span class="human-focused__indicator-text">{{ humanFocused?.indicator ?? $t('homepage.humanFocused.indicator') }}</span>
+      <span :class="['human-focused__indicator-text', typoClass('indicator')]">{{ humanFocused?.indicator ?? $t('homepage.humanFocused.indicator') }}</span>
     </div>
     <header class="human-focused__header">
-      <h2 class="human-focused__title">{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
+      <h2 :class="['human-focused__title', typoClass('title')]">{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
     </header>
     <div class="human-focused__content">
       <div class="human-focused__block human-focused__block--left">
-        <h3 class="human-focused__block-heading">{{ humanFocused?.blockLeft ?? $t('homepage.humanFocused.blockLeft') }}</h3>
+        <h3 :class="['human-focused__block-heading', typoClass('blockHeading')]">{{ humanFocused?.blockLeft ?? $t('homepage.humanFocused.blockLeft') }}</h3>
       </div>
       <div class="human-focused__block human-focused__block--right">
-        <p class="human-focused__block-text">{{ humanFocused?.blockRight ?? $t('homepage.humanFocused.blockRight') }}</p>
+        <p :class="['human-focused__block-text', typoClass('blockText')]">{{ humanFocused?.blockRight ?? $t('homepage.humanFocused.blockRight') }}</p>
       </div>
     </div>
   </section>
@@ -22,6 +22,18 @@
 import type { HomepageHumanFocused } from '~/types/api'
 
 const { data: humanFocused } = useApi<HomepageHumanFocused>('/api/singletons/homepage-human-focused', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  indicator: 'eyebrow',
+  title: 'section-title',
+  blockHeading: 'block-heading',
+  blockText: 'body-lg',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (humanFocused.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style scoped lang="scss">
@@ -64,10 +76,7 @@ const { data: humanFocused } = useApi<HomepageHumanFocused>('/api/singletons/hom
   }
 
   &__indicator-text {
-    font-size: $font-size-sm;
     color: $color-primary;
-    font-weight: 400;
-    line-height: 1.3;
   }
 
   &__header {
@@ -81,15 +90,10 @@ const { data: humanFocused } = useApi<HomepageHumanFocused>('/api/singletons/hom
   }
 
   &__title {
-    font-size: 3.5rem;
-    line-height: 1.15;
-    font-weight: 400;
     color: $color-primary;
     margin: 0;
-    letter-spacing: -0.02em;
 
-    @include desktop { font-size: 2.125rem; }
-    @include tablet { font-size: 1.75rem; line-height: 1.3; }
+    @include tablet { line-height: 1.3; }
   }
 
   &__content {
@@ -124,22 +128,13 @@ const { data: humanFocused } = useApi<HomepageHumanFocused>('/api/singletons/hom
   }
 
   &__block-heading {
-    font-size: clamp(1.5rem, 3vw, 2.125rem);
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.04rem;
     color: $color-primary;
     margin: 0;
   }
 
   &__block-text {
-    font-size: $font-size-lg;
-    line-height: 1.6;
     color: rgba($color-primary, 0.6);
     margin: 0;
-    font-weight: 300;
-
-    @include tablet { font-size: $font-size-base; }
   }
 }
 </style>

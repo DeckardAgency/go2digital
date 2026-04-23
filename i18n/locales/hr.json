@@ -240,8 +240,8 @@
   },
   "contact": {
     "pageTitle": "Kontakt",
-    "batteryTextLine1": "Mi smo dostupni od",
-    "batteryTextLine2": "9 do 17 sati",
+    "batteryTextLine1": "Dan prolazi, a s njim",
+    "batteryTextLine2": "i naša baterija.",
     "seo": {
       "title": "Kontakt - Go2Digital",
       "description": "Kontaktirajte Go2Digital digitalnu agenciju iz Zagreba"
@@ -326,7 +326,7 @@
   },
   "blog": {
     "pageTitle": "Blog - Go2Digital",
-    "title": "Blog",
+    "title": "Članci",
     "filterAll": "Sve",
     "readMore": "Pročitaj više",
     "noResultsTitle": "Nema pronađenih članaka",

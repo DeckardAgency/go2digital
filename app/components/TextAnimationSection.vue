@@ -1,9 +1,9 @@
 <template>
   <section class="text-animation" ref="sectionRef">
     <div class="text-animation__container" ref="containerRef">
-      <p class="text-animation__word text-animation__word--primary" ref="word1Ref">{{ textAnim?.word1 ?? $t('homepage.textAnimation.word1') }}</p>
-      <p class="text-animation__word text-animation__word--secondary" ref="word2Ref">{{ textAnim?.word2 ?? $t('homepage.textAnimation.word2') }}</p>
-      <p class="text-animation__word text-animation__word--tertiary" ref="word3Ref">{{ textAnim?.word3 ?? $t('homepage.textAnimation.word3') }}</p>
+      <p :class="['text-animation__word', 'text-animation__word--primary', typoClass('word')]" ref="word1Ref">{{ textAnim?.word1 ?? $t('homepage.textAnimation.word1') }}</p>
+      <p :class="['text-animation__word', 'text-animation__word--secondary', typoClass('word')]" ref="word2Ref">{{ textAnim?.word2 ?? $t('homepage.textAnimation.word2') }}</p>
+      <p :class="['text-animation__word', 'text-animation__word--tertiary', typoClass('word')]" ref="word3Ref">{{ textAnim?.word3 ?? $t('homepage.textAnimation.word3') }}</p>
     </div>
   </section>
 </template>
@@ -15,6 +15,15 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HomepageTextAnimation } from '~/types/api'
 
 const { data: textAnim } = useApi<HomepageTextAnimation>('/api/singletons/homepage-text-animation', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  word: 'display-huge',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (textAnim.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -149,11 +158,6 @@ onUnmounted(() => {
   }
 
   &__word {
-    font-family: $font-family;
-    font-size: clamp(4.5rem, 17.5vw, 17.5rem);
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.06em;
     color: #FAFAFA;
     text-align: center;
     white-space: nowrap;
@@ -168,8 +172,7 @@ onUnmounted(() => {
     &--secondary { z-index: 2; }
     &--tertiary { z-index: 1; }
 
-    @include desktop { font-size: clamp(4rem, 14vw, 12rem); }
-    @include tablet { font-size: clamp(3rem, 10vw, 7rem); letter-spacing: -0.04em; }
+    @include tablet { letter-spacing: -0.04em; }
   }
 }
 

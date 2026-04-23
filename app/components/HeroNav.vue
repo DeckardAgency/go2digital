@@ -264,5 +264,20 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
       margin-right: $spacing-32;
     }
   }
+
+  // Responsive font-size overrides mirrored from old site
+  @include tablet {
+    &__link {
+      font-size: 0.9375rem; // old site tablet: 15px (max-width ~768px)
+    }
+
+    &__menu-toggle {
+      font-size: 1rem; // old site mobile: 16px
+    }
+
+    &__locations {
+      font-size: 1rem; // old site mobile: 16px
+    }
+  }
 }
 </style>

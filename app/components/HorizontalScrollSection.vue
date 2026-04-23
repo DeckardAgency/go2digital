@@ -4,7 +4,7 @@
     <div class="horizontal-scroll__wrapper" ref="wrapperRef" data-scroll-wrapper>
 
       <!-- Scroll label - positioned absolutely over first panel (#3: moved out of v-for) -->
-      <p class="horizontal-scroll__scroll-label" ref="scrollLabelRef">
+      <p :class="['horizontal-scroll__scroll-label', typoClass('scrollLabel')]" ref="scrollLabelRef">
         {{ $t('homepage.horizontalScroll.scrollLabel') }}
       </p>
 
@@ -40,7 +40,7 @@
         >
           <!-- Top Section - Title -->
           <div class="horizontal-scroll__panel-top">
-            <h2 class="horizontal-scroll__title" :ref="el => titleRefs[index] = el as HTMLElement">
+            <h2 :class="['horizontal-scroll__title', typoClass('title')]" :ref="el => titleRefs[index] = el as HTMLElement">
               {{ panel.title }}
             </h2>
           </div>
@@ -49,16 +49,16 @@
           <div class="horizontal-scroll__panel-middle" :ref="el => panelMiddleRefs[index] = el as HTMLElement">
             <div class="horizontal-scroll__tag">
               <span class="horizontal-scroll__tag-dot"></span>
-              <span class="horizontal-scroll__tag-text">{{ panel.tag }}</span>
+              <span :class="['horizontal-scroll__tag-text', typoClass('tag')]">{{ panel.tag }}</span>
             </div>
-            <p class="horizontal-scroll__description">
+            <p :class="['horizontal-scroll__description', typoClass('description')]">
               {{ panel.description }}
             </p>
           </div>
 
           <!-- Bottom Section - Large Stat Value -->
           <div class="horizontal-scroll__panel-bottom" :ref="el => panelBottomRefs[index] = el as HTMLElement">
-            <p class="horizontal-scroll__stat-value" :ref="el => statValueRefs[index] = el as HTMLElement">
+            <p :class="['horizontal-scroll__stat-value', typoClass('statValue')]" :ref="el => statValueRefs[index] = el as HTMLElement">
               {{ panel.statValue }}
             </p>
           </div>
@@ -82,6 +82,21 @@ const { t } = useI18n()
 const { scrollTo } = useLenis()
 
 const { data: panelsData } = useApi<HomepagePanel[]>('/api/homepage_panels', { lazy: true, server: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  title: 'panel-title',
+  tag: 'eyebrow',
+  description: 'body',
+  statValue: 'panel-stat',
+  scrollLabel: 'eyebrow',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['panels'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 // Panel data
 const panels = computed(() => [
@@ -550,22 +565,15 @@ function destroy() {
 
   // Title (top left)
   &__title {
-    font-family: var(--font-family);
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
     color: $color-primary;
     margin: 0;
     max-width: 36.5rem;
 
     @include desktop {
-      font-size: 1.75rem;
       max-width: 25rem;
     }
 
     @include tablet {
-      font-size: 1.5rem;
       max-width: 100%;
     }
   }
@@ -575,9 +583,6 @@ function destroy() {
     position: absolute;
     top: $spacing-2xl;
     right: $spacing-2xl;
-    font-size: $font-size-sm;
-    font-weight: 400;
-    line-height: 1.3;
     text-transform: capitalize;
     color: $color-primary;
     margin: 0;
@@ -634,9 +639,6 @@ function destroy() {
   }
 
   &__tag-text {
-    font-size: $font-size-sm;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     white-space: nowrap;
     text-transform: capitalize;
@@ -644,10 +646,6 @@ function destroy() {
 
   // Description
   &__description {
-    font-family: var(--font-family);
-    font-size: $font-size-md;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     margin: 0;
@@ -689,22 +687,12 @@ function destroy() {
 
   // Large Stat Value
   &__stat-value {
-    font-family: var(--font-family);
-    font-size: 17.5rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.06em;
     color: $color-primary;
     margin: 0;
     white-space: nowrap;
     text-align: right;
 
-    @include desktop {
-      font-size: 11.25rem;
-    }
-
     @include tablet {
-      font-size: 7.5rem;
       text-align: left;
     }
   }

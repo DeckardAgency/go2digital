@@ -11,26 +11,26 @@
       </div>
 
       <div class="blog-detail__hero-info" ref="heroInfoRef">
-        <h1 class="blog-detail__title" ref="titleRef">{{ displayTitle }}</h1>
+        <h1 :class="['blog-detail__title', typoClass('heroTitle')]" ref="titleRef">{{ displayTitle }}</h1>
         <div class="blog-detail__specs" ref="specsRef">
           <div class="blog-detail__spec" v-if="displayMeta">
-            <span class="blog-detail__spec-label">Category</span>
-            <span class="blog-detail__spec-value">{{ displayMeta }}</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Category</span>
+            <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ displayMeta }}</span>
           </div>
           <div class="blog-detail__spec" v-if="author">
-            <span class="blog-detail__spec-label">Author</span>
-            <span class="blog-detail__spec-value">{{ author }}</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Author</span>
+            <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ author }}</span>
           </div>
           <div class="blog-detail__spec" v-if="date">
-            <span class="blog-detail__spec-label">Date</span>
-            <span class="blog-detail__spec-value">{{ formattedDate }}</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Date</span>
+            <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ formattedDate }}</span>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="blog-detail__actions" ref="actionsRef">
-        <button class="blog-detail__action" @click="goBack">
+        <button :class="['blog-detail__action', typoClass('actionButton')]" @click="goBack">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -213,6 +213,20 @@ function goBack() {
 
 useSeo('blog-posts', computed(() => post.value?.id), computed(() => `${title.value} - Blog`))
 definePageMeta({ showFooter: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  heroTitle: 'hero-heading',
+  specLabel: 'label-micro',
+  specValue: 'body',
+  actionButton: 'body-sm',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['blog-detail'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style scoped lang="scss">
@@ -285,10 +299,6 @@ definePageMeta({ showFooter: false })
 }
 
 .blog-detail__title {
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -305,15 +315,12 @@ definePageMeta({ showFooter: false })
 
 .blog-detail__spec-label {
   display: block;
-  font-size: $font-size-sm;
   color: $color-muted;
   margin-bottom: $spacing-xs;
 }
 
 .blog-detail__spec-value {
   display: block;
-  font-size: $font-size-base;
-  font-weight: 500;
 }
 
 // Actions
@@ -342,7 +349,6 @@ definePageMeta({ showFooter: false })
   background: none;
   border: 1px solid $color-border;
   border-radius: $radius-full;
-  font-size: $font-size-sm;
   font-family: inherit;
   color: $color-primary;
   cursor: pointer;

@@ -2,14 +2,14 @@
   <section class="custom-solutions">
     <div class="custom-solutions__indicator">
       <span class="custom-solutions__indicator-dot"></span>
-      <span class="custom-solutions__indicator-text">
+      <span :class="['custom-solutions__indicator-text', typoClass('indicator')]">
         {{ customSolution?.indicator ?? $t('homepage.customSolutions.indicator') }}
       </span>
     </div>
 
     <header class="custom-solutions__header">
       <h2
-        class="custom-solutions__title"
+        :class="['custom-solutions__title', typoClass('title')]"
       >
         {{ customSolution?.title ?? $t('homepage.customSolutions.title') }}
       </h2>
@@ -17,13 +17,13 @@
 
     <div class="custom-solutions__content">
       <div class="custom-solutions__block custom-solutions__block--left">
-        <p class="custom-solutions__block-text">
+        <p :class="['custom-solutions__block-text', typoClass('blockText')]">
           {{ customSolution?.block1 ?? $t('homepage.customSolutions.block1') }}
         </p>
       </div>
 
       <div class="custom-solutions__block custom-solutions__block--right">
-        <p class="custom-solutions__block-text">
+        <p :class="['custom-solutions__block-text', typoClass('blockText')]">
           {{ customSolution?.block2 ?? $t('homepage.customSolutions.block2') }}
         </p>
       </div>
@@ -35,6 +35,17 @@
 import type { HomepageCustomSolution } from '~/types/api'
 
 const { data: customSolution } = useApi<HomepageCustomSolution>('/api/singletons/homepage-custom-solution', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  indicator: 'eyebrow',
+  title: 'section-title',
+  blockText: 'body-lg',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (customSolution.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style lang="scss" scoped>
@@ -48,12 +59,8 @@ const { data: customSolution } = useApi<HomepageCustomSolution>('/api/singletons
 $solutions-bg: #FAFAFA;
 $solutions-text-color: $color-primary;
 $solutions-muted-color: rgba($color-primary, 0.6);
-$solutions-title-size-desktop: 3.5rem;
-$solutions-title-size-tablet: 2.125rem;
-$solutions-title-size-mobile: 1.75rem;
 $solutions-title-indent: 55%;
 $solutions-title-indent-desktop: 40%;
-$solutions-block-text-size: $font-size-lg;
 $solutions-padding-top: 6rem;
 $solutions-padding-bottom: 7.5rem;
 $solutions-content-margin-top: 5rem;
@@ -100,10 +107,7 @@ $solutions-dot-size: 6px;
   }
 
   &__indicator-text {
-    font-size: $font-size-sm;
     color: $solutions-text-color;
-    font-weight: 400;
-    line-height: 1.3;
   }
 
   // ==========================================================================
@@ -124,19 +128,10 @@ $solutions-dot-size: 6px;
   // First line indented via data-split-indent, rest flows normally
   // ==========================================================================
   &__title {
-    font-size: $solutions-title-size-desktop;
-    line-height: 1.15;
-    font-weight: 400;
     color: $solutions-text-color;
     margin: 0;
-    letter-spacing: -0.02em;
-
-    @include desktop {
-      font-size: $solutions-title-size-tablet;
-    }
 
     @include tablet {
-      font-size: $solutions-title-size-mobile;
       line-height: 1.3;
     }
   }
@@ -191,15 +186,8 @@ $solutions-dot-size: 6px;
   }
 
   &__block-text {
-    font-size: $solutions-block-text-size;
-    line-height: 1.6;
     color: $solutions-muted-color;
     margin: 0;
-    font-weight: 300;
-
-    @include tablet {
-      font-size: $font-size-base;
-    }
   }
 }
 </style>

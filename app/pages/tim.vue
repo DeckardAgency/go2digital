@@ -2,7 +2,7 @@
   <div class="page page--tim">
     <section class="tim-hero">
       <div class="tim-hero__container">
-        <h1 class="tim-hero__title">{{ t('nav.about') }}</h1>
+        <h1 :class="['tim-hero__title', typoClass('heroTitle')]">{{ t('nav.about') }}</h1>
       </div>
     </section>
   </div>
@@ -12,6 +12,17 @@
 const { t } = useI18n()
 
 useSeo('singleton/team-page', null, `${t('nav.about')} - Go2Digital`)
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  heroTitle: 'display-xl',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['team'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style scoped lang="scss">
@@ -33,8 +44,6 @@ useSeo('singleton/team-page', null, `${t('nav.about')} - Go2Digital`)
   }
 
   &__title {
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 700;
     color: var(--color-text, #fff);
   }
 }

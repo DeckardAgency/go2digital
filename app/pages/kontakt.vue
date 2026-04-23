@@ -33,6 +33,22 @@ watch(time, (newVal) => {
 // SEO
 useSeo('singleton/contact-page', null, t('contact.seo.title'))
 
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  headerTime: 'display-stat',
+  headerDate: 'display-stat',
+  temperature: 'display-stat',
+  weatherDesc: 'body',
+  batteryText: 'body',
+  batteryPercent: 'body-sm',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['contact'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
+
 // Watch for weather data to load, then init split text
 watch(temperature, (newVal) => {
   if (newVal !== '--°' && !weatherLoaded.value) {
@@ -63,7 +79,7 @@ onUnmounted(() => {
         <!-- Static time for split text animation -->
         <div
           v-if="!timeAnimationComplete && initialTime"
-          class="header-info__time"
+          :class="['header-info__time', typoClass('headerTime')]"
           data-split-text
           data-split-type="chars"
           data-split-trigger="load"
@@ -72,9 +88,9 @@ onUnmounted(() => {
           data-split-stagger="0.04"
         >{{ initialTime }}</div>
         <!-- Live updating time after animation -->
-        <div v-else class="header-info__time">{{ time }}</div>
+        <div v-else :class="['header-info__time', typoClass('headerTime')]">{{ time }}</div>
         <div
-          class="header-info__date"
+          :class="['header-info__date', typoClass('headerDate')]"
           data-split-text
           data-split-type="chars"
           data-split-trigger="load"
@@ -88,7 +104,7 @@ onUnmounted(() => {
       <div class="weather">
         <div
           v-if="weatherLoaded"
-          class="weather__temperature"
+          :class="['weather__temperature', typoClass('temperature')]"
           data-split-text
           data-split-type="chars"
           data-split-trigger="load"
@@ -98,7 +114,7 @@ onUnmounted(() => {
         >{{ temperature }}</div>
         <div
           v-if="weatherLoaded"
-          class="weather__description"
+          :class="['weather__description', typoClass('weatherDesc')]"
           data-split-text
           data-split-type="words"
           data-split-trigger="load"
@@ -110,7 +126,7 @@ onUnmounted(() => {
 
       <!-- Battery Status -->
       <div class="battery-status">
-        <div class="battery-status__text">
+        <div :class="['battery-status__text', typoClass('batteryText')]">
           <span
             data-split-text
             data-split-type="words"
@@ -133,7 +149,7 @@ onUnmounted(() => {
           <div class="battery-status__bar">
             <div class="battery-status__fill" :style="{ width: batteryPercentage + '%' }"></div>
           </div>
-          <span class="battery-status__percentage">{{ batteryPercentage }}%</span>
+          <span :class="['battery-status__percentage', typoClass('batteryPercent')]">{{ batteryPercentage }}%</span>
         </div>
       </div>
     </div>
@@ -288,44 +304,10 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   }
 
   &__time {
-    font-size: 5rem;
-    font-weight: 300;
-    line-height: 1;
-    letter-spacing: -0.1875rem;
     margin-bottom: $spacing-xs;
-
-    @include wide {
-      font-size: 3.75rem;
-    }
-
-    @include desktop {
-      font-size: 3rem;
-    }
-
-    @include tablet {
-      font-size: 3.125rem;
-      letter-spacing: -0.0625rem;
-    }
   }
 
   &__date {
-    font-size: 5rem;
-    font-weight: 300;
-    line-height: 1;
-    letter-spacing: -0.1875rem;
-
-    @include wide {
-      font-size: 3.75rem;
-    }
-
-    @include desktop {
-      font-size: 3rem;
-    }
-
-    @include tablet {
-      font-size: 2.25rem;
-      letter-spacing: -0.0625rem;
-    }
   }
 }
 
@@ -333,34 +315,15 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   color: $dark-text;
 
   &__temperature {
-    font-size: 3.5rem;
-    font-weight: 300;
     margin-bottom: 0.75rem;
-    letter-spacing: -0.0625rem;
-
-    @include wide {
-      font-size: 3rem;
-    }
-
-    @include desktop {
-      font-size: 2.5rem;
-    }
 
     @include tablet {
       margin-bottom: 0;
-      font-size: 2rem;
     }
   }
 
   &__description {
-    font-size: 0.9375rem;
     color: $text-light;
-    line-height: 1.5;
-    font-weight: 400;
-
-    @include tablet {
-      font-size: 0.8125rem;
-    }
   }
 }
 
@@ -369,15 +332,8 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   color: $dark-text;
 
   &__text {
-    font-size: 0.9375rem;
     color: $text-light;
     margin-bottom: 0.9375rem;
-    line-height: 1.5;
-    font-weight: 400;
-
-    @include tablet {
-      font-size: 0.8125rem;
-    }
   }
 
   &__bar-wrapper {
@@ -409,9 +365,7 @@ $text-lighter: rgba(255, 255, 255, 0.6);
 
   &__percentage {
     flex-shrink: 0;
-    font-size: 0.8125rem;
     color: $text-lighter;
-    font-weight: 400;
   }
 }
 

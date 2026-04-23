@@ -11,18 +11,18 @@
       </div>
 
       <div class="lab-detail__hero-info" ref="heroInfoRef">
-        <h1 class="lab-detail__title" ref="titleRef">{{ displayTitle }}</h1>
+        <h1 :class="['lab-detail__title', typoClass('heroTitle')]" ref="titleRef">{{ displayTitle }}</h1>
         <div class="lab-detail__specs" ref="specsRef" v-if="displayMeta">
           <div class="lab-detail__spec">
-            <span class="lab-detail__spec-label">Category</span>
-            <span class="lab-detail__spec-value">{{ displayMeta }}</span>
+            <span :class="['lab-detail__spec-label', typoClass('specLabel')]">Category</span>
+            <span :class="['lab-detail__spec-value', typoClass('specValue')]">{{ displayMeta }}</span>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
       <div class="lab-detail__actions" ref="actionsRef">
-        <button class="lab-detail__action" @click="goBack">
+        <button :class="['lab-detail__action', typoClass('actionButton')]" @click="goBack">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -33,23 +33,23 @@
 
     <!-- Intro -->
     <section v-if="body" class="lab-detail__intro">
-      <div class="lab-detail__intro-label">
+      <div :class="['lab-detail__intro-label', typoClass('introLabel')]">
         <span class="lab-detail__bullet" aria-hidden="true"></span>
         <span>{{ $t('lab.aboutProject') }}</span>
       </div>
-      <div class="lab-detail__intro-body" v-html="body"></div>
+      <div :class="['lab-detail__intro-body', typoClass('introBody')]" v-html="body"></div>
     </section>
 
     <!-- Sections -->
     <section v-if="sections.length > 0" class="lab-detail__sections">
       <div v-for="(section, i) in sections" :key="i" class="lab-detail__section">
-        <div class="lab-detail__section-label">
+        <div :class="['lab-detail__section-label', typoClass('sectionLabel')]">
           <span class="lab-detail__bullet" aria-hidden="true"></span>
           <span>{{ section.label }}</span>
         </div>
         <div class="lab-detail__section-body">
-          <h2 v-if="section.title" class="lab-detail__section-title">{{ section.title }}</h2>
-          <div class="lab-detail__section-content" v-html="section.content"></div>
+          <h2 v-if="section.title" :class="['lab-detail__section-title', typoClass('sectionTitle')]">{{ section.title }}</h2>
+          <div :class="['lab-detail__section-content', typoClass('sectionContent')]" v-html="section.content"></div>
           <picture v-if="section.imagePath" class="lab-detail__section-picture">
             <source media="(min-width: 1024px)" :srcset="sectionImageUrl(section.imagePath)">
             <source media="(min-width: 768px)" :srcset="sectionImageUrl(section.imagePath, 'large')">
@@ -245,6 +245,25 @@ function goBack() {
 
 useSeo('lab-projects', computed(() => project.value?.id), computed(() => `${title.value} - Go2Labs`))
 definePageMeta({ showFooter: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  heroTitle: 'hero-heading',
+  specLabel: 'label-micro',
+  specValue: 'body',
+  actionButton: 'body-sm',
+  introLabel: 'eyebrow',
+  introBody: 'body-lg-static',
+  sectionLabel: 'eyebrow',
+  sectionTitle: 'section-title',
+  sectionContent: 'body',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['lab-detail'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style scoped lang="scss">
@@ -317,10 +336,6 @@ definePageMeta({ showFooter: false })
 }
 
 .lab-detail__title {
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -337,15 +352,12 @@ definePageMeta({ showFooter: false })
 
 .lab-detail__spec-label {
   display: block;
-  font-size: $font-size-sm;
   color: $color-muted;
   margin-bottom: $spacing-xs;
 }
 
 .lab-detail__spec-value {
   display: block;
-  font-size: $font-size-base;
-  font-weight: 500;
 }
 
 // Actions
@@ -374,7 +386,6 @@ definePageMeta({ showFooter: false })
   background: none;
   border: 1px solid $color-border;
   border-radius: $radius-full;
-  font-size: $font-size-sm;
   font-family: inherit;
   color: $color-primary;
   cursor: pointer;
@@ -428,10 +439,7 @@ definePageMeta({ showFooter: false })
   display: flex;
   align-items: flex-start;
   gap: $spacing-sm;
-  font-size: $font-size-sm;
   color: $color-primary;
-  font-weight: 400;
-  line-height: 1.3;
   padding-top: 0.5rem;
 
   @include tablet { grid-column: 1 / 5; }
@@ -440,14 +448,10 @@ definePageMeta({ showFooter: false })
 
 .lab-detail__intro-body {
   grid-column: 4 / 13;
-  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
   color: $color-primary;
 
   @include tablet { grid-column: 5 / 13; }
-  @include mobile { grid-column: 1; font-size: 1.375rem; }
+  @include mobile { grid-column: 1; }
 
   :deep(p) {
     margin: 0 0 $spacing-lg;
@@ -481,10 +485,7 @@ definePageMeta({ showFooter: false })
   display: flex;
   align-items: flex-start;
   gap: $spacing-sm;
-  font-size: $font-size-sm;
   color: $color-primary;
-  font-weight: 400;
-  line-height: 1.3;
   padding-top: 2px;
 
   @include tablet { grid-column: 1 / 5; }
@@ -502,17 +503,11 @@ definePageMeta({ showFooter: false })
 }
 
 .lab-detail__section-title {
-  font-size: $font-size-md;
-  font-weight: 600;
-  line-height: 1.4;
   color: $color-primary;
   margin: 0;
 }
 
 .lab-detail__section-content {
-  font-size: $font-size-base;
-  font-weight: 400;
-  line-height: 1.8;
   color: $color-muted;
 
   :deep(p) {

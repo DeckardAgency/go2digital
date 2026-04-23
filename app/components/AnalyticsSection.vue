@@ -5,9 +5,9 @@
       <div class="analytics-section__header">
         <div class="analytics-section__indicator">
           <span class="analytics-section__indicator-dot"></span>
-          <span class="analytics-section__indicator-text">{{ analytics?.indicator ?? $t('homepage.analytics.indicator') }}</span>
+          <span :class="['analytics-section__indicator-text', typoClass('indicator')]">{{ analytics?.indicator ?? $t('homepage.analytics.indicator') }}</span>
         </div>
-        <h2 class="analytics-section__title"
+        <h2 :class="['analytics-section__title', typoClass('title')]"
         >{{ analytics?.title ?? $t('homepage.analytics.title') }}</h2>
       </div>
     </div>
@@ -15,7 +15,7 @@
     <!-- Right -->
     <div class="analytics-section__right">
       <div class="analytics-section__description-area">
-        <p class="analytics-section__description">{{ analytics?.description ?? $t('homepage.analytics.description') }}</p>
+        <p :class="['analytics-section__description', typoClass('description')]">{{ analytics?.description ?? $t('homepage.analytics.description') }}</p>
       </div>
 
       <!-- Dot Grid Graph -->
@@ -29,8 +29,7 @@
               v-for="(tab, i) in tabs"
               :key="tab.id"
               :ref="el => tabEls[i] = el as HTMLElement"
-              class="analytics-section__tab"
-              :class="{ 'analytics-section__tab--active': activeTab === tab.id }"
+              :class="['analytics-section__tab', typoClass('tab'), { 'analytics-section__tab--active': activeTab === tab.id }]"
               @click="switchTab(tab.id, i)"
             >
               {{ tab.label }}
@@ -41,7 +40,7 @@
         <div class="analytics-section__graph-inner">
           <!-- Y axis labels -->
           <div class="analytics-section__y-axis">
-            <span v-for="label in activeYLabels" :key="label" class="analytics-section__y-label">{{ label }}</span>
+            <span v-for="label in activeYLabels" :key="label" :class="['analytics-section__y-label', typoClass('axisLabel')]">{{ label }}</span>
           </div>
 
           <!-- Dot grid -->
@@ -59,7 +58,7 @@
 
         <!-- X axis labels -->
         <div class="analytics-section__x-axis">
-          <span v-for="n in 31" :key="n" class="analytics-section__x-label">{{ n }}</span>
+          <span v-for="n in 31" :key="n" :class="['analytics-section__x-label', typoClass('axisLabel')]">{{ n }}</span>
         </div>
       </div>
     </div>
@@ -73,6 +72,19 @@ import type { HomepageAnalyticsTab } from '~/types/api'
 
 const { data: analytics } = useApi<any>('/api/singletons/homepage-analytics', { lazy: true, server: false })
 const { data: apiTabs } = useApi<HomepageAnalyticsTab[]>('/api/homepage_analytics_tabs', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  indicator: 'eyebrow',
+  title: 'section-title-fluid',
+  description: 'body-lg-static',
+  tab: 'eyebrow',
+  axisLabel: 'label-micro',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (analytics.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 
 const graphRef = ref<HTMLElement | null>(null)
 const dotGridRef = ref<HTMLElement | null>(null)
@@ -273,17 +285,11 @@ function switchTab(tabId: string, index: number) {
   }
 
   &__indicator-text {
-    font-size: $font-size-sm;
     color: rgba(#FAFAFA, 0.7);
-    font-weight: 400;
   }
 
   &__title {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 300;
     margin: 0;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
   }
 
   &__right {
@@ -301,10 +307,7 @@ function switchTab(tabId: string, index: number) {
   }
 
   &__description {
-    font-size: $font-size-lg;
-    line-height: 1.6;
     color: rgba(#FAFAFA, 0.7);
-    font-weight: 300;
     max-width: 24rem;
     margin: 0;
   }
@@ -343,8 +346,6 @@ function switchTab(tabId: string, index: number) {
     display: flex;
     align-items: center;
     padding: 0.5rem 1.25rem;
-    font-size: $font-size-sm;
-    font-family: inherit;
     color: rgba(#FAFAFA, 0.5);
     background: transparent;
     border: none;
@@ -388,9 +389,7 @@ function switchTab(tabId: string, index: number) {
   }
 
   &__y-label {
-    font-size: 0.5625rem;
     color: rgba(#FAFAFA, 0.25);
-    font-weight: 400;
     font-variant-numeric: tabular-nums;
   }
 
@@ -437,9 +436,7 @@ function switchTab(tabId: string, index: number) {
   }
 
   &__x-label {
-    font-size: 0.5625rem;
     color: rgba(#FAFAFA, 0.25);
-    font-weight: 400;
     text-align: center;
     flex: 1;
     font-variant-numeric: tabular-nums;

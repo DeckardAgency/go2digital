@@ -2,10 +2,10 @@
   <section class="interactive">
     <div class="interactive__indicator">
       <span class="interactive__indicator-dot"></span>
-      <span class="interactive__indicator-text">{{ displayProduct?.indicatorText ?? $t('homepage.interactiveDisplay.indicatorText') }}</span>
+      <span :class="['interactive__indicator-text', typoClass('indicator')]">{{ displayProduct?.indicatorText ?? $t('homepage.interactiveDisplay.indicatorText') }}</span>
     </div>
     <header class="interactive__header">
-      <h2 class="interactive__title">{{ displayProduct?.description ?? $t('homepage.interactiveDisplay.description') }}</h2>
+      <h2 :class="['interactive__title', typoClass('title')]">{{ displayProduct?.description ?? $t('homepage.interactiveDisplay.description') }}</h2>
     </header>
   </section>
 </template>
@@ -15,6 +15,18 @@ import type { HomepageProduct } from '~/types/api'
 
 const { data: displayProducts } = useApi<HomepageProduct[]>('/api/homepage_products?productType=display', { lazy: true, server: false })
 const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  indicator: 'eyebrow-tight',
+  title: 'display-md',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['interactive-description'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 </script>
 
 <style scoped lang="scss">
@@ -45,9 +57,6 @@ const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
     }
 
     &-text {
-      font-size: $font-size-sm;
-      font-weight: 400;
-      line-height: 0.9;
       color: $color-primary;
       text-transform: uppercase;
     }
@@ -60,15 +69,11 @@ const displayProduct = computed(() => displayProducts.value?.[0] ?? null)
   }
 
   &__title {
-    font-size: 3.125rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.0625rem;
     color: $color-primary;
     text-indent: 20rem;
     margin: 0;
     @include tablet { text-indent: 10rem; }
-    @include mobile { text-indent: 0; font-size: 2rem; }
+    @include mobile { text-indent: 0; }
   }
 }
 </style>

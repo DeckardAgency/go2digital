@@ -6,18 +6,18 @@
         <!-- Label -->
         <div class="featured-labs__label">
           <span class="featured-labs__label-dot"></span>
-          <span class="featured-labs__label-text">{{ sectionLabel }}</span>
+          <span :class="['featured-labs__label-text', typoClass('label')]">{{ sectionLabel }}</span>
         </div>
 
         <!-- Title Row -->
         <div class="featured-labs__title-row">
           <div class="featured-labs__title-wrapper">
             <h1
-              class="featured-labs__title"
+              :class="['featured-labs__title', typoClass('title')]"
             >
               {{ sectionTitle }}
             </h1>
-            <span class="featured-labs__count">({{ labItems.length }})</span>
+            <span :class="['featured-labs__count', typoClass('count')]">({{ labItems.length }})</span>
           </div>
 
           <div class="featured-labs__button-wrapper">
@@ -33,7 +33,7 @@
 
       <!-- Description -->
       <div class="featured-labs__description">
-        <p class="featured-labs__text">
+        <p :class="['featured-labs__text', typoClass('text')]">
           {{ sectionDescription }}
         </p>
       </div>
@@ -47,10 +47,10 @@
         class="featured-labs__card"
       >
         <NuxtLink :to="`/lab/${item.slug}`" class="featured-labs__card-link">
-          <h2 class="featured-labs__card-title">{{ item.title }}</h2>
-          <p class="featured-labs__card-description">{{ item.subtitle }}</p>
+          <h2 :class="['featured-labs__card-title', typoClass('cardTitle')]">{{ item.title }}</h2>
+          <p :class="['featured-labs__card-description', typoClass('cardDescription')]">{{ item.subtitle }}</p>
           <ul class="featured-labs__card-tags">
-            <li v-for="(cat, i) in item.categories" :key="i" class="featured-labs__card-tag">{{ cat }}</li>
+            <li v-for="(cat, i) in item.categories" :key="i" :class="['featured-labs__card-tag', typoClass('cardTag')]">{{ cat }}</li>
           </ul>
           <figure class="featured-labs__card-media">
             <img :src="item.image" :alt="item.title" loading="lazy">
@@ -71,6 +71,23 @@ const { t, locale } = useI18n()
 
 // Fetch from the smart endpoint (handles auto/manual mode on the API side)
 const { data: featuredData } = useApi<{ mode: string; projects: LabProject[] }>('/api/homepage/featured-labs', { lazy: true, server: false })
+
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  label: 'eyebrow-tight',
+  title: 'featured-labs-title',
+  count: 'number-responsive',
+  text: 'body-sm',
+  cardTitle: 'card-title',
+  cardDescription: 'body-sm',
+  cardTag: 'card-tag',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['featured-labs'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
 
 // Fetch section text settings
 const { data: settingsData } = useApi<any[]>('/api/settings?group=homepage', { lazy: true, server: false })
@@ -126,13 +143,6 @@ $labs-bg: #FAFAFA;
 $labs-border-color: #D9D9D9;
 $labs-text-color: $color-primary;
 $labs-muted-opacity: 0.4;
-$labs-title-size-desktop: 5.375rem;
-$labs-title-size-wide: 4.5rem;
-$labs-title-size-desktop-small: 4rem;
-$labs-title-size-tablet: 3.5rem;
-$labs-title-size-mobile: 2.5rem;
-$labs-title-size-small: 2rem;
-$labs-count-size: 1.25rem;
 $labs-dot-size: 6px;
 
 .featured-labs {
@@ -188,8 +198,6 @@ $labs-dot-size: 6px;
   }
 
   &__label-text {
-    font-size: $font-size-sm;
-    line-height: 0.9;
     color: $labs-text-color;
     text-transform: capitalize;
   }
@@ -225,39 +233,12 @@ $labs-dot-size: 6px;
   }
 
   &__title {
-    font-size: $labs-title-size-desktop;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.03em;
     color: $labs-text-color;
     margin: 0;
-
-    @include wide {
-      font-size: $labs-title-size-wide;
-    }
-
-    @include desktop {
-      font-size: $labs-title-size-desktop-small;
-    }
-
-    @include tablet {
-      font-size: $labs-title-size-mobile;
-    }
-
-    @include mobile {
-      font-size: $labs-title-size-small;
-    }
   }
 
   &__count {
-    font-size: $labs-count-size;
-    font-weight: 400;
-    line-height: 1.3;
     color: $labs-text-color;
-
-    @include mobile {
-      font-size: $font-size-base;
-    }
   }
 
   // ==========================================================================
@@ -294,8 +275,6 @@ $labs-dot-size: 6px;
   }
 
   &__text {
-    font-size: $font-size-base;
-    line-height: 1.3;
     color: $labs-text-color;
     opacity: $labs-muted-opacity;
     margin: 0;
@@ -342,10 +321,6 @@ $labs-dot-size: 6px;
   }
 
   &-title {
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.0425rem;
     color: $labs-text-color;
     margin: 0;
 
@@ -353,8 +328,6 @@ $labs-dot-size: 6px;
   }
 
   &-description {
-    font-size: $font-size-base;
-    line-height: 1.3;
     color: $labs-text-color;
     opacity: $labs-muted-opacity;
     margin: 0;
@@ -374,11 +347,7 @@ $labs-dot-size: 6px;
   }
 
   &-tag {
-    font-size: $font-size-base;
-    line-height: 1.3;
     color: $labs-text-color;
-
-    @include tablet { font-size: $font-size-sm; }
   }
 
   &-media {

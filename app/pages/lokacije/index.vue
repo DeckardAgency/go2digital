@@ -1750,7 +1750,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   &__count {
-    font-size: $font-size-base;
+    font-size: $font-size-old-base;   // old: 1rem
     color: $color-muted;
     align-self: flex-start;
     margin-top: 0.25rem;
@@ -1797,7 +1797,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: $font-size-xs;
+    font-size: $font-size-old-xs;     // old: 0.75rem
+    font-weight: 400;
+    text-transform: capitalize;
     cursor: pointer;
     transition: all $transition-base;
     &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; }
@@ -1829,7 +1831,8 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: $font-size-sm;
+    font-size: $font-size-old-base;   // old: 1rem
+    font-weight: 400;
     cursor: pointer;
   }
 
@@ -1848,7 +1851,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-md 0 0 $radius-md;
     border-right: none;
-    font-size: $font-size-base;
+    font-size: $font-size-old-base;   // old: 1rem
+    font-weight: 400;
+    line-height: 1.3;
     font-family: inherit;
     background: transparent;
     transition: border-color $transition-base;
@@ -1863,7 +1868,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border-radius: 0 $radius-md $radius-md 0;
     background-color: $color-surface;
     color: $color-primary;
-    font-size: $font-size-base;
+    font-size: $font-size-old-xs;     // old: $font-base = 0.75rem
     font-family: inherit;
     font-weight: 400;
     cursor: pointer;
@@ -1888,7 +1893,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: $font-size-sm;
+    font-size: 0.8125rem;             // old site: 0.8125rem raw
     font-weight: 400;
   }
 
@@ -1906,7 +1911,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: center;
     gap: $spacing-xs;
     margin-left: auto;
-    font-size: $font-size-sm;
+    font-size: 0.8125rem;             // old site: 0.8125rem raw
     color: $color-primary;
     text-decoration: none;
     font-weight: 400;
@@ -2191,12 +2196,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   &__city,
-  &__type { font-size: $font-size-xs; color: $color-muted; }
+  &__type { font-size: 0.8125rem; color: $color-muted; }   // old .location-card__meta: 0.8125rem
   &__dot { font-size: 0.375rem; color: $color-muted; }
 
   &__name {
-    font-size: $font-size-base;
-    font-weight: 400;
+    font-size: 0.9375rem;             // old .location-card__name: 0.9375rem
+    font-weight: 500;                 // old: 500
     line-height: 1.3;
     margin: 0;
     color: $color-primary;

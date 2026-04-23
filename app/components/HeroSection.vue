@@ -11,6 +11,19 @@ const { t } = useI18n()
 
 const { data: hero } = useApi<HomepageHero>('/api/singletons/homepage-hero', { lazy: true, server: false })
 
+const DEFAULT_HERO_PRESETS = {
+  title: 'hero-title',
+  kicker: 'hero-kicker',
+  heading: 'hero-heading',
+  description: 'hero-description',
+  scroll: 'hero-scroll',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_HERO_PRESETS): string {
+  const map = (hero.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_HERO_PRESETS[key]}`
+}
+
 // Title text — combined into one string with newline for split-text to detect as line break
 const titleText = computed(() => {
   return 'Vaš brend<br/>u prvom planu.'
@@ -493,7 +506,7 @@ onUnmounted(() => {
       <div class="hero-section__main">
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
-          <h1 ref="titleRef" class="hero-section__title" v-html="titleText"></h1>
+          <h1 ref="titleRef" :class="['hero-section__title', typoClass('title')]" v-html="titleText"></h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
@@ -502,20 +515,20 @@ onUnmounted(() => {
             <span ref="badgeDotRef" class="hero-section__badge-dot"></span>
             <span
               ref="badgeTextRef"
-              class="hero-section__badge-text"
+              :class="['hero-section__badge-text', typoClass('kicker')]"
             >{{ hero?.kicker ?? t('hero.kicker') }}</span>
           </div>
 
           <h2
             ref="headingRef"
-            class="hero-section__heading"
+            :class="['hero-section__heading', typoClass('heading')]"
           >
             {{ hero?.heading ?? t('hero.heading') }}
           </h2>
 
           <p
             ref="descriptionRef"
-            class="hero-section__description"
+            :class="['hero-section__description', typoClass('description')]"
           >
             {{ hero?.description ?? t('hero.description') }}
           </p>
@@ -526,7 +539,7 @@ onUnmounted(() => {
           <div class="hero-section__scroll">
             <span
               ref="scrollTextRef"
-              class="hero-section__scroll-text"
+              :class="['hero-section__scroll-text', typoClass('scroll')]"
             >
               {{ hero?.scrollDownLabel ?? t('hero.scrollDown') }}
             </span>
@@ -676,21 +689,11 @@ onUnmounted(() => {
   }
 
   &__title {
-    font-family: $font-family;
-    font-size: rem(50);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.02em;
     color: $color-primary;
     margin: 0;
 
-    @include desktop {
-      font-size: rem(40);
-    }
-
     @include tablet {
       margin-top: 2rem;
-      font-size: rem(32);
     }
   }
 
@@ -736,18 +739,10 @@ onUnmounted(() => {
   }
 
   &__badge-text {
-    font-family: $font-family;
-    font-size: rem(12);
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
   }
 
   &__heading {
-    font-family: $font-family;
-    font-size: rem(16);
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     margin: 2.375rem 0 0 0;
     max-width: rem(343);
@@ -758,10 +753,6 @@ onUnmounted(() => {
   }
 
   &__description {
-    font-family: $font-family;
-    font-size: rem(16);
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     margin: 0.938rem 0 0 0;
@@ -789,10 +780,6 @@ onUnmounted(() => {
   }
 
   &__scroll-text {
-    font-family: $font-family;
-    font-size: rem(12);
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     text-transform: capitalize;
   }

@@ -375,9 +375,9 @@ onUnmounted(() => {
 @mixin link-base {
   color: var(--footer-text);
   font-family: var(--footer-font);
-  font-size: 1rem;
+  font-size: 1rem;              // old .footer__nav-link: $font-size-base (1rem)
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1.3;             // old: $line-height-normal (1.3)
   text-decoration: none;
   transition: opacity var(--footer-transition);
 
@@ -520,8 +520,8 @@ onUnmounted(() => {
   font-family: var(--footer-font);
   font-size: 2.125rem;
   font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: -0.02rem;
+  line-height: 1.1;                 // old _footer.scss __newsletter-title: $line-height-tight (1.1)
+  letter-spacing: -0.02125rem;      // old _footer.scss: -0.02125rem
   color: var(--footer-text);
   margin: 0;
 }

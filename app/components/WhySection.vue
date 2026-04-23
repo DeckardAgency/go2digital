@@ -5,14 +5,14 @@
       <div class="why-section__label">
         <span class="why-section__label-dot"></span>
         <span
-          class="why-section__label-text"
+          :class="['why-section__label-text', typoClass('label')]"
         >
           {{ whySection?.label ?? $t('whySection.label') }}
         </span>
       </div>
 
       <h1
-        class="why-section__headline"
+        :class="['why-section__headline', typoClass('headline')]"
       >
         {{ whySection?.headline ?? $t('whySection.headline') }}
       </h1>
@@ -32,10 +32,10 @@
             <!-- Top Section -->
             <div class="why-section__slide-top">
               <div class="why-section__slide-top-left">
-                <div class="why-section__slide-number">{{ slide.number }}</div>
+                <div :class="['why-section__slide-number', typoClass('slideNumber')]">{{ slide.number }}</div>
               </div>
               <div class="why-section__slide-top-right">
-                <h4 class="why-section__slide-title">{{ slide.title }}</h4>
+                <h4 :class="['why-section__slide-title', typoClass('slideTitle')]">{{ slide.title }}</h4>
               </div>
             </div>
 
@@ -48,8 +48,8 @@
               </div>
               <div class="why-section__slide-bottom-right">
                 <div class="why-section__slide-bottom-content">
-                  <h4 class="why-section__slide-title-mobile">{{ slide.title }}</h4>
-                  <p class="why-section__slide-text">{{ slide.description }}</p>
+                  <h4 :class="['why-section__slide-title-mobile', typoClass('slideTitleMobile')]">{{ slide.title }}</h4>
+                  <p :class="['why-section__slide-text', typoClass('slideText')]">{{ slide.description }}</p>
                 </div>
                 <div class="why-section__slide-dots" :ref="el => dotsContainerRefs[index] = el as HTMLElement">
                   <div
@@ -81,6 +81,20 @@ const { t } = useI18n()
 
 const { data: whySection } = useApi<HomepageWhySection>('/api/singletons/homepage-why-section', { lazy: true, server: false })
 const { data: whyCards } = useApi<HomepageWhyCard[]>('/api/homepage_why_cards', { lazy: true, server: false })
+
+const DEFAULT_PRESETS = {
+  label: 'eyebrow-tight',
+  headline: 'display-xl',
+  slideNumber: 'display-stat',
+  slideTitle: 'display-md',
+  slideTitleMobile: 'body',
+  slideText: 'body-sm',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = (whySection.value as { typographyMap?: Record<string, string> } | null)?.typographyMap
+  return `typo-${map?.[key] || DEFAULT_PRESETS[key]}`
+}
 
 const mobileBreakpoint = 768
 const isMobile = () => window.innerWidth < mobileBreakpoint
@@ -279,17 +293,6 @@ $why-number-opacity-mobile: 0.3;
 $why-text-opacity: 0.3;
 $why-text-opacity-mobile: 0.4;
 
-// Typography sizes
-$why-headline-size-desktop: 5.375rem;
-$why-headline-size-tablet: 3.5rem;
-$why-headline-size-mobile: 2.625rem;
-$why-number-size-desktop: 17.5rem;
-$why-number-size-tablet: 10rem;
-$why-number-size-mobile: 5.375rem;
-$why-title-size-desktop: 3.125rem;
-$why-title-size-tablet: 2rem;
-$why-label-size-mobile: 0.6875rem;
-
 // Layout sizes
 $why-arrow-size-desktop: 9rem;
 $why-arrow-size-tablet: 6rem;
@@ -348,14 +351,7 @@ $why-perspective: 250vw;
 
   &__label-text {
     color: $why-text-color;
-    font-size: $font-size-sm;
-    font-weight: 400;
-    line-height: 0.9;
     text-transform: capitalize;
-
-    @include tablet {
-      font-size: $why-label-size-mobile;
-    }
   }
 
   // ==========================================================================
@@ -363,19 +359,7 @@ $why-perspective: 250vw;
   // ==========================================================================
   &__headline {
     color: $why-text-color;
-    font-size: $why-headline-size-desktop;
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
     margin: 0;
-
-    @include desktop {
-      font-size: $why-headline-size-tablet;
-    }
-
-    @include tablet {
-      font-size: $why-headline-size-mobile;
-    }
   }
 
   // ==========================================================================
@@ -471,21 +455,15 @@ $why-perspective: 250vw;
   // Element: Slide Number
   // ==========================================================================
   &__slide-number {
-    font-size: $why-number-size-desktop;
-    font-weight: 400;
-    line-height: 0.8;
-    letter-spacing: -0.06em;
     color: $why-text-color;
     opacity: $why-number-opacity;
     margin-top: $spacing-2xl;
 
     @include desktop {
-      font-size: $why-number-size-tablet;
       margin-top: $spacing-lg;
     }
 
     @include tablet {
-      font-size: $why-number-size-mobile;
       margin: 0;
       opacity: $why-number-opacity-mobile;
     }
@@ -495,15 +473,10 @@ $why-perspective: 250vw;
   // Element: Slide Title
   // ==========================================================================
   &__slide-title {
-    font-size: $why-title-size-desktop;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.02em;
     color: $why-text-color;
     margin: 0 0 $spacing-xl 0;
 
     @include desktop {
-      font-size: $why-title-size-tablet;
       margin: 0 0 $spacing-lg 0;
     }
 
@@ -515,9 +488,6 @@ $why-perspective: 250vw;
   &__slide-title-mobile {
     display: none;
     color: $why-text-color;
-    font-size: $font-size-md;
-    font-weight: 400;
-    line-height: 1.3;
     margin: 0;
 
     @include tablet {
@@ -606,9 +576,6 @@ $why-perspective: 250vw;
   }
 
   &__slide-text {
-    font-size: $font-size-base;
-    font-weight: 400;
-    line-height: 1.3;
     color: $why-text-color;
     opacity: $why-text-opacity;
     grid-column: 1 / 5;

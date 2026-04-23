@@ -4,14 +4,14 @@
     <header class="blog__header">
       <div class="blog__title-wrap">
         <h1
-          class="blog__title"
+          :class="['blog__title', typoClass('pageTitle')]"
           data-split-text
           data-split-type="chars"
           data-split-duration="0.6"
           data-split-stagger="0.03"
           data-split-delay="0.3"
         >{{ $t('blog.title') }}</h1>
-        <span class="blog__count">({{ filteredArticles.length }})</span>
+        <span :class="['blog__count', typoClass('count')]">({{ filteredArticles.length }})</span>
       </div>
 
       <!-- Category Filters -->
@@ -24,7 +24,7 @@
           @click="filterByCategory(category.slug)"
         >
           <span v-if="selectedCategory === category.slug" class="blog__filter-dot"></span>
-          <span class="blog__filter-text">{{ category.name }}</span>
+          <span :class="['blog__filter-text', typoClass('filter')]">{{ category.name }}</span>
         </button>
       </nav>
     </header>
@@ -54,15 +54,15 @@
               </div>
               <div class="article-card__content">
                 <div class="article-card__info">
-                  <h3 class="article-card__title">{{ article.title }}</h3>
+                  <h3 :class="['article-card__title', typoClass('cardTitle')]">{{ article.title }}</h3>
                   <div class="article-card__meta">
-                    <time class="article-card__date" :datetime="article.date">{{ formatDate(article.date) }}</time>
+                    <time :class="['article-card__date', typoClass('cardMeta')]" :datetime="article.date">{{ formatDate(article.date) }}</time>
                     <span class="article-card__divider"></span>
-                    <span class="article-card__author">{{ article.author }}</span>
+                    <span :class="['article-card__author', typoClass('cardMeta')]">{{ article.author }}</span>
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
+                  <span :class="['article-card__category-text', typoClass('cardCategory')]">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -86,15 +86,15 @@
               </div>
               <div class="article-card__content">
                 <div class="article-card__info">
-                  <h3 class="article-card__title">{{ article.title }}</h3>
+                  <h3 :class="['article-card__title', typoClass('cardTitle')]">{{ article.title }}</h3>
                   <div class="article-card__meta">
-                    <time class="article-card__date" :datetime="article.date">{{ formatDate(article.date) }}</time>
+                    <time :class="['article-card__date', typoClass('cardMeta')]" :datetime="article.date">{{ formatDate(article.date) }}</time>
                     <span class="article-card__divider"></span>
-                    <span class="article-card__author">{{ article.author }}</span>
+                    <span :class="['article-card__author', typoClass('cardMeta')]">{{ article.author }}</span>
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
+                  <span :class="['article-card__category-text', typoClass('cardCategory')]">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -122,15 +122,15 @@
               </div>
               <div class="article-card__content">
                 <div class="article-card__info">
-                  <h3 class="article-card__title">{{ article.title }}</h3>
+                  <h3 :class="['article-card__title', typoClass('cardTitle')]">{{ article.title }}</h3>
                   <div class="article-card__meta">
-                    <time class="article-card__date" :datetime="article.date">{{ formatDate(article.date) }}</time>
+                    <time :class="['article-card__date', typoClass('cardMeta')]" :datetime="article.date">{{ formatDate(article.date) }}</time>
                     <span class="article-card__divider"></span>
-                    <span class="article-card__author">{{ article.author }}</span>
+                    <span :class="['article-card__author', typoClass('cardMeta')]">{{ article.author }}</span>
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
+                  <span :class="['article-card__category-text', typoClass('cardCategory')]">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -158,15 +158,15 @@
               </div>
               <div class="article-card__content">
                 <div class="article-card__info">
-                  <h3 class="article-card__title">{{ article.title }}</h3>
+                  <h3 :class="['article-card__title', typoClass('cardTitle')]">{{ article.title }}</h3>
                   <div class="article-card__meta">
-                    <time class="article-card__date" :datetime="article.date">{{ formatDate(article.date) }}</time>
+                    <time :class="['article-card__date', typoClass('cardMeta')]" :datetime="article.date">{{ formatDate(article.date) }}</time>
                     <span class="article-card__divider"></span>
-                    <span class="article-card__author">{{ article.author }}</span>
+                    <span :class="['article-card__author', typoClass('cardMeta')]">{{ article.author }}</span>
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
+                  <span :class="['article-card__category-text', typoClass('cardCategory')]">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -194,15 +194,15 @@
               </div>
               <div class="article-card__content">
                 <div class="article-card__info">
-                  <h3 class="article-card__title">{{ article.title }}</h3>
+                  <h3 :class="['article-card__title', typoClass('cardTitle')]">{{ article.title }}</h3>
                   <div class="article-card__meta">
-                    <time class="article-card__date" :datetime="article.date">{{ formatDate(article.date) }}</time>
+                    <time :class="['article-card__date', typoClass('cardMeta')]" :datetime="article.date">{{ formatDate(article.date) }}</time>
                     <span class="article-card__divider"></span>
-                    <span class="article-card__author">{{ article.author }}</span>
+                    <span :class="['article-card__author', typoClass('cardMeta')]">{{ article.author }}</span>
                   </div>
                 </div>
                 <div v-if="article.category" class="article-card__category">
-                  <span class="article-card__category-text">{{ getCategoryName(article) }}</span>
+                  <span :class="['article-card__category-text', typoClass('cardCategory')]">{{ getCategoryName(article) }}</span>
                 </div>
               </div>
             </div>
@@ -212,8 +212,8 @@
 
       <!-- Empty State -->
       <div v-if="filteredArticles.length === 0" class="blog__empty">
-        <h2 class="blog__empty-title">{{ $t('blog.noResultsTitle') }}</h2>
-        <p class="blog__empty-text">{{ $t('blog.noResultsText') }}</p>
+        <h2 :class="['blog__empty-title', typoClass('emptyTitle')]">{{ $t('blog.noResultsTitle') }}</h2>
+        <p :class="['blog__empty-text', typoClass('emptyText')]">{{ $t('blog.noResultsText') }}</p>
         <button class="blog__empty-link" @click="filterByCategory('')">
           {{ $t('blog.viewAll') }}
         </button>
@@ -240,6 +240,24 @@ useSeo('singleton/blog-page', null, 'Blog - Go2Digital')
 
 const { locale, t } = useI18n()
 
+const { blockMaps } = useTypography()
+
+const DEFAULT_PRESETS = {
+  pageTitle: 'hero-title',
+  count: 'body-sm',
+  filter: 'label-micro',
+  cardTitle: 'card-title',
+  cardMeta: 'body-xs',
+  cardCategory: 'label-micro',
+  emptyTitle: 'section-title',
+  emptyText: 'body',
+} as const
+
+function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
+  const map = blockMaps.value['blog-list'] || {}
+  return `typo-${map[key] || DEFAULT_PRESETS[key]}`
+}
+
 // Custom cursor ref
 const blogCursor = ref<HTMLElement | null>(null)
 
@@ -256,7 +274,7 @@ const categories = computed(() => {
 
 // Fetch blog posts from API — re-fetches when category or locale changes
 const categoryQuery = computed(() => {
-  const query: Record<string, any> = { status: 'published', itemsPerPage: 50 }
+  const query: Record<string, any> = { status: 'published', itemsPerPage: 200 }
   if (selectedCategory.value) {
     query['category.slug'] = selectedCategory.value
   }
@@ -501,25 +519,14 @@ $spacing-page-mobile: 1rem;
   // Element: Title
   // ==========================================================================
   &__title {
-    font-size: 5.375rem;
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.03em;
     color: $color-primary;
     margin: 0;
-
-    @include tablet {
-      font-size: 3.5rem;
-    }
   }
 
   // ==========================================================================
   // Element: Count
   // ==========================================================================
   &__count {
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     margin-top: 0.5rem;
   }
@@ -567,9 +574,6 @@ $spacing-page-mobile: 1rem;
   }
 
   &__filter-text {
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     text-transform: capitalize;
@@ -643,14 +647,11 @@ $spacing-page-mobile: 1rem;
   }
 
   &__empty-title {
-    font-size: 1.5rem;
-    font-weight: 400;
     color: $color-primary;
     margin: 0 0 1rem;
   }
 
   &__empty-text {
-    font-size: 1rem;
     color: $color-primary;
     opacity: 0.6;
     margin: 0 0 1.5rem;
@@ -764,20 +765,12 @@ $spacing-page-mobile: 1rem;
   }
 
   &__title {
-    font-size: 2.125rem;
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
     color: $color-primary;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-
-    @include tablet {
-      font-size: 1.5rem;
-    }
   }
 
   // ==========================================================================
@@ -791,9 +784,6 @@ $spacing-page-mobile: 1rem;
 
   &__date,
   &__author {
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     text-transform: capitalize;
@@ -817,9 +807,6 @@ $spacing-page-mobile: 1rem;
   }
 
   &__category-text {
-    font-size: 0.75rem;
-    font-weight: 400;
-    line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     text-transform: capitalize;
