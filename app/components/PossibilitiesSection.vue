@@ -56,9 +56,9 @@ const { blockMaps } = useTypography()
 const DEFAULT_PRESETS = {
   label: 'eyebrow',
   subtitle: 'eyebrow',
-  counter: 'number-lg',
+  counter: 'display-md',
   item: 'possibilities-item',
-  description: 'body-xs',
+  description: 'body-sm',
 } as const
 
 function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
@@ -192,11 +192,11 @@ function animateTransition(newIndex: number) {
     })
   }
 
-  // Animate counter
+  // Animate counter — opacity only; avoid y-shift which jitters during scroll.
   if (counterRef.value) {
     gsap.fromTo(counterRef.value,
-      { opacity: 0.5, y: 4 },
-      { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', overwrite: true }
+      { opacity: 0.5 },
+      { opacity: 1, duration: 0.3, ease: 'power2.out', overwrite: true }
     )
   }
 }
