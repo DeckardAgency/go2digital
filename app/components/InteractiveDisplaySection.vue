@@ -212,7 +212,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 // Component-specific variable
-$display-bg: #FAFAFA;
+$display-bg: #ffffff;
 
 .interactive-display {
   display: grid;

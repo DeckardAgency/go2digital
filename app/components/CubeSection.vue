@@ -230,7 +230,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 // Component-specific variable
-$cube-bg: #FAFAFA;
+$cube-bg: #ffffff;
 
 .cube-section {
   display: grid;
@@ -380,7 +380,7 @@ $cube-bg: #FAFAFA;
   gap: $spacing-xl;
   padding: 6rem 4rem;
   width: 100%;
-  background-color: #FAFAFA;
+  background-color: #ffffff;
   z-index: 30;
 
   @include tablet { padding: 4rem $spacing-lg; }

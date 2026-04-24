@@ -80,58 +80,58 @@
               </svg>
             </button>
           </div>
+
+          <!-- Shared dropdown panels (span full filter-group width, anchored to the group) -->
+          <Transition name="dropdown" @after-enter="focusCitySearch">
+            <div class="custom-select__dropdown" v-if="isCityDropdownOpen" data-lenis-prevent>
+              <div class="custom-select__search">
+                <input
+                  ref="citySearchRef"
+                  type="text"
+                  class="custom-select__search-input"
+                  :placeholder="locSearchFilterPlaceholder"
+                  v-model="cityFilterQuery"
+                  @click.stop
+                >
+              </div>
+              <div class="custom-select__options">
+                <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
+                  <span>{{ locFiltersAll }} {{ locFiltersCities }}</span>
+                </button>
+                <label v-for="city in filteredCities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
+                  <span>{{ city.name }}</span>
+                  <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
+                </label>
+                <div v-if="filteredCities.length === 0" class="custom-select__no-results">{{ locNoResults }}</div>
+              </div>
+            </div>
+          </Transition>
+
+          <Transition name="dropdown" @after-enter="focusEnvSearch">
+            <div class="custom-select__dropdown" v-if="isEnvDropdownOpen" data-lenis-prevent>
+              <div class="custom-select__search">
+                <input
+                  ref="envSearchRef"
+                  type="text"
+                  class="custom-select__search-input"
+                  :placeholder="locSearchFilterPlaceholder"
+                  v-model="envFilterQuery"
+                  @click.stop
+                >
+              </div>
+              <div class="custom-select__options">
+                <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
+                  <span>{{ locFiltersAll }} {{ locFiltersEnvironments }}</span>
+                </button>
+                <label v-for="env in filteredEnvironments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
+                  <span>{{ env.name }}</span>
+                  <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
+                </label>
+                <div v-if="filteredEnvironments.length === 0" class="custom-select__no-results">No results</div>
+              </div>
+            </div>
+          </Transition>
         </div>
-
-        <!-- Shared dropdown panel below triggers -->
-        <Transition name="dropdown" @after-enter="focusCitySearch">
-          <div class="custom-select__dropdown" v-if="isCityDropdownOpen" data-lenis-prevent>
-            <div class="custom-select__search">
-              <input
-                ref="citySearchRef"
-                type="text"
-                class="custom-select__search-input"
-                :placeholder="locSearchFilterPlaceholder"
-                v-model="cityFilterQuery"
-                @click.stop
-              >
-            </div>
-            <div class="custom-select__options">
-              <button class="custom-select__option custom-select__option--all" @click="toggleAllCities">
-                <span>{{ locFiltersAll }} {{ locFiltersCities }}</span>
-              </button>
-              <label v-for="city in filteredCities" :key="city.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedCities.includes(city.id) }">
-                <span>{{ city.name }}</span>
-                <input type="checkbox" :value="city.id" v-model="selectedCities" @change="applyFilters">
-              </label>
-              <div v-if="filteredCities.length === 0" class="custom-select__no-results">{{ locNoResults }}</div>
-            </div>
-          </div>
-        </Transition>
-
-        <Transition name="dropdown" @after-enter="focusEnvSearch">
-          <div class="custom-select__dropdown" v-if="isEnvDropdownOpen" data-lenis-prevent>
-            <div class="custom-select__search">
-              <input
-                ref="envSearchRef"
-                type="text"
-                class="custom-select__search-input"
-                :placeholder="locSearchFilterPlaceholder"
-                v-model="envFilterQuery"
-                @click.stop
-              >
-            </div>
-            <div class="custom-select__options">
-              <button class="custom-select__option custom-select__option--all" @click="toggleAllEnvironments">
-                <span>{{ locFiltersAll }} {{ locFiltersEnvironments }}</span>
-              </button>
-              <label v-for="env in filteredEnvironments" :key="env.id" class="custom-select__option" :class="{ 'custom-select__option--selected': selectedEnvironments.includes(env.id) }">
-                <span>{{ env.name }}</span>
-                <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
-              </label>
-              <div v-if="filteredEnvironments.length === 0" class="custom-select__no-results">No results</div>
-            </div>
-          </div>
-        </Transition>
       </div>
 
       <!-- Mobile Buttons Row -->
@@ -327,7 +327,7 @@
       </div>
 
       <!-- Nearby Facilities -->
-      <div class="locations-map__facilities" :class="{ 'locations-map__facilities--dark': isDarkMode, 'locations-map__facilities--open': isFacilitiesOpen }">
+      <div v-if="false" class="locations-map__facilities" :class="{ 'locations-map__facilities--dark': isDarkMode, 'locations-map__facilities--open': isFacilitiesOpen }">
         <button class="locations-map__facilities-toggle" @click="isFacilitiesOpen = !isFacilitiesOpen">
           <span class="locations-map__facilities-label">
             {{ activeFacilities.length > 0 ? `Nearby Places (${activeFacilities.length})` : 'Nearby Places' }}
@@ -1750,7 +1750,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   &__count {
-    font-size: $font-size-old-base;   // old: 1rem
+    font-size: $font-size-old-base;   /* old: 1rem */
     color: $color-muted;
     align-self: flex-start;
     margin-top: 0.25rem;
@@ -1797,7 +1797,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: $font-size-old-xs;     // old: 0.75rem
+    font-size: $font-size-old-xs;     /* old: 0.75rem */
     font-weight: 400;
     text-transform: capitalize;
     cursor: pointer;
@@ -1831,7 +1831,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: $font-size-old-base;   // old: 1rem
+    font-size: $font-size-old-base;   /* old: 1rem */
     font-weight: 400;
     cursor: pointer;
   }
@@ -1851,7 +1851,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-md 0 0 $radius-md;
     border-right: none;
-    font-size: $font-size-old-base;   // old: 1rem
+    font-size: $font-size-old-base;   /* old: 1rem */
     font-weight: 400;
     line-height: 1.3;
     font-family: inherit;
@@ -1868,7 +1868,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border-radius: 0 $radius-md $radius-md 0;
     background-color: $color-surface;
     color: $color-primary;
-    font-size: $font-size-old-xs;     // old: $font-base = 0.75rem
+    font-size: $font-size-old-xs;     /* old: $font-base = 0.75rem */
     font-family: inherit;
     font-weight: 400;
     cursor: pointer;
@@ -1893,7 +1893,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-full;
     background: transparent;
-    font-size: 0.8125rem;             // old site: 0.8125rem raw
+    font-size: 0.8125rem;             /* old site: 0.8125rem raw */
     font-weight: 400;
   }
 
@@ -1911,7 +1911,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: center;
     gap: $spacing-xs;
     margin-left: auto;
-    font-size: 0.8125rem;             // old site: 0.8125rem raw
+    font-size: 0.8125rem;             /* old site: 0.8125rem raw */
     color: $color-primary;
     text-decoration: none;
     font-weight: 400;
@@ -1976,6 +1976,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__dropdown {
     position: absolute;
+    top: 100%;
     left: 0;
     right: 0;
     max-height: 360px;
@@ -2196,12 +2197,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
 
   &__city,
-  &__type { font-size: 0.8125rem; color: $color-muted; }   // old .location-card__meta: 0.8125rem
-  &__dot { font-size: 0.375rem; color: $color-muted; }
+  &__type { font-size: 0.8125rem; color: $color-muted; }   /* old .location-card__meta: 0.8125rem */
+    &__dot { font-size: 0.375rem; color: $color-muted; }
 
   &__name {
-    font-size: 0.9375rem;             // old .location-card__name: 0.9375rem
-    font-weight: 500;                 // old: 500
+    font-size: 0.9375rem;             /* old .location-card__name: 0.9375rem */
+    font-weight: 500;                 /* old: 500 */
     line-height: 1.3;
     margin: 0;
     color: $color-primary;
