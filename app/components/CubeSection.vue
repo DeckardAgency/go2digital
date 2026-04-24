@@ -155,14 +155,14 @@ onMounted(async () => {
     const p3 = cubePanel3Ref.value
     if (!p1 || !p2 || !p3) return
 
-    const skewAngle = -26.565
+    const skewFlat = -26.565
 
     gsap.set([p1, p2, p3], { transformOrigin: 'center center' })
 
-    // State 1: Flat stacked isometric
-    gsap.set(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 30, opacity: 1, zIndex: 1 })
-    gsap.set(p2, { rotation: 30, skewX: skewAngle, x: 0, y: 0, opacity: 1, zIndex: 2 })
-    gsap.set(p3, { rotation: 30, skewX: skewAngle, x: 0, y: -30, opacity: 1, zIndex: 3 })
+    // State 1: Flat stacked isometric — values ported from old cubeSection.js
+    gsap.set(p1, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: -25, opacity: 1, zIndex: 3 })
+    gsap.set(p2, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 0,   opacity: 1, zIndex: 2 })
+    gsap.set(p3, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 25,  opacity: 1, zIndex: 1 })
 
     // #1: If reduced motion, show static isometric state and skip animation
     if (prefersReducedMotion.value) return
@@ -173,32 +173,32 @@ onMounted(async () => {
       defaults: { duration: 1.2, ease: 'power3.inOut' }
     })
 
-    // State 1 → 2: Separate
+    // State 1 → 2: Separate vertically (panels stay flat)
     timeline
-      .to(p1, { y: 130 }, 'separate')
-      .to(p2, { y: 0 }, 'separate')
-      .to(p3, { y: -130 }, 'separate')
+      .to(p1, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: -100 }, 'separate')
+      .to(p2, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 0 },    'separate')
+      .to(p3, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 100 },  'separate')
     timeline.to({}, { duration: 1 })
 
-    // State 2 → 3: Unfold
+    // State 2 → 3: Unfolded cube — panels spread wide with per-panel 3D skew
     timeline
-      .to(p1, { rotation: -30, skewX: skewAngle, skewY: 0, x: -50, y: 50 }, 'unfold')
-      .to(p2, { rotation: -30, skewX: skewAngle, skewY: 0, x: 0, y: 0 }, 'unfold')
-      .to(p3, { rotation: -30, skewX: skewAngle, skewY: 0, x: 50, y: -50 }, 'unfold')
+      .to(p1, { rotation: 30,  skewX: -26.565, skewY: 0,    scaleX: 1,    scaleY: 1,    x: 0,    y: -200 }, 'unfold')
+      .to(p2, { rotation: 30,  skewX: 27.5,   skewY: -0.5, scaleX: 1.01, scaleY: 1.01, x: -200, y: 35 },  'unfold')
+      .to(p3, { rotation: -26, skewX: -28,    skewY: -7.5, scaleX: 1.11, scaleY: 1,    x: 200,  y: 23 },  'unfold')
     timeline.to({}, { duration: 1 })
 
-    // State 3 → 4: Assemble cube
+    // State 3 → 4: Assemble 3D cube — edges meet to form top + left + right faces
     timeline
-      .to(p1, { rotation: 30, skewX: skewAngle, x: 0, y: 0, scaleX: 1, scaleY: 0.5 }, 'cube')
-      .to(p2, { rotation: 30, skewX: skewAngle, x: -60, y: 0, scaleX: 0.5, scaleY: 1, skewY: 26.565 }, 'cube')
-      .to(p3, { rotation: 30, skewX: skewAngle, x: 60, y: 0, scaleX: 0.5, scaleY: 1, skewY: -26.565 }, 'cube')
+      .to(p1, { rotation: 28,  skewX: -26.565, skewY: 0,    scaleX: 1,   scaleY: 1,    x: 0,   y: -79 }, 'cube')
+      .to(p2, { rotation: 27,  skewX: 27,     skewY: 1,    scaleX: 1,   scaleY: 0.99, x: -90, y: 97 },  'cube')
+      .to(p3, { rotation: -28, skewX: -28,    skewY: -7.5, scaleX: 1.1, scaleY: 0.98, x: 89,  y: 78 },  'cube')
     timeline.to({}, { duration: 1 })
 
-    // State 4 → 1: Reset
+    // State 4 → 1: Reset to flat stacked
     timeline
-      .to(p1, { rotation: 30, skewX: skewAngle, skewY: 0, x: 0, y: 30, scaleX: 1, scaleY: 1, opacity: 1, duration: 1.2 }, 'reset')
-      .to(p2, { rotation: 30, skewX: skewAngle, skewY: 0, x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.2 }, 'reset')
-      .to(p3, { rotation: 30, skewX: skewAngle, skewY: 0, x: 0, y: -30, scaleX: 1, scaleY: 1, duration: 1.2 }, 'reset')
+      .to(p1, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: -25, opacity: 1, duration: 1.2 }, 'reset')
+      .to(p2, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 0,   duration: 1.2 }, 'reset')
+      .to(p3, { rotation: 30, skewX: skewFlat, skewY: 0, scaleX: 1, scaleY: 1, x: 0, y: 25,  duration: 1.2 }, 'reset')
     timeline.to({}, { duration: 1 })
 
     // Pause/resume when off-screen to save CPU/GPU
