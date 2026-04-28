@@ -307,6 +307,7 @@ $labs-dot-size: 6px;
   &-link {
     display: grid;
     grid-template-columns: 3fr 2fr 2fr 3fr;
+    gap: 1rem;
     align-items: start;
     padding: 2.5rem $spacing-xl 5rem;
     cursor: pointer;

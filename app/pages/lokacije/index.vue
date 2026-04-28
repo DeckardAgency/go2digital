@@ -1872,8 +1872,14 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     font-family: inherit;
     font-weight: 400;
     cursor: pointer;
-    transition: background-color $transition-base;
+    transition: background-color $transition-base, border-color $transition-base;
     &:hover { background-color: #e8e8e8; }
+  }
+
+  &__search:focus-within &__search-btn {
+    border-top-color: $color-primary;
+    border-right-color: $color-primary;
+    border-bottom-color: $color-primary;
   }
 
   // ── Active Filters ──

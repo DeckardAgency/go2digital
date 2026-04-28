@@ -182,23 +182,21 @@
       <!-- Header -->
       <div class="location-detail__stats-header">
         <h2 class="location-detail__stats-title">
-          Location Statistics
-          <span class="location-detail__stats-period">(Monthly)</span>
+          {{ $t('location.detail.statistics.title') }}
+          <span class="location-detail__stats-period">{{ $t('location.detail.statistics.period') }}</span>
         </h2>
-        <div class="location-detail__stats-type">Primary</div>
+        <div class="location-detail__stats-type">{{ $t('location.detail.statistics.primary') }}</div>
       </div>
 
       <!-- Stat: Approximate Traffic -->
       <div class="location-detail__stat-row" v-if="totem.reach">
         <div class="location-detail__stat-label">
           <span class="location-detail__dot"></span>
-          Approximate Traffic
+          {{ $t('location.detail.statistics.traffic.label') }}
         </div>
         <div class="location-detail__stat-value">{{ formatNumber(totem.reach) }}</div>
         <div class="location-detail__stat-desc">
-          Over {{ totem.reach?.toLocaleString() || '0' }} vehicles pass monthly, ensuring
-          strong impressions from daily commuters and
-          tourists alike.
+          {{ $t('location.detail.statistics.traffic.description', { count: totem.reach?.toLocaleString() || '0' }) }}
         </div>
       </div>
 
@@ -206,31 +204,29 @@
       <div class="location-detail__stat-row" v-if="totem.pedestrian_count">
         <div class="location-detail__stat-label">
           <span class="location-detail__dot"></span>
-          Pedestrian Footfall
+          {{ $t('location.detail.statistics.pedestrian.label') }}
         </div>
         <div class="location-detail__stat-value">{{ formatNumber(totem.pedestrian_count) }}</div>
         <div class="location-detail__stat-desc">
-          Attracting approximately {{ totem.pedestrian_count?.toLocaleString() || '0' }} pedestrians
-          each month, this location engages both foot traffic
-          and public transport users throughout the day.
+          {{ $t('location.detail.statistics.pedestrian.description', { count: totem.pedestrian_count?.toLocaleString() || '0' }) }}
         </div>
       </div>
 
       <!-- Secondary label -->
       <div class="location-detail__stats-secondary" v-if="totem.postbuy_category">
-        <div class="location-detail__stats-type">Secondary</div>
+        <div class="location-detail__stats-type">{{ $t('location.detail.statistics.secondary') }}</div>
       </div>
 
       <!-- Stat: Neighbourhood -->
       <div class="location-detail__stat-row location-detail__stat-row--no-value" v-if="totem.postbuy_category">
         <div class="location-detail__stat-label">
           <span class="location-detail__dot"></span>
-          Neighbourhood
+          {{ $t('location.detail.statistics.neighbourhood.label') }}
         </div>
         <div class="location-detail__stat-value"></div>
         <div class="location-detail__stat-desc">
-          {{ capitalize(totem.postbuy_category) }} location in {{ cityName }}.
-          {{ totem.totem_type === 'indoor' ? 'Indoor placement with high foot traffic.' : 'Outdoor placement with strong vehicle and pedestrian visibility.' }}
+          {{ $t('location.detail.statistics.neighbourhood.description', { category: capitalize(totem.postbuy_category), city: cityName }) }}
+          {{ totem.totem_type === 'indoor' ? $t('location.detail.statistics.neighbourhood.indoor') : $t('location.detail.statistics.neighbourhood.outdoor') }}
         </div>
       </div>
     </section>
@@ -238,7 +234,7 @@
     <!-- Nearby Locations -->
     <section class="location-detail__nearby" v-if="nearbyLocations.length > 0">
       <h2 class="location-detail__nearby-title">
-        Nearby locations
+        {{ $t('location.detail.nearby.title') }}
         <span class="location-detail__nearby-count">({{ nearbyLocations.length }})</span>
       </h2>
       <div class="location-detail__nearby-grid">

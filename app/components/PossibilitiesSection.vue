@@ -289,6 +289,7 @@ function destroy() {
   &__counter {
     color: $color-primary;
     align-self: center;
+    min-width: 5rem;
 
     @include tablet {
       display: none;
@@ -327,6 +328,11 @@ function destroy() {
       color: $color-primary;
       opacity: 0.6;
       margin: 0;
+    }
+
+    // scoped override — body-sm preset is 0.875rem globally, but 1.2rem here
+    :deep(.typo-body-sm) {
+      font-size: 1.2rem;
     }
 
     @include tablet {

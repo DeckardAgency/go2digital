@@ -85,7 +85,7 @@ const { data: whyCards } = useApi<HomepageWhyCard[]>('/api/homepage_why_cards', 
 const DEFAULT_PRESETS = {
   label: 'eyebrow-tight',
   headline: 'display-xl',
-  slideNumber: 'display-stat',
+  slideNumber: 'display-stat-xl',
   slideTitle: 'display-md',
   slideTitleMobile: 'body',
   slideText: 'body-sm',

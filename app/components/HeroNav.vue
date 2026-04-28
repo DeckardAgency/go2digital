@@ -16,12 +16,20 @@
           :to="localePath(item.url)"
           class="hero-nav__link"
           data-hover-animate
-        >{{ item.label }}</NuxtLink>
+        >
+          <span class="hover-stack">
+            <span class="hover-stack__text">{{ item.label }}</span>
+            <span class="hover-stack__text" aria-hidden="true">{{ item.label }}</span>
+          </span>
+        </NuxtLink>
       </div>
 
       <!-- Locations Button (Always visible) -->
       <NuxtLink :to="localePath('/lokacije')" class="hero-nav__locations" data-hover-animate>
-        <span class="hero-nav__locations-text">{{ $t('location.title') }}</span>
+        <span class="hover-stack">
+          <span class="hover-stack__text">{{ $t('location.title') }}</span>
+          <span class="hover-stack__text" aria-hidden="true">{{ $t('location.title') }}</span>
+        </span>
       </NuxtLink>
     </div>
   </nav>
@@ -208,6 +216,36 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
+  // Hover slide-up text (ports `data-hover-animate` from old project)
+  .hover-stack {
+    display: inline-grid;
+    grid-template: 1fr / 1fr;
+    overflow: hidden;
+    vertical-align: top;
+    line-height: 1.2;
+  }
+
+  .hover-stack__text {
+    grid-column: 1;
+    grid-row: 1;
+    white-space: nowrap;
+    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+    will-change: transform;
+
+    &:nth-child(2) { transform: translateY(100%); }
+  }
+
+  &__link:hover .hover-stack__text,
+  &__locations:hover .hover-stack__text {
+    transform: translateY(-100%);
+
+    &:nth-child(2) { transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hover-stack__text { transition: none; }
+  }
+
   // Locations Button (Always visible)
   &__locations {
     position: absolute;
@@ -230,10 +268,6 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
     &:hover {
       background-color: color.adjust($color-white, $lightness: -5%);
     }
-  }
-
-  &__locations-text {
-    display: block;
   }
 
   // Active State (Menu Open)

@@ -383,6 +383,31 @@
       "description": "Pregledajte sve naše lokacije digitalnih ekrana u Hrvatskoj.",
       "keywords": "lokacije, digitalni ekrani, vanjsko oglašavanje, Hrvatska"
     },
-    "confirmClear": "Jeste li sigurni da želite očistiti sve odabrane lokacije?"
+    "confirmClear": "Jeste li sigurni da želite očistiti sve odabrane lokacije?",
+    "detail": {
+      "statistics": {
+        "title": "Statistika lokacije",
+        "period": "(Mjesečno)",
+        "primary": "Primarno",
+        "secondary": "Sekundarno",
+        "traffic": {
+          "label": "Prosječni promet",
+          "description": "Preko {count} vozila prolazi mjesečno, osiguravajući snažan dojam kod svakodnevnih putnika i turista."
+        },
+        "pedestrian": {
+          "label": "Pješački promet",
+          "description": "Privlačeći približno {count} pješaka mjesečno, ova lokacija angažira pješački promet i korisnike javnog prijevoza tijekom cijelog dana."
+        },
+        "neighbourhood": {
+          "label": "Okruženje",
+          "description": "{category} lokacija u gradu {city}.",
+          "indoor": "Unutarnje postavljanje s visokim pješačkim prometom.",
+          "outdoor": "Vanjsko postavljanje s jakom vidljivošću za vozila i pješake."
+        }
+      },
+      "nearby": {
+        "title": "Lokacije u blizini"
+      }
+    }
   }
 }

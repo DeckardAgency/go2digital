@@ -383,6 +383,31 @@
       "description": "Browse all our digital screen locations in Croatia.",
       "keywords": "locations, digital screens, outdoor advertising, Croatia"
     },
-    "confirmClear": "Are you sure you want to clear all selected locations?"
+    "confirmClear": "Are you sure you want to clear all selected locations?",
+    "detail": {
+      "statistics": {
+        "title": "Location Statistics",
+        "period": "(Monthly)",
+        "primary": "Primary",
+        "secondary": "Secondary",
+        "traffic": {
+          "label": "Approximate Traffic",
+          "description": "Over {count} vehicles pass monthly, ensuring strong impressions from daily commuters and tourists alike."
+        },
+        "pedestrian": {
+          "label": "Pedestrian Footfall",
+          "description": "Attracting approximately {count} pedestrians each month, this location engages both foot traffic and public transport users throughout the day."
+        },
+        "neighbourhood": {
+          "label": "Neighbourhood",
+          "description": "{category} location in {city}.",
+          "indoor": "Indoor placement with high foot traffic.",
+          "outdoor": "Outdoor placement with strong vehicle and pedestrian visibility."
+        }
+      },
+      "nearby": {
+        "title": "Nearby locations"
+      }
+    }
   }
 }

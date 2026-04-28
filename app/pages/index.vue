@@ -37,8 +37,8 @@ const sectionComponents: Record<string, any> = {
 
 const defaultOrder = [
   'hero', 'horizontal-scroll', 'why-section', 'custom-image',
-  'custom-solution', 'featured-labs', 'human-focused', 'text-animation',
-  'billboard', 'analytics', 'tracking', 'rentals-image', 'possibilities',
+  'custom-solution', 'featured-labs', 'human-focused', 'possibilities', 'text-animation',
+  'billboard', 'analytics', 'tracking', 'rentals-image',
   'products', 'interactive-display', 'interactive-description',
 ]
 

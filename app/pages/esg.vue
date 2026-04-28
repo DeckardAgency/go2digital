@@ -156,8 +156,8 @@
             </div>
 
             <div class="esg-page__diagram-info">
-              <h3 ref="diagramTitle" :class="['esg-page__diagram-title', typoClass('diagramTitle')]">{{ badgeContent[1].title }}</h3>
-              <p ref="diagramDesc" :class="['esg-page__diagram-desc', typoClass('diagramDesc')]">{{ badgeContent[1].desc }}</p>
+              <h3 ref="diagramTitle" :class="['esg-page__diagram-title', typoClass('diagramTitle')]">{{ badgeContent[activeBadge].title }}</h3>
+              <p ref="diagramDesc" :class="['esg-page__diagram-desc', typoClass('diagramDesc')]">{{ badgeContent[activeBadge].desc }}</p>
             </div>
           </div>
         </div>
@@ -234,14 +234,25 @@ let videoScrollTrigger: ScrollTrigger | null = null
 let visionTimeline: gsap.core.Timeline | null = null
 let visionScrollTrigger: ScrollTrigger | null = null
 let lastActiveBadge = 0
+const activeBadge = ref<1 | 2 | 3>(1)
 
 // Badge content for vision section — from API with hardcoded fallback
+// Fallback strings ported from old project (assets/scripts/pages/esg.js:36-46)
 const badgeContent = computed(() => {
   const badges = esgBadges.value ?? []
   return {
-    1: { title: badges[0]?.title ?? 'Digitalni Ekrani', desc: badges[0]?.description ?? '' },
-    2: { title: badges[1]?.title ?? 'Zeleni Tornjevi', desc: badges[1]?.description ?? '' },
-    3: { title: badges[2]?.title ?? 'Čišćenje Zraka', desc: badges[2]?.description ?? '' },
+    1: {
+      title: badges[0]?.title ?? 'Digitalni Ekrani',
+      desc: badges[0]?.description ?? 'Sama srž našeg poslovanja je digitalna i time smanjujemo utjecaj na okoliš i gradimo održiviju budućnost oglašavanja.'
+    },
+    2: {
+      title: badges[1]?.title ?? 'Zeleni Tornjevi',
+      desc: badges[1]?.description ?? 'Zeleni tornjevi su lokacije na kojima smo postavili košnice za pčele i autohtone hrvatske biljke čime doprinosimo održivosti okoliša u blizini naših ekrana.'
+    },
+    3: {
+      title: badges[2]?.title ?? 'Čišćenje Zraka',
+      desc: badges[2]?.description ?? 'Naši citylight ekrani imaju integrirane HEPA filtere koji uklanjaju sitne čestice prašine, peludi i zagađenja iz prometa te pomažu stvaranju zdravijeg i ugodnijeg urbanog okruženja.'
+    },
   }
 })
 
@@ -354,7 +365,7 @@ function initVideoAnimation() {
 /**
  * Set active badge and update content
  */
-function setActiveBadge(badgeNum: number) {
+function setActiveBadge(badgeNum: 1 | 2 | 3) {
   if (lastActiveBadge === badgeNum) return
 
   const badges = [badge1.value, badge2.value, badge3.value]
@@ -374,22 +385,27 @@ function setActiveBadge(badgeNum: number) {
     }
   })
 
-  // Update content with animation
-  const content = badgeContent[badgeNum as keyof typeof badgeContent]
-  if (content && titleEl && descEl) {
-    gsap.to([titleEl, descEl], {
-      opacity: 0,
-      duration: 0.2,
-      onComplete: () => {
-        titleEl.textContent = content.title
-        descEl.textContent = content.desc
+  // First-time setup — no fade, just set
+  if (lastActiveBadge === 0 || !titleEl || !descEl) {
+    activeBadge.value = badgeNum
+    lastActiveBadge = badgeNum
+    return
+  }
+
+  // Fade out → swap via Vue reactivity → fade in
+  gsap.to([titleEl, descEl], {
+    opacity: 0,
+    duration: 0.2,
+    onComplete: () => {
+      activeBadge.value = badgeNum
+      nextTick(() => {
         gsap.to([titleEl, descEl], {
           opacity: 1,
           duration: 0.2
         })
-      }
-    })
-  }
+      })
+    }
+  })
 
   lastActiveBadge = badgeNum
 }
@@ -516,14 +532,14 @@ function initVisionAnimation() {
         })
 
         // Determine active badge
-        let activeBadge = 1
+        let targetBadge: 1 | 2 | 3 = 1
         if (progress > 0.66) {
-          activeBadge = 3
+          targetBadge = 3
         } else if (progress > 0.33) {
-          activeBadge = 2
+          targetBadge = 2
         }
 
-        setActiveBadge(activeBadge)
+        setActiveBadge(targetBadge)
       }
     }
   })
