@@ -8,6 +8,8 @@ const route = useRoute()
 // Check if current page is ESG
 const isEsgPage = computed(() => route.path.includes('/esg'))
 
+const currentYear = new Date().getFullYear()
+
 // Refs
 const eventTitleRef = ref<HTMLElement | null>(null)
 
@@ -282,7 +284,7 @@ onUnmounted(() => {
       <h2
         ref="eventTitleRef"
         class="footer__title"
-      >Go2Digital © 2025</h2>
+      >Go2Digital © {{ currentYear }}</h2>
 
       <!-- Contact -->
       <address class="footer__contact">
