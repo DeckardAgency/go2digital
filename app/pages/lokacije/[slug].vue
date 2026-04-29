@@ -802,9 +802,6 @@ useHead({
   ...(seo.value?.canonicalUrl ? { link: [{ rel: 'canonical', href: seo.value.canonicalUrl }] } : {}),
 })
 
-definePageMeta({
-  showFooter: false
-})
 </script>
 
 <style scoped lang="scss">
