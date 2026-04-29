@@ -334,6 +334,10 @@ export const useSplitText = () => {
 
     if (!splitElements?.length) return
 
+    // Mark as animated so MutationObserver re-splits in the visible state
+    // when reactive text content updates after we've already revealed.
+    animatedElements.add(element)
+
     // Animate clip-path from hidden to visible + move up
     gsap.to(splitElements, {
       clipPath: 'inset(0 0 0% 0)',
@@ -375,6 +379,7 @@ export const useSplitText = () => {
   const setVisible = (element: HTMLElement) => {
     const splitElements = (element as any)._splitElements as HTMLElement[]
     if (splitElements?.length) {
+      animatedElements.add(element)
       gsap.set(splitElements, {
         clipPath: 'inset(0 0 0% 0)',
         y: 0
