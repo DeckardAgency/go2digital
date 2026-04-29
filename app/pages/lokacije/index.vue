@@ -466,32 +466,34 @@
     </Teleport>
 
     <!-- Mobile View Switcher -->
-    <div class="locations-view-switcher">
-      <button
-        class="locations-view-switcher__btn"
-        :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"
-        @click="switchMobileView('grid')"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-        {{ locViewGrid }}
-      </button>
-      <button
-        class="locations-view-switcher__btn"
-        :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'map' }"
-        @click="switchMobileView('map')"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 8.5C9.10457 8.5 10 7.60457 10 6.5C10 5.39543 9.10457 4.5 8 4.5C6.89543 4.5 6 5.39543 6 6.5C6 7.60457 6.89543 8.5 8 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M13 6.5C13 11 8 14.5 8 14.5C8 14.5 3 11 3 6.5C3 4.9087 3.63214 3.38258 4.75736 2.25736C5.88258 1.13214 7.4087 0.5 9 0.5C10.5913 0.5 12.1174 1.13214 13.2426 2.25736C14.3679 3.38258 15 4.9087 15 6.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {{ locViewMap }}
-      </button>
-    </div>
+    <Teleport to="body">
+      <div class="locations-view-switcher">
+        <button
+          class="locations-view-switcher__btn"
+          :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"
+          @click="switchMobileView('grid')"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          {{ locViewGrid }}
+        </button>
+        <button
+          class="locations-view-switcher__btn"
+          :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'map' }"
+          @click="switchMobileView('map')"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 8.5C9.10457 8.5 10 7.60457 10 6.5C10 5.39543 9.10457 4.5 8 4.5C6.89543 4.5 6 5.39543 6 6.5C6 7.60457 6.89543 8.5 8 8.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13 6.5C13 11 8 14.5 8 14.5C8 14.5 3 11 3 6.5C3 4.9087 3.63214 3.38258 4.75736 2.25736C5.88258 1.13214 7.4087 0.5 9 0.5C10.5913 0.5 12.1174 1.13214 13.2426 2.25736C14.3679 3.38258 15 4.9087 15 6.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ locViewMap }}
+        </button>
+      </div>
+    </Teleport>
 
     <!-- Mobile Filters Modal -->
     <div class="locations-filters-modal" :class="{ 'locations-filters-modal--open': isFiltersModalOpen }">
@@ -2521,16 +2523,17 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 // Mobile view switcher
 .locations-view-switcher {
   position: fixed;
-  bottom: $spacing-lg;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: none;
   gap: $spacing-xs;
   padding: $spacing-xs;
   background-color: $color-background;
+  border: 1px solid $color-border;
   border-radius: $radius-full;
   box-shadow: $shadow-lg;
-  z-index: $z-dropdown;
+  z-index: $z-fixed;
 
   @include tablet { display: flex; }
 
@@ -2542,6 +2545,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: none;
     border-radius: $radius-full;
     background: transparent;
+    color: $color-primary;
     font-size: $font-size-sm;
     font-family: inherit;
     cursor: pointer;
