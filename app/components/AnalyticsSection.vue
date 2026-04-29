@@ -247,7 +247,7 @@ function switchTab(tabId: string, index: number) {
   border-top: 1px solid #293331;
 
   @include mobile {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   &__left {
@@ -296,6 +296,7 @@ function switchTab(tabId: string, index: number) {
     grid-column: 7 / 13;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 
     @include tablet { grid-column: 1 / -1; }
   }
@@ -316,7 +317,7 @@ function switchTab(tabId: string, index: number) {
 
   &__tabs-wrapper {
     padding: 0 0 $spacing-2xl 0;
-    @include mobile { padding: $spacing-md $spacing-md 0; }
+    @include mobile { padding: $spacing-md $spacing-md 2rem; }
   }
 
   &__tabs {
@@ -370,6 +371,7 @@ function switchTab(tabId: string, index: number) {
     display: flex;
     flex-direction: column;
     padding: $spacing-2xl;
+    min-width: 0;
     @include mobile { padding: $spacing-md; }
   }
 
@@ -377,6 +379,7 @@ function switchTab(tabId: string, index: number) {
     display: flex;
     gap: $spacing-sm;
     flex: 1;
+    min-width: 0;
   }
 
   &__y-axis {
@@ -398,6 +401,7 @@ function switchTab(tabId: string, index: number) {
     gap: 6px;
     flex: 1;
     align-items: stretch;
+    min-width: 0;
 
     @include mobile { gap: 3px; }
   }
@@ -407,6 +411,8 @@ function switchTab(tabId: string, index: number) {
     flex-direction: column;
     gap: 14px;
     flex: 1;
+    min-width: 0;
+    align-items: center;
 
     @include mobile { gap: 3px; }
   }
@@ -433,13 +439,26 @@ function switchTab(tabId: string, index: number) {
     justify-content: space-between;
     padding-top: $spacing-sm;
     padding-left: calc($spacing-sm + 36px);
+    min-width: 0;
+
+    @include mobile {
+      padding-left: calc($spacing-sm + 30px);
+    }
   }
 
   &__x-label {
     color: rgba(#FAFAFA, 0.25);
     text-align: center;
     flex: 1;
+    min-width: 0;
     font-variant-numeric: tabular-nums;
+
+    @include mobile {
+      // Show only every 5th label so 31 numbers don't squash on narrow viewports
+      &:not(:nth-child(5n + 1)):not(:last-child) {
+        visibility: hidden;
+      }
+    }
   }
 }
 </style>

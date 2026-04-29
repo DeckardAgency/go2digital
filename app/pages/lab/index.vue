@@ -380,6 +380,11 @@ $grid-padding-mobile: 1rem;
   &__intro {
     grid-column: 4 / -1;
     margin: 0;
+
+    @include mobile {
+      grid-column: 1 / -1;
+      font-size: calc(var(--typo-lab-intro-size, var(--typo-hero-heading-size, 1.5rem)) * 1.3);
+    }
   }
 
   // ==========================================================================

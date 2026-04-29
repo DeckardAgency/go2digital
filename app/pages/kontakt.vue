@@ -395,6 +395,10 @@ $text-lighter: rgba(255, 255, 255, 0.6);
     padding: 1rem;
     z-index: 3;
   }
+
+  @include mobile {
+    padding: 1rem 1rem 4rem 1rem;
+  }
 }
 
 .social-links {
