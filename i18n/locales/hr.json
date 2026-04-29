@@ -333,6 +333,12 @@
     "noResultsText": "Pokušajte odabrati drugu kategoriju ili pogledajte sve članke.",
     "viewAll": "Prikaži sve članke",
     "allLoaded": "Svi članci učitani",
+    "category": "Kategorija",
+    "author": "Autor",
+    "date": "Datum",
+    "share": "Podijeli",
+    "copyLink": "Kopiraj link",
+    "linkCopied": "Link kopiran",
     "seo": {
       "title": "Blog - Go2Digital",
       "description": "Pročitajte naše najnovije članke o digitalnom marketingu, dizajnu, tehnologiji i više.",

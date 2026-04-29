@@ -333,6 +333,12 @@
     "noResultsText": "Try selecting a different category or view all articles.",
     "viewAll": "View all articles",
     "allLoaded": "All articles loaded",
+    "category": "Category",
+    "author": "Author",
+    "date": "Date",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
     "seo": {
       "title": "Blog - Go2Digital",
       "description": "Read our latest articles about digital marketing, design, technology and more.",

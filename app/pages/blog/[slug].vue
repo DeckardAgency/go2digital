@@ -14,15 +14,15 @@
         <h1 :class="['blog-detail__title', typoClass('heroTitle')]" ref="titleRef">{{ displayTitle }}</h1>
         <div class="blog-detail__specs" ref="specsRef">
           <div class="blog-detail__spec" v-if="displayMeta">
-            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Category</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">{{ $t('blog.category') }}</span>
             <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ displayMeta }}</span>
           </div>
           <div class="blog-detail__spec" v-if="author">
-            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Author</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">{{ $t('blog.author') }}</span>
             <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ author }}</span>
           </div>
           <div class="blog-detail__spec" v-if="date">
-            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">Date</span>
+            <span :class="['blog-detail__spec-label', typoClass('specLabel')]">{{ $t('blog.date') }}</span>
             <span :class="['blog-detail__spec-value', typoClass('specValue')]">{{ formattedDate }}</span>
           </div>
         </div>
@@ -41,7 +41,29 @@
 
     <!-- Content -->
     <article v-if="body" class="blog-detail__content">
-      <div class="blog-detail__body" v-html="body"></div>
+      <div class="blog-detail__row">
+        <div class="blog-detail__body" v-html="body"></div>
+      </div>
+
+      <div class="blog-detail__row">
+        <div :class="['blog-detail__share-label', typoClass('shareLabel')]">
+          <span class="blog-detail__bullet" aria-hidden="true"></span>
+          <span>{{ $t('blog.share') }}</span>
+        </div>
+        <div :class="['blog-detail__share-links', typoClass('shareLink')]">
+          <a
+            v-for="link in shareLinks"
+            :key="link.label"
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="blog-detail__share-link"
+          >{{ link.label }}</a>
+          <button type="button" class="blog-detail__share-link" @click="copyShareLink">
+            {{ linkJustCopied ? $t('blog.linkCopied') : $t('blog.copyLink') }}
+          </button>
+        </div>
+      </div>
     </article>
   </div>
 </template>
@@ -56,6 +78,7 @@ import { resolveMediaUrl } from '~/utils/media'
 gsap.registerPlugin(ScrollTrigger)
 
 const route = useRoute()
+const { locale } = useI18n()
 const slug = route.params.slug as string
 const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
@@ -87,9 +110,37 @@ const author = computed(() => post.value?.author ?? '')
 const date = computed(() => post.value?.date ?? '')
 const formattedDate = computed(() => {
   if (!date.value) return ''
-  return new Date(date.value).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const localeTag = locale.value === 'hr' ? 'hr-HR' : 'en-GB'
+  return new Date(date.value).toLocaleDateString(localeTag, { day: 'numeric', month: 'long', year: 'numeric' })
 })
 const body = computed(() => post.value?.body ?? '')
+
+// Share
+const linkJustCopied = ref(false)
+const shareUrl = computed(() => {
+  if (typeof window === 'undefined') return ''
+  return window.location.href
+})
+const shareLinks = computed(() => {
+  const url = encodeURIComponent(shareUrl.value)
+  const text = encodeURIComponent(title.value)
+  return [
+    { label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
+    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+    { label: 'X', href: `https://twitter.com/intent/tweet?url=${url}&text=${text}` },
+  ]
+})
+
+async function copyShareLink() {
+  if (!shareUrl.value) return
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    linkJustCopied.value = true
+    setTimeout(() => { linkJustCopied.value = false }, 2000)
+  } catch {
+    /* ignore */
+  }
+}
 
 // Transition data for animation
 const transitionImage = ref('')
@@ -221,6 +272,8 @@ const DEFAULT_PRESETS = {
   specLabel: 'label-micro',
   specValue: 'body',
   actionButton: 'body-sm',
+  shareLabel: 'eyebrow',
+  shareLink: 'body-sm',
 } as const
 
 function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
@@ -361,23 +414,104 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 }
 
 // ==========================================================================
-// Content
+// Content — same layout as .lab-detail__sections / .lab-detail__section
 // ==========================================================================
 .blog-detail__content {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: $spacing-2xl;
+  padding: 0 $spacing-2xl 6rem;
+  @include desktop { padding: 0 $spacing-lg 4rem; }
+  @include tablet { padding: 0 $spacing-lg 3rem; }
+  @include mobile { padding: 0 $spacing-md $spacing-2xl; }
+}
 
-  @include tablet {
-    padding: $spacing-lg;
-  }
+.blog-detail__row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: $spacing-2xl;
+  padding: 4rem 0;
+
+  @include tablet { gap: $spacing-lg; padding: 3rem 0; }
+  @include mobile { grid-template-columns: 1fr; gap: $spacing-md; padding: $spacing-xl 0; }
+}
+
+.blog-detail__bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-primary;
+  flex-shrink: 0;
+  margin-top: 6px;
 }
 
 .blog-detail__body {
-  line-height: 1.9;
+  grid-column: 6 / 11;
+  color: $color-muted;
+  min-width: 0;
+  overflow-wrap: break-word;
 
-  :deep(p) { margin-bottom: $spacing-lg; }
-  :deep(h2) { margin: $spacing-2xl 0 $spacing-md; font-size: $font-size-xl; font-weight: 400; }
+  @include tablet { grid-column: 5 / 13; }
+  @include mobile { grid-column: 1; }
+
+  :deep(p) {
+    margin: 0 0 $spacing-md;
+    &:last-child { margin-bottom: 0; }
+  }
+  :deep(h2) {
+    color: $color-primary;
+    margin: $spacing-2xl 0 $spacing-md;
+    font-size: $font-size-xl;
+    font-weight: 400;
+  }
+  :deep(strong) { color: $color-primary; font-weight: 600; }
   :deep(img) { width: 100%; border-radius: $radius-lg; margin: $spacing-lg 0; }
+
+  :deep(ul), :deep(ol) {
+    margin: 0 0 $spacing-md;
+    padding-left: 1.5rem;
+    &:last-child { margin-bottom: 0; }
+  }
+  :deep(ul) { list-style: disc; }
+  :deep(ol) { list-style: decimal; }
+  :deep(li) {
+    margin-bottom: $spacing-xs;
+    padding-left: 0.25rem;
+    &::marker { color: $color-primary; }
+    &:last-child { margin-bottom: 0; }
+  }
+}
+
+// Share row
+.blog-detail__share-label {
+  grid-column: 3 / 5;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  color: $color-primary;
+  padding-top: 2px;
+
+  @include tablet { grid-column: 1 / 5; }
+  @include mobile { grid-column: 1; }
+}
+
+.blog-detail__share-links {
+  grid-column: 6 / 11;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-lg;
+
+  @include tablet { grid-column: 5 / 13; }
+  @include mobile { grid-column: 1; gap: $spacing-md; }
+}
+
+.blog-detail__share-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: $color-primary;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity $transition-base;
+
+  &:hover { opacity: 0.6; }
 }
 </style>
