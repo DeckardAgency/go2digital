@@ -1,19 +1,32 @@
 <template>
   <section class="text-animation" ref="sectionRef">
     <div class="text-animation__container" ref="containerRef">
-      <p :class="['text-animation__word', 'text-animation__word--primary', typoClass('word')]" ref="word1Ref">{{ textAnim?.word1 ?? $t('homepage.textAnimation.word1') }}</p>
-      <p :class="['text-animation__word', 'text-animation__word--secondary', typoClass('word')]" ref="word2Ref">{{ textAnim?.word2 ?? $t('homepage.textAnimation.word2') }}</p>
-      <p :class="['text-animation__word', 'text-animation__word--tertiary', typoClass('word')]" ref="word3Ref">{{ textAnim?.word3 ?? $t('homepage.textAnimation.word3') }}</p>
+      <p :class="['text-animation__word', 'text-animation__word--primary', typoClass('word')]" ref="word1Ref" :aria-label="word1Text">
+        <span v-for="(ch, i) in word1Chars" :key="`w1-${i}`" class="text-animation__letter-wrap" aria-hidden="true">
+          <span class="text-animation__letter">{{ ch }}</span>
+        </span>
+      </p>
+      <p :class="['text-animation__word', 'text-animation__word--secondary', typoClass('word')]" ref="word2Ref" :aria-label="word2Text">
+        <span v-for="(ch, i) in word2Chars" :key="`w2-${i}`" class="text-animation__letter-wrap" aria-hidden="true">
+          <span class="text-animation__letter">{{ ch }}</span>
+        </span>
+      </p>
+      <p :class="['text-animation__word', 'text-animation__word--tertiary', typoClass('word')]" ref="word3Ref" :aria-label="word3Text">
+        <span v-for="(ch, i) in word3Chars" :key="`w3-${i}`" class="text-animation__letter-wrap" aria-hidden="true">
+          <span class="text-animation__letter">{{ ch }}</span>
+        </span>
+      </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import type { HomepageTextAnimation } from '~/types/api'
 
+const { t } = useI18n()
 const { data: textAnim } = useApi<HomepageTextAnimation>('/api/singletons/homepage-text-animation', { lazy: true, server: false })
 
 const DEFAULT_PRESETS = {
@@ -33,6 +46,18 @@ const word1Ref = ref<HTMLElement | null>(null)
 const word2Ref = ref<HTMLElement | null>(null)
 const word3Ref = ref<HTMLElement | null>(null)
 
+const word1Text = computed(() => textAnim.value?.word1 ?? t('homepage.textAnimation.word1'))
+const word2Text = computed(() => textAnim.value?.word2 ?? t('homepage.textAnimation.word2'))
+const word3Text = computed(() => textAnim.value?.word3 ?? t('homepage.textAnimation.word3'))
+
+// Split each word into characters; preserve spaces with non-breaking space
+const splitChars = (s: string): string[] =>
+  Array.from(s).map(c => (c === ' ' ? ' ' : c))
+
+const word1Chars = computed(() => splitChars(word1Text.value))
+const word2Chars = computed(() => splitChars(word2Text.value))
+const word3Chars = computed(() => splitChars(word3Text.value))
+
 let timeline: gsap.core.Timeline | null = null
 const prefersReducedMotion = ref(false)
 
@@ -49,67 +74,113 @@ const handleResize = () => {
   }, 150)
 }
 
-// #2: Use nextTick + requestAnimationFrame for proper DOM readiness
+const getLetters = (wordEl: HTMLElement | null): HTMLElement[] => {
+  if (!wordEl) return []
+  return Array.from(wordEl.querySelectorAll<HTMLElement>('.text-animation__letter'))
+}
+
+const buildTimeline = () => {
+  if (timeline) {
+    timeline.kill()
+    timeline = null
+  }
+  if (!containerRef.value || !word1Ref.value || !word2Ref.value || !word3Ref.value) return
+
+  const w1 = word1Ref.value
+  const w2 = word2Ref.value
+  const w3 = word3Ref.value
+  const w1Letters = getLetters(w1)
+  const w2Letters = getLetters(w2)
+  const w3Letters = getLetters(w3)
+
+  if (prefersReducedMotion.value) {
+    gsap.set([w1, w2, w3], { opacity: 1 })
+    gsap.set(w1Letters, { yPercent: 0 })
+    gsap.set([...w2Letters, ...w3Letters], { yPercent: 110 })
+    return
+  }
+
+  // All words share the same stacked position; visibility is driven by letter Y
+  gsap.set([w1, w2, w3], { opacity: 1 })
+  gsap.set(w1Letters, { yPercent: 0 })
+  gsap.set(w2Letters, { yPercent: 110 })
+  gsap.set(w3Letters, { yPercent: 110 })
+
+  const mobile = isMobile()
+  const letterStagger = mobile ? 0.025 : 0.04
+  const letterDuration = mobile ? 0.4 : 0.55
+
+  timeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: sectionRef.value,
+      start: 'top top',
+      end: '+=300%',
+      scrub: mobile ? 0.3 : 1,
+      pin: containerRef.value,
+      pinSpacing: false,
+      invalidateOnRefresh: true,
+    },
+  })
+
+  // Hold word 1 at the start of the pin
+  timeline.to({}, { duration: 0.5 })
+
+  // Word 1 → Word 2 (each letter rolls up out, next letters roll up in)
+  timeline
+    .to(w1Letters, {
+      yPercent: -110,
+      duration: letterDuration,
+      ease: 'power3.in',
+      stagger: { each: letterStagger, from: 'end' },
+    })
+    .to(
+      w2Letters,
+      {
+        yPercent: 0,
+        duration: letterDuration,
+        ease: 'power3.out',
+        stagger: { each: letterStagger, from: 'end' },
+      },
+      `-=${letterDuration * 0.6}`
+    )
+    .to({}, { duration: 0.3 })
+
+  // Word 2 → Word 3
+  timeline
+    .to(w2Letters, {
+      yPercent: -110,
+      duration: letterDuration,
+      ease: 'power3.in',
+      stagger: { each: letterStagger, from: 'end' },
+    })
+    .to(
+      w3Letters,
+      {
+        yPercent: 0,
+        duration: letterDuration,
+        ease: 'power3.out',
+        stagger: { each: letterStagger, from: 'end' },
+      },
+      `-=${letterDuration * 0.6}`
+    )
+    .to({}, { duration: 0.4 })
+
+  requestAnimationFrame(() => ScrollTrigger.refresh(true))
+}
+
 onMounted(async () => {
   prefersReducedMotion.value = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   await nextTick()
   requestAnimationFrame(() => {
-    if (!containerRef.value || !word1Ref.value || !word2Ref.value || !word3Ref.value) return
-
-    const w1 = word1Ref.value
-    const w2 = word2Ref.value
-    const w3 = word3Ref.value
-    const words = [w1, w2, w3]
-
-    // #4: If reduced motion, show first word visible, skip animations
-    if (prefersReducedMotion.value) {
-      gsap.set(w1, { opacity: 1, y: 0 })
-      gsap.set(w2, { opacity: 0 })
-      gsap.set(w3, { opacity: 0 })
-      window.addEventListener('resize', handleResize, { passive: true })
-      return
-    }
-
-    // Initial state: only first word visible
-    gsap.set(w1, { opacity: 1, y: 0 })
-    gsap.set(w2, { opacity: 0, y: '5vh' })
-    gsap.set(w3, { opacity: 0, y: '5vh' })
-
-    const mobile = isMobile()
-
-    timeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top top',
-        end: '+=300%',
-        scrub: mobile ? 0.3 : 1, // #12: faster scrub on mobile
-        pin: containerRef.value,
-        pinSpacing: false,
-        invalidateOnRefresh: true
-      }
-    })
-
-    // Hold word 1 visible at the start of the pin
-    timeline.to({}, { duration: 0.5 })
-
-    // Word 1 → Word 2
-    timeline
-      .to(w1, { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-      .fromTo(w2, { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
-      .to({}, { duration: 0.2 }) // hold
-
-    // Word 2 → Word 3
-    timeline
-      .to(w2, { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })
-      .fromTo(w3, { opacity: 0, y: '5vh' }, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' })
-      .to({}, { duration: 0.3 }) // #11: longer hold so last word lingers
-
+    buildTimeline()
     window.addEventListener('resize', handleResize, { passive: true })
-
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh(true)
-    })
   })
+})
+
+// Rebuild when CMS-provided text arrives (letter count changes)
+watch([word1Text, word2Text, word3Text], async () => {
+  await nextTick()
+  requestAnimationFrame(() => buildTimeline())
 })
 
 onUnmounted(() => {
@@ -123,9 +194,11 @@ onUnmounted(() => {
   }
 
   // #6: Clear inline styles from GSAP
-  if (word1Ref.value) gsap.set(word1Ref.value, { clearProps: 'all' })
-  if (word2Ref.value) gsap.set(word2Ref.value, { clearProps: 'all' })
-  if (word3Ref.value) gsap.set(word3Ref.value, { clearProps: 'all' })
+  for (const w of [word1Ref.value, word2Ref.value, word3Ref.value]) {
+    if (!w) continue
+    gsap.set(w, { clearProps: 'all' })
+    gsap.set(w.querySelectorAll('.text-animation__letter'), { clearProps: 'all' })
+  }
 })
 </script>
 
@@ -170,13 +243,30 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    // #9: Removed permanent will-change — GSAP handles this during animation
+    line-height: 1.4; // gives diacritics (ž, š, č) and descenders room inside the letter mask
 
     &--primary { z-index: 3; }
     &--secondary { z-index: 2; }
     &--tertiary { z-index: 1; }
 
     @include tablet { letter-spacing: -0.04em; }
+  }
+
+  &__letter-wrap {
+    display: inline-block;
+    overflow: hidden;
+    line-height: inherit;
+    vertical-align: top;
+    // Extend clip area horizontally so glyphs with overhang (o, e, g, italic letters)
+    // aren't cut on the sides. Negative margin keeps the layout width unchanged.
+    padding: 0 0.1em;
+    margin: 0 -0.1em;
+  }
+
+  &__letter {
+    display: inline-block;
+    will-change: transform;
+    backface-visibility: hidden;
   }
 }
 
