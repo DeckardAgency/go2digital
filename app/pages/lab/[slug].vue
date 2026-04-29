@@ -244,7 +244,6 @@ function goBack() {
 }
 
 useSeo('lab-projects', computed(() => project.value?.id), computed(() => `${title.value} - Go2Labs`))
-definePageMeta({ showFooter: false })
 
 const { blockMaps } = useTypography()
 

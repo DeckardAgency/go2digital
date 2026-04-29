@@ -263,7 +263,6 @@ function goBack() {
 }
 
 useSeo('blog-posts', computed(() => post.value?.id), computed(() => `${title.value} - Blog`))
-definePageMeta({ showFooter: false })
 
 const { blockMaps } = useTypography()
 
