@@ -12,10 +12,9 @@
 
       <div class="lab-detail__hero-info" ref="heroInfoRef">
         <h1 :class="['lab-detail__title', typoClass('heroTitle')]" ref="titleRef">{{ displayTitle }}</h1>
-        <div class="lab-detail__specs" ref="specsRef" v-if="displayMeta">
+        <div class="lab-detail__specs" ref="specsRef" v-if="subtitle">
           <div class="lab-detail__spec">
-            <span :class="['lab-detail__spec-label', typoClass('specLabel')]">Category</span>
-            <span :class="['lab-detail__spec-value', typoClass('specValue')]">{{ displayMeta }}</span>
+            <span :class="['lab-detail__spec-value', typoClass('specValue')]">{{ subtitle }}</span>
           </div>
         </div>
       </div>
@@ -105,6 +104,7 @@ const meta = computed(() => {
   }
   return ''
 })
+const subtitle = computed(() => project.value?.subtitle ?? '')
 const body = computed(() => project.value?.body ?? '')
 const sections = computed(() => project.value?.sections ?? [])
 
@@ -406,7 +406,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   border-radius: 50%;
   background: $color-primary;
   flex-shrink: 0;
-  margin-top: 6px;
+  margin-top: 2px;
 }
 
 // ==========================================================================
@@ -471,17 +471,16 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 .lab-detail__section {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: $spacing-2xl;
-  padding: $spacing-2xl 0;
-  border-top: 1px solid $color-border;
+  padding: 4rem 0;
 
-  @include tablet { gap: $spacing-lg; }
+  @include tablet { gap: $spacing-lg; padding: 3rem 0; }
   @include mobile { grid-template-columns: 1fr; gap: $spacing-md; padding: $spacing-xl 0; }
 }
 
 .lab-detail__section-label {
-  grid-column: 1 / 4;
+  grid-column: 3 / 5;
   display: flex;
   align-items: flex-start;
   gap: $spacing-sm;
@@ -493,10 +492,12 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 }
 
 .lab-detail__section-body {
-  grid-column: 4 / 10;
+  grid-column: 6 / 11;
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
+  min-width: 0;
+  overflow-wrap: break-word;
 
   @include tablet { grid-column: 5 / 13; }
   @include mobile { grid-column: 1; }
@@ -511,15 +512,36 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   color: $color-muted;
 
   :deep(p) {
-    margin-bottom: $spacing-md;
-    text-indent: 2rem;
-    &:first-child { text-indent: 0; }
+    margin: 0 0 $spacing-md;
     &:last-child { margin-bottom: 0; }
   }
 
   :deep(strong) {
     color: $color-primary;
     font-weight: 600;
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    margin: 0 0 $spacing-md;
+    padding-left: 1.5rem;
+    &:last-child { margin-bottom: 0; }
+  }
+
+  :deep(ul) { list-style: disc; }
+  :deep(ol) { list-style: decimal; }
+
+  :deep(li) {
+    margin-bottom: $spacing-xs;
+    padding-left: 0.25rem;
+    &::marker { color: $color-primary; }
+    &:last-child { margin-bottom: 0; }
+  }
+
+  :deep(li > ul),
+  :deep(li > ol) {
+    margin-top: $spacing-xs;
+    margin-bottom: 0;
   }
 }
 

@@ -62,7 +62,7 @@
         <div class="lab-card__link" @click="onCardClick(lab, $event)">
           <h2 :class="['lab-card__title', typoClass('cardTitle')]">{{ lab.shortTitle || lab.title }}</h2>
           <p :class="['lab-card__description', typoClass('cardDescription')]">{{ lab.subtitle }}</p>
-          <ul class="lab-card__tags">
+          <ul class ="lab-card__tags">
             <li
               v-for="cat in getLabCategoryNames(lab)"
               :key="cat.slug"
