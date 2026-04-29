@@ -1,4 +1,4 @@
-import { ref, readonly } from 'vue'
+import { readonly } from 'vue'
 
 export interface TypographyFontWeight {
   weight: number
@@ -27,19 +27,21 @@ export interface TypographyPreset {
   }
 }
 
-const fonts = ref<TypographyFont[]>([])
-const presets = ref<Record<string, TypographyPreset>>({})
-const blockMaps = ref<Record<string, Record<string, string>>>({})
-const loaded = ref(false)
-let loadPromise: Promise<void> | null = null
-
 export function useTypography() {
   const config = useRuntimeConfig()
+  const nuxtApp = useNuxtApp()
+
+  const fonts = useState<TypographyFont[]>('typography:fonts', () => [])
+  const presets = useState<Record<string, TypographyPreset>>('typography:presets', () => ({}))
+  const blockMaps = useState<Record<string, Record<string, string>>>('typography:blockMaps', () => ({}))
+  const loaded = useState<boolean>('typography:loaded', () => false)
 
   function load(): Promise<void> {
-    if (loadPromise) return loadPromise
+    if (loaded.value) return Promise.resolve()
+    const inFlight = (nuxtApp as Record<string, unknown>).__typographyLoadPromise as Promise<void> | undefined
+    if (inFlight) return inFlight
 
-    loadPromise = (async () => {
+    const promise = (async () => {
       try {
         const res = await $fetch<unknown>('/api/settings', {
           baseURL: config.public.apiBase as string,
@@ -83,7 +85,8 @@ export function useTypography() {
       }
     })()
 
-    return loadPromise
+    ;(nuxtApp as Record<string, unknown>).__typographyLoadPromise = promise
+    return promise
   }
 
   function buildCss(): string {

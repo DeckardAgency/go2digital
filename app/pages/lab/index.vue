@@ -19,7 +19,6 @@
         data-split-duration="0.6"
         data-split-delay="0.2"
         data-split-stagger="0.1"
-        data-split-indent="20rem"
       >{{ $t('lab.intro') }}</p>
     </header>
 
@@ -454,10 +453,9 @@ $grid-padding-mobile: 1rem;
   // Element: Title Group
   // ==========================================================================
   &__title-group {
-    grid-column: 6 / -1;
+    grid-column: 7 / -1;
     display: flex;
     align-items: baseline;
-    justify-content: flex-end;
     gap: 0.625rem;
 
     @include mobile {
