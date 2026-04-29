@@ -61,6 +61,9 @@ onMounted(async () => {
     const w3 = word3Ref.value
     const words = [w1, w2, w3]
 
+    // Preserve CSS centering once GSAP starts touching transforms.
+    gsap.set(words, { xPercent: -50, yPercent: -50 })
+
     // #4: If reduced motion, show first word visible, skip animations
     if (prefersReducedMotion.value) {
       gsap.set(w1, { opacity: 1, y: 0 })
