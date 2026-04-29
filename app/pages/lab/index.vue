@@ -161,15 +161,28 @@ function getLabImage(lab: LabProject): string {
   return resolveMediaUrl(lab.image, 'large') || '/images/placeholder-lab.svg'
 }
 
-// Helper to get category display name for lab
+// Helper to get category display name for lab.
+// /api/lab_projects serializes categories as IRI strings (e.g. /api/lab_categories/{uuid}),
+// so resolve each IRI against the already-fetched category list.
 function getLabCategoryNames(lab: LabProject): Array<{ slug: string; name: string }> {
-  if (Array.isArray(lab.categories)) {
-    return lab.categories.map(cat => ({
-      slug: cat.slug,
-      name: (cat as any).name || cat.slug
-    }))
-  }
-  return []
+  const raw = lab.categories
+  if (!Array.isArray(raw)) return []
+
+  const all = categoriesData.value ?? []
+  const byId = new Map(all.map(c => [c.id, c]))
+  const bySlug = new Map(all.map(c => [c.slug, c]))
+
+  return raw.flatMap((cat: any) => {
+    if (cat && typeof cat === 'object' && (cat.slug || cat.id)) {
+      return [{ slug: cat.slug ?? '', name: cat.name || cat.slug || '' }]
+    }
+    if (typeof cat === 'string') {
+      const key = cat.split('/').pop() ?? ''
+      const found = byId.get(key) ?? bySlug.get(key)
+      if (found) return [{ slug: found.slug, name: found.name || found.slug }]
+    }
+    return []
+  })
 }
 
 // Filter by category
@@ -453,9 +466,10 @@ $grid-padding-mobile: 1rem;
   // Element: Title Group
   // ==========================================================================
   &__title-group {
-    grid-column: 7 / -1;
+    grid-column: 6 / -1;
     display: flex;
     align-items: baseline;
+    justify-content: flex-end;
     gap: 0.625rem;
 
     @include mobile {
