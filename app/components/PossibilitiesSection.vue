@@ -17,15 +17,17 @@
       </div>
 
       <!-- Center: Vertical item list -->
-      <div class="possibilities__list">
-        <p
-          v-for="(item, index) in items"
-          :key="index"
-          :class="['possibilities__item', typoClass('item'), { 'possibilities__item--active': index === activeIndex }]"
-          :ref="el => itemRefs[index] = el as HTMLElement"
-        >
-          {{ item.title }}
-        </p>
+      <div class="possibilities__list-viewport" ref="listViewportRef">
+        <div class="possibilities__list" ref="listRef">
+          <p
+            v-for="(item, index) in items"
+            :key="index"
+            :class="['possibilities__item', typoClass('item'), { 'possibilities__item--active': index === activeIndex }]"
+            :ref="el => itemRefs[index] = el as HTMLElement"
+          >
+            {{ item.title }}
+          </p>
+        </div>
       </div>
 
       <!-- Right: Description -->
@@ -88,7 +90,16 @@ const counterDisplay = computed(() => String(activeIndex.value + 1).padStart(2, 
 const sectionRef = ref<HTMLElement | null>(null)
 const counterRef = ref<HTMLElement | null>(null)
 const descriptionRef = ref<HTMLElement | null>(null)
+const listRef = ref<HTMLElement | null>(null)
+const listViewportRef = ref<HTMLElement | null>(null)
 const itemRefs = ref<(HTMLElement | null)[]>([])
+
+function getCenterOffset(index: number): number {
+  const viewport = listViewportRef.value
+  const item = itemRefs.value[index]
+  if (!viewport || !item) return 0
+  return viewport.clientHeight / 2 - item.offsetTop - item.clientHeight / 2
+}
 
 let scrollTriggerInstance: ScrollTrigger | null = null
 const prefersReducedMotion = ref(false)
@@ -152,6 +163,10 @@ function createAnimation() {
     if (!el) return
     gsap.set(el, { opacity: i === 0 ? 1 : 0.15 })
   })
+
+  if (listRef.value) {
+    gsap.set(listRef.value, { y: getCenterOffset(0) })
+  }
 }
 
 function animateTransition(newIndex: number) {
@@ -171,6 +186,16 @@ function animateTransition(newIndex: number) {
       overwrite: true,
     })
   })
+
+  // Translate list so the active item is centered in the viewport
+  if (listRef.value) {
+    gsap.to(listRef.value, {
+      y: getCenterOffset(newIndex),
+      duration: 0.5,
+      ease: 'power2.out',
+      overwrite: true,
+    })
+  }
 
   // Animate description: fade out → update text → fade in
   if (descriptionRef.value) {
@@ -212,6 +237,7 @@ function destroy() {
   })
   if (descriptionRef.value) gsap.set(descriptionRef.value, { clearProps: 'all' })
   if (counterRef.value) gsap.set(counterRef.value, { clearProps: 'all' })
+  if (listRef.value) gsap.set(listRef.value, { clearProps: 'all' })
   itemRefs.value = []
 }
 </script>
@@ -273,6 +299,7 @@ function destroy() {
   // ── Main Content ──
   &__content {
     flex: 1;
+    min-height: 0; // allow grid children to shrink so list-viewport can clip
     display: grid;
     grid-template-columns: auto 1fr auto;
     gap: $spacing-2xl;
@@ -297,10 +324,20 @@ function destroy() {
   }
 
   // ── List ──
+  &__list-viewport {
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    position: relative;
+    align-self: stretch;
+    min-height: 0;
+  }
+
   &__list {
     display: flex;
     flex-direction: column;
     gap: 0.125rem;
+    will-change: transform;
 
     @include tablet {
       gap: 0;
