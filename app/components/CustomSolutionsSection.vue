@@ -56,7 +56,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 // Component-specific variables
 // --------------------------------------------------------------------------
-$solutions-bg: #FAFAFA;
+$solutions-bg: #ffffff;
 $solutions-text-color: $color-primary;
 $solutions-muted-color: rgba($color-primary, 0.6);
 $solutions-title-indent: 55%;

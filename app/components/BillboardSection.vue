@@ -1,9 +1,8 @@
 <template>
   <section class="billboard-section">
-    <div class="billboard-section__image-wrapper" ref="imageWrapperRef" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
-      <!-- Fallback image (hidden when WebGL active) -->
-      <img v-if="billboardImage && !webglActive" :src="billboardImage" :alt="billboard?.imageAlt ?? ''" class="billboard-section__image" />
-      <div v-if="!billboardImage" class="billboard-section__image billboard-section__image--placeholder"></div>
+    <div class="billboard-section__image-wrapper" role="img" :aria-label="billboard?.imageAlt ?? $t('homepage.billboard.imageAlt')">
+      <img v-if="billboardImage" :src="billboardImage" :alt="billboard?.imageAlt ?? ''" class="billboard-section__image" />
+      <div v-else class="billboard-section__image billboard-section__image--placeholder"></div>
     </div>
     <div class="billboard-section__content">
       <div class="billboard-section__header">
@@ -27,10 +26,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import type { HomepageBillboard } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
-import type { WebGLHoverInstance } from '~/composables/useWebGLHover'
 
 const { data: billboard } = useApi<HomepageBillboard>('/api/singletons/homepage-billboard', { lazy: true, server: false })
 
@@ -49,27 +47,6 @@ const billboardImage = computed(() => resolveMediaUrl((billboard.value as any)?.
 const billboardUrl = computed(() => billboard.value?.buttonUrl || '/kontakt')
 
 const titleRef = ref<HTMLElement | null>(null)
-const imageWrapperRef = ref<HTMLElement | null>(null)
-const webglActive = ref(false)
-let webglInstance: WebGLHoverInstance | null = null
-
-watch(billboardImage, async (src) => {
-  if (!src || !imageWrapperRef.value || webglInstance) return
-  if (window.matchMedia('(hover: none)').matches) return
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-
-  try {
-    const { useWebGLHover } = await import('~/composables/useWebGLHover')
-    webglInstance = useWebGLHover(imageWrapperRef.value!, src)
-    webglActive.value = true
-  } catch {
-    webglActive.value = false
-  }
-}, { flush: 'post' })
-
-onUnmounted(() => {
-  if (webglInstance) { webglInstance.destroy(); webglInstance = null }
-})
 
 function isExternalUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://')

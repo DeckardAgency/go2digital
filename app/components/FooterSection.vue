@@ -282,8 +282,6 @@ onUnmounted(() => {
       <h2
         ref="eventTitleRef"
         class="footer__title"
-        @mouseenter="pauseMarquee"
-        @mouseleave="resumeMarquee"
       >Go2Digital © 2025</h2>
 
       <!-- Contact -->

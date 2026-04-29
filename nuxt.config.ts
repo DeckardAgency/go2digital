@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: 'https://127.0.0.1:8002'
+      apiBase: 'https://phpstack-1595490-6341899.cloudwaysapps.com'
     }
   },
   css: ['~/assets/scss/main.scss'],

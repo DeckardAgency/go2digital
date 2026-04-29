@@ -89,6 +89,9 @@ onMounted(async () => {
       }
     })
 
+    // Hold word 1 visible at the start of the pin
+    timeline.to({}, { duration: 0.5 })
+
     // Word 1 → Word 2
     timeline
       .to(w1, { opacity: 0, y: '-5vh', duration: 0.3, ease: 'power2.in' })

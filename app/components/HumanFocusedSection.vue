@@ -45,7 +45,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   padding: 6rem $spacing-2xl 7.5rem;
   width: 100%;
   position: relative;
-  background-color: #FAFAFA;
+  background-color: #ffffff;
   z-index: 30;
 
   @include tablet {

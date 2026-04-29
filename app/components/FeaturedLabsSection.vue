@@ -139,7 +139,7 @@ const labItems = computed(() => {
 
 // Component-specific variables
 // --------------------------------------------------------------------------
-$labs-bg: #FAFAFA;
+$labs-bg: #ffffff;
 $labs-border-color: #D9D9D9;
 $labs-text-color: $color-primary;
 $labs-muted-opacity: 0.4;
