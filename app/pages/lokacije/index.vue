@@ -467,7 +467,7 @@
 
     <!-- Mobile View Switcher -->
     <Teleport to="body">
-      <div class="locations-view-switcher">
+      <div v-show="!isFiltersModalOpen" class="locations-view-switcher">
         <button
           class="locations-view-switcher__btn"
           :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"

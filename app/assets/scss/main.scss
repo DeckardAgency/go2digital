@@ -140,11 +140,14 @@ ul, ol {
 a {
   color: inherit;
   text-decoration: none;
+  -webkit-text-fill-color: inherit;
 }
 
 button {
   font-family: inherit;
+  color: inherit;
   cursor: pointer;
+  -webkit-text-fill-color: inherit;
 }
 
 img {

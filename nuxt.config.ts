@@ -25,6 +25,10 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      meta: [
+        // Stop iOS Safari from auto-linking phone numbers, dates, addresses, emails (which it then styles as blue links).
+        { name: 'format-detection', content: 'telephone=no, date=no, address=no, email=no' }
+      ],
       script: [
         {
           // Block rendering immediately — hide everything until loader mounts
