@@ -517,8 +517,7 @@
           <div class="locations-filters-modal__section-content">
             <label v-for="city in cities" :key="city.id" class="locations-filters-modal__option">
               <span class="locations-filters-modal__option-label">{{ city.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities">
-              <span class="locations-filters-modal__option-checkmark"></span>
+              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities" @change="applyModalFilters">
             </label>
           </div>
         </div>
@@ -534,8 +533,7 @@
           <div class="locations-filters-modal__section-content">
             <label v-for="env in environments" :key="env.id" class="locations-filters-modal__option">
               <span class="locations-filters-modal__option-label">{{ env.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments">
-              <span class="locations-filters-modal__option-checkmark"></span>
+              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments" @change="applyModalFilters">
             </label>
           </div>
         </div>
@@ -1737,6 +1735,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: center;
     justify-content: space-between;
     gap: $spacing-md;
+
+    @include mobile {
+      flex-direction: column;
+      align-items: flex-start;
+      padding-top: 7rem;
+    }
   }
 
   &__title-row { display: flex; align-items: baseline; gap: 0.375rem; }
@@ -2559,7 +2563,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   @include tablet { display: flex; }
   &--open { transform: translateY(0); }
 
-  &__header { @include flex-between; padding: $spacing-lg; border-bottom: 1px solid $color-border; }
+  &__header {
+    @include flex-between;
+    padding: $spacing-lg;
+    border-bottom: 1px solid $color-border;
+    @include mobile { padding-top: 7rem; }
+  }
   &__title { font-size: $font-size-lg; font-weight: 400; margin: 0; }
   &__close { padding: $spacing-sm; border: none; background: transparent; cursor: pointer; }
   &__content { flex: 1; overflow-y: auto; padding: 0; }
@@ -2591,7 +2600,14 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     &:last-child { border-bottom: none; }
   }
   &__option-label { font-size: $font-size-base; }
-  &__option-checkbox { accent-color: $color-accent; }
+  &__option-checkbox {
+    accent-color: $color-accent;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
   &__footer { display: flex; gap: $spacing-lg; padding: $spacing-lg; border-top: 1px solid $color-border; }
   &__btn {
     flex: 1;
