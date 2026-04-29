@@ -235,10 +235,11 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
     gap: $spacing-2-5;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transform: translateY(-0.625rem);
     transition: opacity $transition-duration $easing-default,
                 transform $transition-duration $easing-default,
-                visibility $transition-duration $easing-default,
+                visibility 0s linear $transition-duration,
                 background-color $transition-duration ease;
     z-index: 10;
   }
@@ -269,8 +270,9 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
     z-index: -1;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity $transition-duration $easing-default,
-                visibility $transition-duration $easing-default;
+                visibility 0s linear $transition-duration;
   }
 
   // Active state (menu open)
@@ -290,12 +292,20 @@ $easing-default: cubic-bezier(0.4, 0, 0.2, 1);
     .mobile-nav__dropdown {
       opacity: 1;
       visibility: visible;
+      pointer-events: auto;
       transform: translateY(0);
+      transition: opacity $transition-duration $easing-default,
+                  transform $transition-duration $easing-default,
+                  visibility 0s linear 0s,
+                  background-color $transition-duration ease;
     }
 
     .mobile-nav__overlay {
       opacity: 1;
       visibility: visible;
+      pointer-events: auto;
+      transition: opacity $transition-duration $easing-default,
+                  visibility 0s linear 0s;
     }
   }
 }
