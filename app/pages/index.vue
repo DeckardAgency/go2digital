@@ -11,9 +11,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 
 const { t } = useI18n()
+const { initSplitText } = useSplitText()
 
 // Section component map
 const sectionComponents: Record<string, any> = {
@@ -71,6 +72,16 @@ async function loadSectionOrder() {
 
 // Load section order on client only (API may not be reachable during SSR on Vercel)
 onMounted(() => loadSectionOrder())
+
+// Sections render only after orderLoaded becomes true (delayed by the
+// settings API). The global splitText plugin runs once on page mount —
+// well before that — so re-init here once the sections are actually in
+// the DOM, otherwise their data-split-text elements stay visibility:hidden.
+watch(orderLoaded, async (loaded) => {
+  if (!loaded) return
+  await nextTick()
+  requestAnimationFrame(() => initSplitText())
+})
 
 const orderedSections = computed(() =>
   sectionOrder.value
