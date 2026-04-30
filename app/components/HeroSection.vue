@@ -647,6 +647,10 @@ onUnmounted(() => {
       grid-column: 1 / 6;
     }
 
+    @include mobile {
+      visibility: hidden;
+    }
+
     svg {
       display: block;
       width: rem(164);
