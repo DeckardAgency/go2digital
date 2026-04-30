@@ -230,7 +230,15 @@
     "about": "About",
     "contact": "Contact",
     "blog": "Blog",
-    "lab": "Lab"
+    "lab": "Lab",
+    "menu": "Menu",
+    "close": "Close",
+    "locations": "Locations",
+    "homepage": "Homepage",
+    "labs": "Go2Labs",
+    "articles": "Articles",
+    "contactPage": "Contact",
+    "esg": "ESG"
   },
   "common": {
     "readMore": "Read more",

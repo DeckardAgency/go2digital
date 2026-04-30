@@ -19,21 +19,22 @@
         <!-- Nav Button (Menu + Locations) -->
         <div class="mobile-nav__nav-button">
           <button class="mobile-nav__menu-toggle" :aria-expanded="isMenuOpen" aria-controls="mobile-nav-links" @click="toggleMenu">
-            <span class="mobile-nav__menu-text mobile-nav__menu-text--menu">Menu</span>
-            <span class="mobile-nav__menu-text mobile-nav__menu-text--close">Close</span>
+            <span class="mobile-nav__menu-text mobile-nav__menu-text--menu">{{ $t('nav.menu') }}</span>
+            <span class="mobile-nav__menu-text mobile-nav__menu-text--close">{{ $t('nav.close') }}</span>
           </button>
 
-          <NuxtLink to="/lokacije" class="mobile-nav__locations-btn">
-            <span>Locations</span>
+          <NuxtLink :to="localePath('/lokacije')" class="mobile-nav__locations-btn">
+            <span>{{ $t('nav.locations') }}</span>
           </NuxtLink>
         </div>
 
         <!-- Dropdown Menu -->
         <div class="mobile-nav__dropdown" id="mobile-nav-links">
-          <NuxtLink to="/lab" class="mobile-nav__dropdown-link" @click="closeMenu">Go2Labs</NuxtLink>
-          <NuxtLink to="/blog" class="mobile-nav__dropdown-link" @click="closeMenu">Articles</NuxtLink>
-          <NuxtLink to="/kontakt" class="mobile-nav__dropdown-link" @click="closeMenu">Contact</NuxtLink>
-          <NuxtLink to="/esg" class="mobile-nav__dropdown-link" @click="closeMenu">ESG</NuxtLink>
+          <NuxtLink :to="localePath('/')" class="mobile-nav__dropdown-link" @click="closeMenu">{{ $t('nav.homepage') }}</NuxtLink>
+          <NuxtLink :to="localePath('/lab')" class="mobile-nav__dropdown-link" @click="closeMenu">{{ $t('nav.labs') }}</NuxtLink>
+          <NuxtLink :to="localePath('/blog')" class="mobile-nav__dropdown-link" @click="closeMenu">{{ $t('nav.articles') }}</NuxtLink>
+          <NuxtLink :to="localePath('/kontakt')" class="mobile-nav__dropdown-link" @click="closeMenu">{{ $t('nav.contactPage') }}</NuxtLink>
+          <NuxtLink :to="localePath('/esg')" class="mobile-nav__dropdown-link" @click="closeMenu">{{ $t('nav.esg') }}</NuxtLink>
         </div>
       </div>
     </div>
@@ -43,6 +44,7 @@
 <script setup lang="ts">
 // Use shared navigation composable — same state as HeroNav and app.vue transitions
 const { isMenuOpen, toggleMenu, closeMenu } = useNavigation()
+const localePath = useLocalePath()
 
 const isHidden = ref(false)
 let lastScrollY = 0

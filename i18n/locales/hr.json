@@ -230,7 +230,15 @@
     "about": "O nama",
     "contact": "Kontakt",
     "blog": "Blog",
-    "lab": "Lab"
+    "lab": "Lab",
+    "menu": "Izbornik",
+    "close": "Zatvori",
+    "locations": "Lokacije",
+    "homepage": "Naslovnica",
+    "labs": "Go2Labs",
+    "articles": "Članci",
+    "contactPage": "Kontakt",
+    "esg": "ESG"
   },
   "common": {
     "readMore": "Pročitaj više",
