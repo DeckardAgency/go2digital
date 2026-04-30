@@ -267,7 +267,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 <style scoped lang="scss">
 .lab-detail {
-  min-height: 100vh;
+  min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
   background-color: $color-background;
 }
 
@@ -275,7 +275,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 // Hero — same pattern as /lokacije/[slug]
 // ==========================================================================
 .lab-detail__hero {
-  height: 100vh;
+  height: 100dvh; // dvh so the actions row never slips under the mobile browser chrome
   display: flex;
   flex-direction: column;
   overflow: hidden; // clip info/actions when image expands past them
@@ -373,7 +373,9 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   }
 
   @include mobile {
-    padding: $spacing-md;
+    // Add the iOS home-indicator inset to the bottom padding so the row sits
+    // above the safe area on devices that report it.
+    padding: $spacing-md $spacing-md calc(#{$spacing-md} + env(safe-area-inset-bottom)) $spacing-md;
   }
 }
 
