@@ -217,7 +217,7 @@ $display-bg: #ffffff;
 .interactive-display {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  min-height: 100dvh;
+  min-height: 100svh;
   width: 100%;
   position: relative;
   background-color: $display-bg;
@@ -227,7 +227,7 @@ $display-bg: #ffffff;
 
   &__hero {
     grid-column: 1 / -1;
-    min-height: 100dvh;
+    min-height: 100svh;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
   }

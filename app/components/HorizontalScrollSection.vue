@@ -455,7 +455,7 @@ function destroy() {
 .horizontal-scroll {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  height: 100svh;
   overflow: hidden;
   background-color: $color-background;
   z-index: 40;

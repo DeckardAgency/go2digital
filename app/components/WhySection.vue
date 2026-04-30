@@ -374,7 +374,7 @@ $why-perspective: 250vw;
   // ==========================================================================
   &__slide {
     position: relative;
-    height: 100dvh;
+    height: 100svh;
     background-color: $why-bg-color;
   }
 
@@ -382,7 +382,7 @@ $why-perspective: 250vw;
     @include gpu-accelerate;
     position: relative;
     width: 100%;
-    height: 100dvh;
+    height: 100svh;
     perspective: $why-perspective;
     background-color: $why-bg-color;
   }

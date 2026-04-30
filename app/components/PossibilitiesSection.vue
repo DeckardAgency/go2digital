@@ -248,7 +248,7 @@ function destroy() {
 .possibilities {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  height: 100svh;
   background-color: $color-background;
   display: flex;
   flex-direction: column;

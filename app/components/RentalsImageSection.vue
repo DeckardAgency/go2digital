@@ -78,7 +78,7 @@ onUnmounted(() => {
   &__inner {
     position: relative;
     width: 100%;
-    min-height: 60vh;
+    min-height: 60svh;
     border-radius: 2rem;
     overflow: hidden;
     @include mobile { border-radius: $radius-xl; }
@@ -87,14 +87,14 @@ onUnmounted(() => {
   &__bg {
     width: 100%;
     height: 100%;
-    min-height: 60vh;
+    min-height: 60svh;
     object-fit: cover;
   }
 
   &__placeholder {
     width: 100%;
     height: 100%;
-    min-height: 60vh;
+    min-height: 60svh;
     background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4e 50%, #1a1a2e 100%);
   }
 

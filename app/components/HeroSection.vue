@@ -564,8 +564,8 @@ onUnmounted(() => {
 .hero-section {
   position: relative;
   width: 100%;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100svh;
+  min-height: 100svh;
   background-color: $color-background;
 
   // Media Container (Video Background)
@@ -616,7 +616,7 @@ onUnmounted(() => {
     grid-template-rows: auto 1fr;
     gap: rem(20);
     width: 100%;
-    height: 100dvh;
+    height: 100svh;
     padding: rem(40);
 
     @include desktop {

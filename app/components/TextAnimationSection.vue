@@ -242,7 +242,7 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100dvh;
+    min-height: 100svh;
     width: 100%;
     padding: 2.5rem;
     @include dot-pattern-bg;

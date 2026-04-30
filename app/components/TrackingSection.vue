@@ -94,7 +94,7 @@ $tracking-border-color: #293331;
   contain: layout paint;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  min-height: 100dvh;
+  min-height: 100svh;
   width: 100%;
   background-color: $color-primary;
   position: relative;

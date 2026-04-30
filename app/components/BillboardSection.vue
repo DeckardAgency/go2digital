@@ -61,7 +61,7 @@ $billboard-text-color: #FAFAFA;
   contain: layout paint;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  min-height: 100dvh;
+  min-height: 100svh;
   width: 100%;
   background-color: $color-primary;
   padding: $spacing-2xl;

@@ -235,7 +235,7 @@ $cube-bg: #ffffff;
 .cube-section {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  min-height: 100dvh;
+  min-height: 100svh;
   width: 100%;
   background-color: $cube-bg;
   z-index: 30;
@@ -244,7 +244,7 @@ $cube-bg: #ffffff;
 
   &__hero {
     grid-column: 1 / -1;
-    min-height: 100dvh;
+    min-height: 100svh;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
   }
