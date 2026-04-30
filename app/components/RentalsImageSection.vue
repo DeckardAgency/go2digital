@@ -43,6 +43,9 @@ onMounted(async () => {
   requestAnimationFrame(() => {
     if (!sectionRef.value || !textRef.value) return
 
+    // Set the constant scale once, not on every scroll frame
+    gsap.set(imgRef.value, { scale: 1.15, force3D: true })
+
     st = ScrollTrigger.create({
       trigger: sectionRef.value,
       start: 'top bottom',
@@ -52,8 +55,8 @@ onMounted(async () => {
         // Text moves up, image moves down (opposite)
         const textY = 40 - (self.progress * 80)
         const imgY = -10 + (self.progress * 20)
-        gsap.set(textRef.value, { yPercent: textY, force3D: true })
-        gsap.set(imgRef.value, { yPercent: imgY, scale: 1.15, force3D: true })
+        gsap.set(textRef.value, { yPercent: textY })
+        gsap.set(imgRef.value, { yPercent: imgY })
       }
     })
   })

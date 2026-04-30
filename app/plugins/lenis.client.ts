@@ -4,6 +4,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Stop ScrollTrigger from re-measuring (and adjusting scroll position) every
+// time the mobile address bar shows/hides — that resize-driven refresh is the
+// main source of scroll glitches on touch devices.
+ScrollTrigger.config({ ignoreMobileResize: true })
+
 export default defineNuxtPlugin(() => {
   // Disable Lenis on mobile. Native momentum scroll feels fine on touch
   // devices, and Lenis fights with the address-bar resize that fires when
