@@ -329,14 +329,16 @@ export const useSplitText = () => {
   }
 
   const playAnimation = (element: HTMLElement) => {
+    // Mark first — even if there are no split elements yet (text was empty at
+    // split time), this ensures that when reactive text arrives later and the
+    // MutationObserver re-splits, the new spans land in the visible state
+    // instead of staying clipped at 100%.
+    animatedElements.add(element)
+
     const splitElements = (element as any)._splitElements as HTMLElement[]
     const options = (element as any)._splitOptions as SplitTextOptions
 
     if (!splitElements?.length) return
-
-    // Mark as animated so MutationObserver re-splits in the visible state
-    // when reactive text content updates after we've already revealed.
-    animatedElements.add(element)
 
     // Animate clip-path from hidden to visible + move up
     gsap.to(splitElements, {
@@ -377,9 +379,11 @@ export const useSplitText = () => {
 
   // Set elements to visible state (for elements that start visible and fade out)
   const setVisible = (element: HTMLElement) => {
+    // Mark first — same reason as playAnimation: any later re-split via
+    // MutationObserver should land visible, not hidden.
+    animatedElements.add(element)
     const splitElements = (element as any)._splitElements as HTMLElement[]
     if (splitElements?.length) {
-      animatedElements.add(element)
       gsap.set(splitElements, {
         clipPath: 'inset(0 0 0% 0)',
         y: 0

@@ -565,7 +565,7 @@ useHead({
 })
 
 // Split text composable
-const { initSplitText, playAnimation } = useSplitText()
+const { initSplitText, playAnimation, setVisible } = useSplitText()
 
 // CMS-editable translations via settings API
 const { t, locale } = useI18n()
@@ -1568,8 +1568,11 @@ onMounted(async () => {
     initSplitText()
     const allAnimTargets = [countRef.value, buttonsRef.value, filtersRef.value, searchRef.value]
     allAnimTargets.forEach(el => { if (el) gsap.set(el, { opacity: 1, y: 0 }) })
-    document.querySelectorAll('[data-split-text]').forEach(el => {
+    document.querySelectorAll<HTMLElement>('[data-split-text]').forEach(el => {
       el.classList.add('split-text-ready')
+      // Mark the parent as animated so any later re-split (e.g. CMS settings
+      // arriving after navigation) lands in the visible state.
+      setVisible(el)
       el.querySelectorAll('[style]').forEach(s => {
         gsap.set(s, { clipPath: 'none', y: 0, opacity: 1 })
       })
