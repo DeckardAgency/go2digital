@@ -26,6 +26,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
+        // viewport-fit=cover lets pages extend into iOS safe areas and exposes
+        // env(safe-area-inset-*) values so we can pad around the home indicator.
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
         // Stop iOS Safari from auto-linking phone numbers, dates, addresses, emails (which it then styles as blue links).
         { name: 'format-detection', content: 'telephone=no, date=no, address=no, email=no' }
       ],

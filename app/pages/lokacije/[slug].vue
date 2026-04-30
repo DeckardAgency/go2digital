@@ -806,13 +806,13 @@ useHead({
 
 <style scoped lang="scss">
 .location-detail {
-  min-height: 100vh;
+  min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
   background-color: $color-background;
 }
 
 // Hero
 .location-detail__hero {
-  height: 100vh;
+  height: 100dvh; // dvh so the actions row never slips under the mobile browser chrome
   display: flex;
   flex-direction: column;
   overflow: hidden; // clip info/actions when image expands past them
@@ -934,7 +934,11 @@ useHead({
   padding: $spacing-lg $spacing-2xl;
   margin-top: auto;
   @include tablet { padding: $spacing-lg; flex-wrap: wrap; }
-  @include mobile { padding: $spacing-md; }
+  @include mobile {
+    // Add the iOS home-indicator inset to the bottom padding so the row sits
+    // above the safe area on devices that report it.
+    padding: $spacing-md $spacing-md calc(#{$spacing-md} + env(safe-area-inset-bottom)) $spacing-md;
+  }
 }
 
 .location-detail__action {
