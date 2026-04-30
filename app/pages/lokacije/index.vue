@@ -1576,7 +1576,8 @@ onMounted(async () => {
     })
     const cardsEl = cardsContainer.value?.$el || cardsContainer.value
     if (cardsEl) {
-      gsap.set(cardsEl.querySelectorAll('.location-card'), { opacity: 1, y: 0 })
+      const cards = cardsEl.querySelectorAll('.location-card')
+      if (cards.length > 0) gsap.set(cards, { opacity: 1, y: 0 })
     }
 
     playReturnToCardAnimation(
@@ -1630,14 +1631,16 @@ const runEntranceAnimations = () => {
   const cardsEl = cardsContainer.value?.$el || cardsContainer.value
   if (cardsEl) {
     const cards = cardsEl.querySelectorAll('.location-card')
-    gsap.set(cards, { opacity: 0, y: 30 })
-    tl.to(cards, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      stagger: 0.05,
-      ease: 'power2.out'
-    }, 0.7)
+    if (cards.length > 0) {
+      gsap.set(cards, { opacity: 0, y: 30 })
+      tl.to(cards, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.05,
+        ease: 'power2.out'
+      }, 0.7)
+    }
   }
 }
 onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventListener('click', handleClickOutside); if (toastTimeout) clearTimeout(toastTimeout) })
