@@ -5,7 +5,13 @@
       <span :class="['human-focused__indicator-text', typoClass('indicator')]">{{ humanFocused?.indicator ?? $t('homepage.humanFocused.indicator') }}</span>
     </div>
     <header class="human-focused__header">
-      <h2 :class="['human-focused__title', typoClass('title')]">{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
+      <h2
+        :class="['human-focused__title', typoClass('title')]"
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.1"
+      >{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
     </header>
     <div class="human-focused__content">
       <div class="human-focused__block human-focused__block--left">

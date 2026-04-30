@@ -7,7 +7,12 @@
           <span class="analytics-section__indicator-dot"></span>
           <span :class="['analytics-section__indicator-text', typoClass('indicator')]">{{ analytics?.indicator ?? $t('homepage.analytics.indicator') }}</span>
         </div>
-        <h2 :class="['analytics-section__title', typoClass('title')]"
+        <h2
+          :class="['analytics-section__title', typoClass('title')]"
+          data-split-text
+          data-split-type="lines"
+          data-split-duration="0.6"
+          data-split-stagger="0.1"
         >{{ analytics?.title ?? $t('homepage.analytics.title') }}</h2>
       </div>
     </div>
@@ -15,7 +20,13 @@
     <!-- Right -->
     <div class="analytics-section__right">
       <div class="analytics-section__description-area">
-        <p :class="['analytics-section__description', typoClass('description')]">{{ analytics?.description ?? $t('homepage.analytics.description') }}</p>
+        <p
+          :class="['analytics-section__description', typoClass('description')]"
+          data-split-text
+          data-split-type="lines"
+          data-split-duration="0.6"
+          data-split-stagger="0.08"
+        >{{ analytics?.description ?? $t('homepage.analytics.description') }}</p>
       </div>
 
       <!-- Dot Grid Graph -->

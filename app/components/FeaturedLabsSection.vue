@@ -14,6 +14,10 @@
           <div class="featured-labs__title-wrapper">
             <h1
               :class="['featured-labs__title', typoClass('title')]"
+              data-split-text
+              data-split-type="lines"
+              data-split-duration="0.6"
+              data-split-stagger="0.1"
             >
               {{ sectionTitle }}
             </h1>

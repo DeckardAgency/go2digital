@@ -5,7 +5,9 @@
       <span :class="['interactive__indicator-text', typoClass('indicator')]">{{ displayProduct?.indicatorText ?? $t('homepage.interactiveDisplay.indicatorText') }}</span>
     </div>
     <header class="interactive__header">
-      <h2 :class="['interactive__title', typoClass('title')]">{{ displayProduct?.description ?? $t('homepage.interactiveDisplay.description') }}</h2>
+      <h2
+        :class="['interactive__title', typoClass('title')]"
+      >{{ displayProduct?.description ?? $t('homepage.interactiveDisplay.description') }}</h2>
     </header>
   </section>
 </template>

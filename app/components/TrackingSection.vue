@@ -3,6 +3,10 @@
     <div class="tracking-section__header">
       <h2
         :class="['tracking-section__title', typoClass('title')]"
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.1"
       >{{ trackingTitle }}</h2>
       <div class="tracking-section__cta">
         <BtnAnimated

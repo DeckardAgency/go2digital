@@ -13,6 +13,10 @@
 
       <h1
         :class="['why-section__headline', typoClass('headline')]"
+        data-split-text
+        data-split-type="lines"
+        data-split-duration="0.6"
+        data-split-stagger="0.1"
       >
         {{ whySection?.headline ?? $t('whySection.headline') }}
       </h1>

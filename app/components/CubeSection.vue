@@ -6,6 +6,10 @@
         <div class="cube-section__header">
           <h2
             :class="['cube-section__title', typoClass('title')]"
+            data-split-text
+            data-split-type="lines"
+            data-split-duration="0.6"
+            data-split-stagger="0.1"
           >{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</h2>
           <span :class="['cube-section__number', typoClass('number')]" aria-hidden="true">1</span>
           <div class="cube-section__badge">
@@ -50,7 +54,9 @@
       <span :class="['cube-description__indicator-text', typoClass('descIndicator')]">{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</span>
     </div>
     <header class="cube-description__header">
-      <h2 :class="['cube-description__title', typoClass('descTitle')]">{{ cubeProduct?.description ?? $t('homepage.cube.description') }}</h2>
+      <h2
+        :class="['cube-description__title', typoClass('descTitle')]"
+      >{{ cubeProduct?.description ?? $t('homepage.cube.description') }}</h2>
     </header>
   </section>
 
