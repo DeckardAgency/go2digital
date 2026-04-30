@@ -473,10 +473,16 @@
     <ClientOnly>
       <Teleport to="body">
         <div v-show="!isFiltersModalOpen" class="locations-view-switcher">
+          <!-- type="button" + @click.stop.prevent: without an explicit type
+               iOS Safari has occasionally treated these as submit-style
+               buttons (causing a page reload when the click bubbled). The
+               .prevent also blocks any iOS gesture that could accompany the
+               tap when the button sits near the bottom toolbar zone. -->
           <button
+            type="button"
             class="locations-view-switcher__btn"
             :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"
-            @click="switchMobileView('grid')"
+            @click.stop.prevent="switchMobileView('grid')"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -487,9 +493,10 @@
             {{ locViewGrid }}
           </button>
           <button
+            type="button"
             class="locations-view-switcher__btn"
             :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'map' }"
-            @click="switchMobileView('map')"
+            @click.stop.prevent="switchMobileView('map')"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 90 90" fill="currentColor" aria-hidden="true"><path d="M45 0C25.463 0 9.625 15.838 9.625 35.375c0 8.722 3.171 16.693 8.404 22.861L45 90l26.97-31.765c5.233-6.167 8.404-14.139 8.404-22.861C80.375 15.838 64.537 0 45 0m0 48.705c-8.035 0-14.548-6.513-14.548-14.548S36.965 19.609 45 19.609s14.548 6.513 14.548 14.548S53.035 48.705 45 48.705"/></svg>
             {{ locViewMap }}
@@ -2556,7 +2563,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 // Mobile view switcher
 .locations-view-switcher {
   position: fixed;
-  bottom: 2rem;
+  // Lift above iOS Safari's bottom toolbar / home-indicator zone so taps
+  // reliably land on the buttons instead of the system chrome.
+  bottom: calc(2rem + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   display: none;
@@ -2567,6 +2576,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   border-radius: $radius-full;
   box-shadow: $shadow-lg;
   z-index: $z-fixed;
+  // Suppress iOS double-tap zoom and tap highlight on these critical buttons.
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 
   @include tablet { display: flex; }
 
