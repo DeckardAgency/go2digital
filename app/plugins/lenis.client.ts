@@ -5,6 +5,24 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 export default defineNuxtPlugin(() => {
+  // Disable Lenis on mobile. Native momentum scroll feels fine on touch
+  // devices, and Lenis fights with the address-bar resize that fires when
+  // the user scrolls up — causing scroll to start then immediately stop.
+  // ScrollTriggers attach to native scroll events when no Lenis is present.
+  const isMobile = window.matchMedia('(max-width: 767px)').matches
+
+  if (isMobile) {
+    gsap.ticker.lagSmoothing(0)
+
+    const router = useRouter()
+    router.beforeEach(() => {
+      ScrollTrigger.getAll().forEach(st => st.kill())
+      ScrollTrigger.clearScrollMemory()
+    })
+
+    return { provide: { lenis: null } }
+  }
+
   const lenis = new Lenis({
     lerp: 0.06,
     duration: 1.2,
