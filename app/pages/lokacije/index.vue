@@ -1955,6 +1955,11 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+    // Prevent the first touch from being negotiated with Lenis / page scroll;
+    // claim vertical touches and stop scroll chaining out to the body.
+    touch-action: pan-y;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 
     @container sidebar (max-width: 480px) { grid-template-columns: 1fr; }
     @container sidebar (min-width: 750px) { grid-template-columns: repeat(3, 1fr); }
