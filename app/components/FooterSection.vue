@@ -8,7 +8,10 @@ const route = useRoute()
 // Check if current page is ESG
 const isEsgPage = computed(() => route.path.includes('/esg'))
 
-const currentYear = new Date().getFullYear()
+// useState so the year is computed once on the server and reused on the client
+// via the SSR payload — prevents hydration mismatch when server and client
+// timezones (or build-time cache) disagree on the current year.
+const currentYear = useState('footer-current-year', () => new Date().getFullYear())
 
 // Refs
 const eventTitleRef = ref<HTMLElement | null>(null)
