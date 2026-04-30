@@ -64,10 +64,14 @@ const prefersReducedMotion = ref(false)
 const mobileBreakpoint = 768
 const isMobile = () => window.innerWidth < mobileBreakpoint
 
-// #5: Debounced resize handler
+// #5: Debounced resize handler — only refresh on width changes so the mobile
+// address-bar show/hide (which only changes height) doesn't trigger refresh.
 let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0
 
 const handleResize = () => {
+  if (window.innerWidth === lastWidth) return
+  lastWidth = window.innerWidth
   if (resizeTimeout) clearTimeout(resizeTimeout)
   resizeTimeout = setTimeout(() => {
     ScrollTrigger.refresh()

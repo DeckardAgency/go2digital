@@ -156,8 +156,11 @@ const resetMarquee = () => {
 
 // Resize handler
 let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 0
 
 const handleResize = () => {
+  if (window.innerWidth === lastWidth) return
+  lastWidth = window.innerWidth
   if (resizeTimeout) clearTimeout(resizeTimeout)
   resizeTimeout = setTimeout(resetMarquee, 150)
 }
