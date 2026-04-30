@@ -95,16 +95,16 @@ const buildTimeline = () => {
 
   if (prefersReducedMotion.value) {
     gsap.set([w1, w2, w3], { opacity: 1 })
-    gsap.set(w1Letters, { yPercent: 0 })
-    gsap.set([...w2Letters, ...w3Letters], { yPercent: 110 })
+    gsap.set(w1Letters, { yPercent: 0, rotationX: 0 })
+    gsap.set([...w2Letters, ...w3Letters], { yPercent: 110, rotationX: 90 })
     return
   }
 
   // All words share the same stacked position; visibility is driven by letter Y
   gsap.set([w1, w2, w3], { opacity: 1 })
-  gsap.set(w1Letters, { yPercent: 0 })
-  gsap.set(w2Letters, { yPercent: 110 })
-  gsap.set(w3Letters, { yPercent: 110 })
+  gsap.set(w1Letters, { yPercent: 0, rotationX: 0, transformOrigin: '50% 50%' })
+  gsap.set(w2Letters, { yPercent: 110, rotationX: 90, transformOrigin: '50% 50%' })
+  gsap.set(w3Letters, { yPercent: 110, rotationX: 90, transformOrigin: '50% 50%' })
 
   const mobile = isMobile()
   const letterStagger = mobile ? 0.025 : 0.04
@@ -125,10 +125,12 @@ const buildTimeline = () => {
   // Hold word 1 at the start of the pin
   timeline.to({}, { duration: 0.5 })
 
-  // Word 1 → Word 2 (each letter rolls up out, next letters roll up in)
+  // Word 1 → Word 2 (each letter rolls up out + fades, next letters roll up in)
   timeline
     .to(w1Letters, {
       yPercent: -110,
+      rotationX: -90,
+      opacity: 0,
       duration: letterDuration,
       ease: 'power3.in',
       stagger: { each: letterStagger, from: 'end' },
@@ -137,6 +139,7 @@ const buildTimeline = () => {
       w2Letters,
       {
         yPercent: 0,
+        rotationX: 0,
         duration: letterDuration,
         ease: 'power3.out',
         stagger: { each: letterStagger, from: 'end' },
@@ -149,6 +152,8 @@ const buildTimeline = () => {
   timeline
     .to(w2Letters, {
       yPercent: -110,
+      rotationX: -90,
+      opacity: 0,
       duration: letterDuration,
       ease: 'power3.in',
       stagger: { each: letterStagger, from: 'end' },
@@ -157,13 +162,24 @@ const buildTimeline = () => {
       w3Letters,
       {
         yPercent: 0,
+        rotationX: 0,
         duration: letterDuration,
         ease: 'power3.out',
         stagger: { each: letterStagger, from: 'end' },
       },
       `-=${letterDuration * 0.6}`
     )
-    .to({}, { duration: 0.4 })
+    .to({}, { duration: 0.3 })
+
+  // Word 3 exit (so the last word fades up instead of vanishing on unpin)
+  timeline.to(w3Letters, {
+    yPercent: -110,
+    rotationX: -90,
+    opacity: 0,
+    duration: letterDuration,
+    ease: 'power3.in',
+    stagger: { each: letterStagger, from: 'end' },
+  })
 
   requestAnimationFrame(() => ScrollTrigger.refresh(true))
 }
@@ -244,6 +260,7 @@ onUnmounted(() => {
     align-items: center;
     justify-content: center;
     line-height: 1.4; // gives diacritics (ž, š, č) and descenders room inside the letter mask
+    perspective: 800px; // enables 3D rotation depth on letter rotateX
 
     &--primary { z-index: 3; }
     &--secondary { z-index: 2; }
@@ -257,16 +274,18 @@ onUnmounted(() => {
     overflow: hidden;
     line-height: inherit;
     vertical-align: top;
-    // Extend clip area horizontally so glyphs with overhang (o, e, g, italic letters)
-    // aren't cut on the sides. Negative margin keeps the layout width unchanged.
-    padding: 0 0.1em;
-    margin: 0 -0.1em;
+    // Extend clip area on all sides so diacritics, descenders, and glyph
+    // overhangs aren't cut. Negative margin cancels the layout impact so the
+    // word's bounding box stays the same.
+    padding: 0.3em 0.1em;
+    margin: -0.3em -0.1em;
   }
 
   &__letter {
     display: inline-block;
     will-change: transform;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
   }
 }
 
