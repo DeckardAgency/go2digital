@@ -125,20 +125,33 @@ $billboard-text-color: #FAFAFA;
 
 
   &__footer {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
     gap: $spacing-md;
+
+    @include mobile {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   &__subtitle {
     color: $billboard-text-color;
     margin: 0;
+    grid-column: 1 / 7;
+    grid-row: 1;
+
+    @include mobile { grid-column: 1 / -1; }
   }
 
   // #4: Increased opacity from 0.4 to 0.6 for WCAG AA contrast
   &__description {
     color: rgba($billboard-text-color, 0.6);
     margin: 0;
+    grid-column: 1 / 7;
+    grid-row: 2;
+
+    @include mobile { grid-column: 1 / -1; }
   }
 }
 
