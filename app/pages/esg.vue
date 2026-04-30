@@ -239,19 +239,23 @@ const activeBadge = ref<1 | 2 | 3>(1)
 // Badge content for vision section — from API with hardcoded fallback
 // Fallback strings ported from old project (assets/scripts/pages/esg.js:36-46)
 const badgeContent = computed(() => {
-  const badges = esgBadges.value ?? []
+  // Sort by sortOrder so the API's order doesn't change which badge maps to 1/2/3.
+  const badges = [...(esgBadges.value ?? [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+  // Use || (not ??) so empty strings from the CMS also fall back to the defaults.
+  const pick = (i: number, key: 'title' | 'description', fallback: string) =>
+    badges[i]?.[key]?.trim() || fallback
   return {
     1: {
-      title: badges[0]?.title ?? 'Digitalni Ekrani',
-      desc: badges[0]?.description ?? 'Sama srž našeg poslovanja je digitalna i time smanjujemo utjecaj na okoliš i gradimo održiviju budućnost oglašavanja.'
+      title: pick(0, 'title', 'Digitalni Ekrani'),
+      desc: pick(0, 'description', 'Sama srž našeg poslovanja je digitalna i time smanjujemo utjecaj na okoliš i gradimo održiviju budućnost oglašavanja.')
     },
     2: {
-      title: badges[1]?.title ?? 'Zeleni Tornjevi',
-      desc: badges[1]?.description ?? 'Zeleni tornjevi su lokacije na kojima smo postavili košnice za pčele i autohtone hrvatske biljke čime doprinosimo održivosti okoliša u blizini naših ekrana.'
+      title: pick(1, 'title', 'Zeleni Tornjevi'),
+      desc: pick(1, 'description', 'Zeleni tornjevi su lokacije na kojima smo postavili košnice za pčele i autohtone hrvatske biljke čime doprinosimo održivosti okoliša u blizini naših ekrana.')
     },
     3: {
-      title: badges[2]?.title ?? 'Čišćenje Zraka',
-      desc: badges[2]?.description ?? 'Naši citylight ekrani imaju integrirane HEPA filtere koji uklanjaju sitne čestice prašine, peludi i zagađenja iz prometa te pomažu stvaranju zdravijeg i ugodnijeg urbanog okruženja.'
+      title: pick(2, 'title', 'Čišćenje Zraka'),
+      desc: pick(2, 'description', 'Naši citylight ekrani imaju integrirane HEPA filtere koji uklanjaju sitne čestice prašine, peludi i zagađenja iz prometa te pomažu stvaranju zdravijeg i ugodnijeg urbanog okruženja.')
     },
   }
 })
