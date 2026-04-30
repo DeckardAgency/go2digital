@@ -105,11 +105,11 @@ export function animateCardToDetail(event: MouseEvent, options: TransitionOption
     }
   }
 
-  // Calculate GPU transform delta
+  // Translate via transform (GPU); morph size with width/height so object-fit
+  // re-computes every frame and the image doesn't distort when the aspect ratio
+  // changes between card and hero.
   const dx = target.left - startRect.left
   const dy = target.top - startRect.top
-  const sx = target.width / startRect.width
-  const sy = target.height / startRect.height
 
   const tl = gsap.timeline({
     onComplete: () => {
@@ -130,16 +130,14 @@ export function animateCardToDetail(event: MouseEvent, options: TransitionOption
     }
   })
 
-  // GPU-accelerated expand: translate + scale instead of top/left/width/height
   tl.to(clone, {
     x: dx,
     y: dy,
-    scaleX: sx,
-    scaleY: sy,
+    width: target.width,
+    height: target.height,
     borderRadius: target.radius,
     duration: 0.5,
     ease: 'power3.inOut',
-    force3D: true,
   }, 0)
   .set(overlay, { opacity: 1 }, 0.45)
 }
@@ -311,11 +309,10 @@ export async function playReturnToCardAnimation(
     targetRect = new DOMRect(vw / 2 - 150, window.innerHeight / 2 - 100, 300, 200)
   }
 
-  // Calculate GPU transform delta from current clone position to card
+  // Translate via transform (GPU); morph size with width/height so object-fit
+  // re-computes every frame and the image doesn't distort during the shrink.
   const dx = targetRect.left - cloneRect.left
   const dy = targetRect.top - cloneRect.top
-  const sx = targetRect.width / cloneRect.width
-  const sy = targetRect.height / cloneRect.height
 
   const tl = gsap.timeline({
     onComplete: () => {
@@ -332,16 +329,14 @@ export async function playReturnToCardAnimation(
     ease: 'power2.inOut'
   }, 0)
 
-  // GPU-accelerated shrink to card position
   tl.to(clone, {
     x: dx,
     y: dy,
-    scaleX: sx,
-    scaleY: sy,
+    width: targetRect.width,
+    height: targetRect.height,
     borderRadius: '0.65rem',
     duration: 0.5,
     ease: 'power3.inOut',
-    force3D: true,
   }, 0)
 
   // Fade out clone at the end
