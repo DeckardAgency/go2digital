@@ -242,7 +242,11 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   top: 0;
   left: 0;
   width: 100vw;
+  // svh is the SMALLEST viewport (chrome visible); guarantees content fits
+  // even on browsers that don't shrink the viewport for fixed bottom toolbars.
+  // Fallback to dvh for browsers that don't support svh.
   height: 100dvh;
+  height: 100svh;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -397,7 +401,9 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   }
 
   @include mobile {
-    padding: 1rem 1rem 4rem 1rem;
+    // Pad the bottom by the iOS home-indicator inset so the last row of
+    // social/contact buttons clears any bottom safe area on iOS Safari.
+    padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)) 1rem;
   }
 }
 
