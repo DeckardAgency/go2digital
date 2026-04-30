@@ -1334,8 +1334,16 @@ function setMapStyle(style: string) {
 
 function switchMobileView(view: string) {
   if (currentMobileView.value === view) return
+  // Briefly lock the document scroll across the view swap. Map view is
+  // 100dvh (non-scrollable) while grid view is many viewports tall — iOS
+  // would otherwise see the page become scrollable mid-gesture and treat
+  // the tap as the start of a pull-to-refresh.
+  const html = document.documentElement
+  const prevOverflow = html.style.overflow
+  html.style.overflow = 'hidden'
   currentMobileView.value = view
   if (view === 'map' && map) nextTick(() => { map.resize() })
+  setTimeout(() => { html.style.overflow = prevOverflow }, 250)
 }
 
 function openFiltersModal() {
@@ -1680,6 +1688,10 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   min-height: 100dvh;
   background-color: $color-background;
   contain: layout style;
+  // Block iOS pull-to-refresh on this page. Switching from map view
+  // (100dvh, non-scrollable) to grid view (huge scrollable content) made
+  // iOS interpret the in-flight gesture as a refresh request.
+  overscroll-behavior-y: contain;
 
   @include desktop { grid-template-columns: 520px auto 1fr; }
   @include tablet { grid-template-columns: 1fr; }
