@@ -117,11 +117,12 @@ $tracking-border-color: #293331;
   }
 
   &__title {
-    grid-column: 1 / 6;
+    grid-column: 1 / 11;
     color: $tracking-text-color;
     margin: 0;
-    @include tablet { grid-column: 1 / 8; }
-    @include mobile { grid-column: 1 / -1; margin-bottom: $spacing-lg; }
+    white-space: nowrap;
+    @include tablet { grid-column: 1 / 11; white-space: normal; }
+    @include mobile { grid-column: 1 / -1; margin-bottom: $spacing-lg; white-space: normal; }
   }
 
   &__cta {
