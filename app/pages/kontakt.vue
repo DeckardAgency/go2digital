@@ -421,6 +421,12 @@ $text-lighter: rgba(255, 255, 255, 0.6);
     max-width: unset;
     margin-bottom: 0.625rem;
   }
+
+  // Shrink 20% on smaller phones (e.g. Samsung S25 ~360px) so the last
+  // contact row clears the browser bottom toolbar.
+  @media (max-width: 410px) {
+    zoom: 0.8;
+  }
 }
 
 .contact-info {
@@ -432,6 +438,10 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   &__row {
     display: flex;
     gap: $spacing-xs;
+  }
+
+  @media (max-width: 410px) {
+    zoom: 0.8;
   }
 }
 </style>
