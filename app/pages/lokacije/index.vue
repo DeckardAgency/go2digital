@@ -466,31 +466,37 @@
     </Teleport>
 
     <!-- Mobile View Switcher -->
-    <Teleport to="body">
-      <div v-show="!isFiltersModalOpen" class="locations-view-switcher">
-        <button
-          class="locations-view-switcher__btn"
-          :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"
-          @click="switchMobileView('grid')"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          {{ locViewGrid }}
-        </button>
-        <button
-          class="locations-view-switcher__btn"
-          :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'map' }"
-          @click="switchMobileView('map')"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 90 90" fill="currentColor" aria-hidden="true"><path d="M45 0C25.463 0 9.625 15.838 9.625 35.375c0 8.722 3.171 16.693 8.404 22.861L45 90l26.97-31.765c5.233-6.167 8.404-14.139 8.404-22.861C80.375 15.838 64.537 0 45 0m0 48.705c-8.035 0-14.548-6.513-14.548-14.548S36.965 19.609 45 19.609s14.548 6.513 14.548 14.548S53.035 48.705 45 48.705"/></svg>
-          {{ locViewMap }}
-        </button>
-      </div>
-    </Teleport>
+    <!-- ClientOnly: two SVGs of different shape inside a Teleport were
+         hitting Vue SSR/hydration mismatches (the server occasionally swapped
+         the map icon with the grid icon, leaving the button with the wrong
+         or missing SVG in production where Vue does not reconcile). -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div v-show="!isFiltersModalOpen" class="locations-view-switcher">
+          <button
+            class="locations-view-switcher__btn"
+            :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'grid' }"
+            @click="switchMobileView('grid')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {{ locViewGrid }}
+          </button>
+          <button
+            class="locations-view-switcher__btn"
+            :class="{ 'locations-view-switcher__btn--active': currentMobileView === 'map' }"
+            @click="switchMobileView('map')"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 90 90" fill="currentColor" aria-hidden="true"><path d="M45 0C25.463 0 9.625 15.838 9.625 35.375c0 8.722 3.171 16.693 8.404 22.861L45 90l26.97-31.765c5.233-6.167 8.404-14.139 8.404-22.861C80.375 15.838 64.537 0 45 0m0 48.705c-8.035 0-14.548-6.513-14.548-14.548S36.965 19.609 45 19.609s14.548 6.513 14.548 14.548S53.035 48.705 45 48.705"/></svg>
+            {{ locViewMap }}
+          </button>
+        </div>
+      </Teleport>
+    </ClientOnly>
 
     <!-- Mobile Filters Modal -->
     <div class="locations-filters-modal" :class="{ 'locations-filters-modal--open': isFiltersModalOpen }">
@@ -1477,7 +1483,19 @@ function handleClickOutside(e: MouseEvent) {
   if (!target.closest('.custom-select') && !target.closest('.custom-select__dropdown')) { isCityDropdownOpen.value = false; isEnvDropdownOpen.value = false }
 }
 
-watch([filteredLocations], () => { if (map && map.isStyleLoaded()) loadMapData() })
+watch([filteredLocations], () => {
+  if (!map || !map.isStyleLoaded()) return
+  // Update GeoJSON data only — do NOT call loadMapData() here. loadMapData
+  // re-adds the source/layers AND re-binds map.on('click', …) handlers, so
+  // every keystroke would stack another click handler on the markers. The
+  // popup close button stops working because each pin click then opens
+  // multiple popups but activePopup only tracks one.
+  updateMapMarkers()
+  const features = filteredLocations.value
+    .filter(loc => loc.lat && loc.lng && loc.lat !== 0 && loc.lng !== 0)
+    .map(loc => ({ geometry: { coordinates: [loc.lng, loc.lat] } }))
+  fitMapToMarkers(features)
+})
 
 // ── Sidebar Resize ──
 const sidebarWidth = ref(0)
