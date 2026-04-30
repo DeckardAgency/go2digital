@@ -1973,11 +1973,18 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     overflow-y: auto;
     flex: 1;
     min-height: 0;
-    // Prevent the first touch from being negotiated with Lenis / page scroll;
-    // claim vertical touches and stop scroll chaining out to the body.
-    touch-action: pan-y;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+
+    // Desktop only: the sidebar has fixed 100dvh height so this container
+    // does the scrolling. Isolate it so the wheel/touch doesn't chain out.
+    // On mobile the sidebar grows with content and the body does the
+    // scrolling — applying these rules there makes iOS claim the touch for
+    // a non-scrollable region and the page becomes unscrollable after the
+    // first gesture.
+    @media (min-width: 768px) {
+      touch-action: pan-y;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
 
     @container sidebar (max-width: 480px) { grid-template-columns: 1fr; }
     @container sidebar (min-width: 750px) { grid-template-columns: repeat(3, 1fr); }
