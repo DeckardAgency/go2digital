@@ -61,10 +61,10 @@ const socialLinks = computed(() => {
     return socialData.value.map(link => ({ name: link.platform, url: link.url }))
   }
   return [
-    { name: 'LinkedIn', url: '#' },
-    { name: 'Instagram', url: '#' },
-    { name: 'Facebook', url: '#' },
-    { name: 'TikTok', url: '#' }
+    { name: t('footer.social.linkedin'), url: '#' },
+    { name: t('footer.social.instagram'), url: '#' },
+    { name: t('footer.social.facebook'), url: '#' },
+    { name: t('footer.social.tiktok'), url: '#' }
   ]
 })
 
@@ -79,9 +79,9 @@ const contactInfo = computed(() => {
     }))
   }
   return [
-    { label: 'E-mail', value: 'info@go2digital.hr', href: 'mailto:info@go2digital.hr', external: false },
-    { label: 'Phone', value: '+385 1 483 9192', href: 'tel:+38514839192', external: false },
-    { label: 'Location', value: 'Radnička cesta 52, 10 000 Zagreb', href: 'https://www.google.com/maps/dir/?api=1&destination=Radnička+cesta+52,+10000+Zagreb,+Croatia', external: true }
+    { label: t('footer.contact.emailLabel'), value: t('footer.contact.emailValue'), href: 'mailto:info@go2digital.hr', external: false },
+    { label: t('footer.contact.phoneLabel'), value: t('footer.contact.phoneValue'), href: 'tel:+38514839192', external: false },
+    { label: t('footer.contact.locationLabel'), value: t('footer.contact.locationValue'), href: 'https://www.google.com/maps/dir/?api=1&destination=Radnička+cesta+52,+10000+Zagreb,+Croatia', external: true }
   ]
 })
 
@@ -317,17 +317,17 @@ onUnmounted(() => {
       <div class="footer__container">
         <div class="footer__legal">
           <NuxtLink to="/privacy-policy" class="footer__legal-link">
-            Privacy Policy
+            {{ t('footer.links.privacyPolicy') }}
           </NuxtLink>
           <span class="footer__legal-divider"></span>
           <button type="button" class="footer__legal-link footer__legal-link--button">
-            Cookie Settings
+            {{ t('footer.links.cookieSettings') }}
           </button>
         </div>
         <div class="footer__credits">
-          <span>Design / N3 Studio</span>
+          <span>{{ t('footer.credits.design') }}</span>
           <span class="footer__credits-divider"></span>
-          <span>Decoded by: <a href="https://www.deckard.hr/" target="_blank" rel="noopener noreferrer" class="footer__credits-link" data-text="Deckard">Deckard</a></span>
+          <span>{{ t('footer.credits.decodedBy') }} <a href="https://www.deckard.hr/" target="_blank" rel="noopener noreferrer" class="footer__credits-link" :data-text="t('footer.credits.agency')">{{ t('footer.credits.agency') }}</a></span>
         </div>
       </div>
     </div>

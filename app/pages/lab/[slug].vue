@@ -448,7 +448,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 }
 
 .lab-detail__intro-body {
-  grid-column: 4 / 13;
+  grid-column: 6 / 13;
   color: $color-primary;
 
   @include tablet { grid-column: 5 / 13; }

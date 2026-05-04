@@ -159,7 +159,7 @@ onUnmounted(() => {
       <!-- Social Links -->
       <div class="social-links">
         <BtnAnimated
-          text="LinkedIn"
+          :text="$t('contact.social.linkedin')"
           href="https://linkedin.com/company/go2digital"
           target="_blank"
           variant="on-dark"
@@ -168,7 +168,7 @@ onUnmounted(() => {
           border-radius="0.5rem"
         />
         <BtnAnimated
-          text="Instagram"
+          :text="$t('contact.social.instagram')"
           href="https://instagram.com/go2digital"
           target="_blank"
           variant="on-dark"
@@ -177,7 +177,7 @@ onUnmounted(() => {
           border-radius="0.5rem"
         />
         <BtnAnimated
-          text="Facebook"
+          :text="$t('contact.social.facebook')"
           href="https://facebook.com/go2digital"
           target="_blank"
           variant="on-dark"
@@ -186,7 +186,7 @@ onUnmounted(() => {
           border-radius="0.5rem"
         />
         <BtnAnimated
-          text="YouTube"
+          :text="$t('contact.social.youtube')"
           href="https://youtube.com/go2digital"
           target="_blank"
           variant="on-dark"
@@ -200,7 +200,7 @@ onUnmounted(() => {
       <div class="contact-info">
         <div class="contact-info__row">
           <BtnAnimated
-            text="info[@]go2digital.hr"
+            :text="$t('contact.info.email')"
             href="mailto:info@go2digital.hr"
             variant="on-dark"
             size="small"
@@ -208,7 +208,7 @@ onUnmounted(() => {
             border-radius="0.5rem"
           />
           <BtnAnimated
-            text="+38514839192"
+            :text="$t('contact.info.phone')"
             href="tel:+38514839192"
             variant="on-dark"
             size="small"
@@ -217,7 +217,7 @@ onUnmounted(() => {
           />
         </div>
         <BtnAnimated
-          text="Radnička cesta 52, 10 000 Zagreb"
+          :text="$t('contact.info.address')"
           href="https://maps.google.com/?q=Radnička+cesta+52,+Zagreb"
           target="_blank"
           variant="on-dark"

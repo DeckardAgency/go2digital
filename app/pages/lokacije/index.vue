@@ -127,7 +127,7 @@
                   <span>{{ env.name }}</span>
                   <input type="checkbox" :value="env.id" v-model="selectedEnvironments" @change="applyFilters">
                 </label>
-                <div v-if="filteredEnvironments.length === 0" class="custom-select__no-results">No results</div>
+                <div v-if="filteredEnvironments.length === 0" class="custom-select__no-results">{{ $t('location.filters.noResults') }}</div>
               </div>
             </div>
           </Transition>
@@ -330,7 +330,7 @@
       <div v-if="false" class="locations-map__facilities" :class="{ 'locations-map__facilities--dark': isDarkMode, 'locations-map__facilities--open': isFacilitiesOpen }">
         <button class="locations-map__facilities-toggle" @click="isFacilitiesOpen = !isFacilitiesOpen">
           <span class="locations-map__facilities-label">
-            {{ activeFacilities.length > 0 ? `Nearby Places (${activeFacilities.length})` : 'Nearby Places' }}
+            {{ activeFacilities.length > 0 ? `${$t('location.map.nearbyPlaces')} (${activeFacilities.length})` : $t('location.map.nearbyPlaces') }}
           </span>
           <svg class="locations-map__facilities-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="4" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="4" r="1.5" fill="currentColor"/>

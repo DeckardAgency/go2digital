@@ -2,9 +2,9 @@
   <div class="page page--privacy">
     <section class="privacy">
       <div class="privacy__container">
-        <h1 class="privacy__title">Privacy Policy</h1>
+        <h1 class="privacy__title">{{ $t('privacyPolicy.title') }}</h1>
         <div class="privacy__content">
-          <p>Privacy policy content coming soon.</p>
+          <p>{{ $t('privacyPolicy.placeholder') }}</p>
         </div>
       </div>
     </section>
@@ -12,8 +12,9 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
 useHead({
-  title: 'Privacy Policy - Go2Digital'
+  title: () => t('privacyPolicy.seo.title')
 })
 </script>
 

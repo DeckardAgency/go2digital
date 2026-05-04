@@ -5,7 +5,9 @@
     "kicker": "Available for work",
     "heading": "We help brands grow and build a human connection.",
     "description": "A Zagreb-based digital agency for ambitious brands ready to succeed.",
-    "scrollDown": "Scroll Down"
+    "scrollDown": "Scroll Down",
+    "titleFallbackLine1": "Your brand",
+    "titleFallbackLine2": "front and center."
   },
   "whySection": {
     "label": "Why Go2Digital",
@@ -222,6 +224,9 @@
     "possibilities": {
       "label": "Possibilities",
       "subtitle": "All possibilities of digital screens"
+    },
+    "seo": {
+      "title": "Homepage - Go2Digital"
     }
   },
   "nav": {
@@ -250,6 +255,17 @@
     "pageTitle": "Contact",
     "batteryTextLine1": "The day moves on, and",
     "batteryTextLine2": "so does our battery life.",
+    "social": {
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "youtube": "YouTube"
+    },
+    "info": {
+      "email": "info[{'@'}]go2digital.hr",
+      "phone": "+38514839192",
+      "address": "Radnička cesta 52, 10 000 Zagreb"
+    },
     "seo": {
       "title": "Contact - Go2Digital",
       "description": "Contact Go2Digital digital agency from Zagreb"
@@ -270,10 +286,35 @@
           "title": "Subscribe"
         }
       }
+    },
+    "social": {
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "tiktok": "TikTok"
+    },
+    "contact": {
+      "emailLabel": "E-mail",
+      "emailValue": "info{'@'}go2digital.hr",
+      "phoneLabel": "Phone",
+      "phoneValue": "+385 1 483 9192",
+      "locationLabel": "Location",
+      "locationValue": "Radnička cesta 52, 10 000 Zagreb"
+    },
+    "links": {
+      "privacyPolicy": "Privacy Policy",
+      "cookieSettings": "Cookie Settings"
+    },
+    "credits": {
+      "design": "Design / N3 Studio",
+      "decodedBy": "Decoded by:",
+      "agency": "Deckard"
     }
   },
   "esg": {
     "pageTitle": "ESG - Go2Digital",
+    "heading": "ESG",
+    "bgAlt": "ESG Background",
     "hero": {
       "label": "Environmental, Social & Governance"
     },
@@ -367,7 +408,11 @@
       "environments": "Environments",
       "clearAll": "Clear all",
       "apply": "Apply",
-      "all": "All"
+      "all": "All",
+      "noResults": "No results"
+    },
+    "map": {
+      "nearbyPlaces": "Nearby Places"
     },
     "search": {
       "placeholder": "Search locations...",
@@ -399,6 +444,26 @@
     },
     "confirmClear": "Are you sure you want to clear all selected locations?",
     "detail": {
+      "focalPoint": "Focal Point",
+      "back": "Back to locations",
+      "share": "Share Location",
+      "save": "Save to collection",
+      "saved": "Saved to collection",
+      "about": "About The Location",
+      "gallery": "Gallery",
+      "spec": {
+        "city": "City",
+        "resolution": "Resolution",
+        "environment": "Environment",
+        "duration": "Duration",
+        "minutes": "minutes",
+        "type": "Type"
+      },
+      "map": {
+        "indoor": "Indoor",
+        "outdoor": "Outdoor",
+        "fallback": "Location"
+      },
       "statistics": {
         "title": "Location Statistics",
         "period": "(Monthly)",
@@ -422,6 +487,54 @@
       "nearby": {
         "title": "Nearby locations"
       }
+    }
+  },
+  "share": {
+    "linkedin": "LinkedIn",
+    "facebook": "Facebook",
+    "x": "X"
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "placeholder": "Privacy policy content coming soon.",
+    "seo": {
+      "title": "Privacy Policy - Go2Digital"
+    }
+  },
+  "dialog": {
+    "confirm": {
+      "message": "Are you sure?",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  },
+  "weather": {
+    "codes": {
+      "clearSky": "Clear sky",
+      "mainlyClear": "Mainly clear",
+      "partlyCloudy": "Partly cloudy",
+      "overcast": "Overcast",
+      "foggy": "Foggy",
+      "foggyRime": "Foggy with rime",
+      "drizzleLight": "Light drizzle",
+      "drizzleModerate": "Moderate drizzle",
+      "drizzleDense": "Dense drizzle",
+      "rainSlight": "Slight rain",
+      "rainModerate": "Moderate rain",
+      "rainHeavy": "Heavy rain",
+      "snowSlight": "Slight snow",
+      "snowModerate": "Moderate snow",
+      "snowHeavy": "Heavy snow",
+      "snowGrains": "Snow grains",
+      "showersSlight": "Slight rain showers",
+      "showersModerate": "Moderate rain showers",
+      "showersViolent": "Violent rain showers",
+      "snowShowersSlight": "Slight snow showers",
+      "snowShowersHeavy": "Heavy snow showers",
+      "thunderstorm": "Thunderstorm",
+      "thunderHailSlight": "Thunderstorm with slight hail",
+      "thunderHailHeavy": "Thunderstorm with heavy hail",
+      "unknown": "Unknown"
     }
   }
 }

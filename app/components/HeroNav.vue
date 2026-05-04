@@ -4,8 +4,8 @@
     <div class="hero-nav__container">
       <!-- Menu Toggle Button -->
       <button class="hero-nav__menu-toggle" :aria-expanded="isMenuOpen" aria-controls="hero-nav-links" @click="toggleMenu">
-        <span class="hero-nav__menu-text hero-nav__menu-text--open">Izbornik</span>
-        <span class="hero-nav__menu-text hero-nav__menu-text--close">Zatvori</span>
+        <span class="hero-nav__menu-text hero-nav__menu-text--open">{{ $t('nav.menu') }}</span>
+        <span class="hero-nav__menu-text hero-nav__menu-text--close">{{ $t('nav.close') }}</span>
       </button>
 
       <!-- Navigation Links (Hidden by default, shown when menu is active) -->
@@ -40,6 +40,7 @@ import type { NavigationItem } from '~/types/api'
 
 const { isMenuOpen, toggleMenu } = useNavigation()
 const localePath = useLocalePath()
+const { t } = useI18n()
 
 // Fetch main navigation from API
 const { data: navData } = useApi<NavigationItem[]>('/api/navigation_items', {
@@ -53,11 +54,11 @@ const mainNavItems = computed(() => {
     return navData.value.map(item => ({ url: item.url, label: item.label }))
   }
   return [
-    { url: '/', label: 'Homepage' },
-    { url: '/lab', label: 'Go2Labs' },
-    { url: '/blog', label: 'Articles' },
-    { url: '/kontakt', label: 'Contact' },
-    { url: '/esg', label: 'ESG' }
+    { url: '/', label: t('nav.homepage') },
+    { url: '/lab', label: t('nav.labs') },
+    { url: '/blog', label: t('nav.articles') },
+    { url: '/kontakt', label: t('nav.contactPage') },
+    { url: '/esg', label: t('nav.esg') }
   ]
 })
 const isHidden = ref(false)

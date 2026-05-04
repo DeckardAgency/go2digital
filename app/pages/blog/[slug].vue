@@ -78,7 +78,7 @@ import { resolveMediaUrl } from '~/utils/media'
 gsap.registerPlugin(ScrollTrigger)
 
 const route = useRoute()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const slug = route.params.slug as string
 const formattedSlug = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 
@@ -125,9 +125,9 @@ const shareLinks = computed(() => {
   const url = encodeURIComponent(shareUrl.value)
   const text = encodeURIComponent(title.value)
   return [
-    { label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
-    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
-    { label: 'X', href: `https://twitter.com/intent/tweet?url=${url}&text=${text}` },
+    { label: t('share.linkedin'), href: `https://www.linkedin.com/sharing/share-offsite/?url=${url}` },
+    { label: t('share.facebook'), href: `https://www.facebook.com/sharer/sharer.php?u=${url}` },
+    { label: t('share.x'), href: `https://twitter.com/intent/tweet?url=${url}&text=${text}` },
   ]
 })
 

@@ -104,9 +104,9 @@ import { animateCardToDetail, playReturnToCardAnimation } from '~/composables/us
 import type { LabProject, LabCategory } from '~/types/api'
 import { resolveMediaUrl } from '~/utils/media'
 
-useSeo('singleton/lab-page', null, 'Go2Labs - Go2Digital')
-
 const { locale, t } = useI18n()
+
+useSeo('singleton/lab-page', null, t('lab.seo.title'))
 
 const { blockMaps } = useTypography()
 

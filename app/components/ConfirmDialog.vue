@@ -8,13 +8,13 @@
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
-          <p class="confirm-dialog__message">{{ message }}</p>
+          <p class="confirm-dialog__message">{{ messageText }}</p>
           <div class="confirm-dialog__actions">
             <button class="confirm-dialog__btn confirm-dialog__btn--cancel" @click="cancel">
-              {{ cancelText }}
+              {{ cancelLabel }}
             </button>
             <button class="confirm-dialog__btn confirm-dialog__btn--confirm" @click="confirmAction">
-              {{ confirmText }}
+              {{ confirmLabel }}
             </button>
           </div>
         </div>
@@ -24,6 +24,8 @@
 </template>
 
 <script setup lang="ts">
+const { t } = useI18n()
+
 interface Props {
   visible: boolean
   message?: string
@@ -31,11 +33,15 @@ interface Props {
   cancelText?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  message: 'Are you sure?',
-  confirmText: 'Confirm',
-  cancelText: 'Cancel'
+const props = withDefaults(defineProps<Props>(), {
+  message: '',
+  confirmText: '',
+  cancelText: ''
 })
+
+const messageText = computed(() => props.message || t('dialog.confirm.message'))
+const confirmLabel = computed(() => props.confirmText || t('dialog.confirm.confirm'))
+const cancelLabel = computed(() => props.cancelText || t('dialog.confirm.cancel'))
 
 const emit = defineEmits<{
   confirm: []

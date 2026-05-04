@@ -24,11 +24,6 @@ function typoClass(key: keyof typeof DEFAULT_HERO_PRESETS): string {
   return `typo-${map?.[key] || DEFAULT_HERO_PRESETS[key]}`
 }
 
-// Title text — combined into one string with newline for split-text to detect as line break
-const titleText = computed(() => {
-  return 'Vaš brend<br/>u prvom planu.'
-})
-
 // Re-split all text elements when API data arrives (split-text destroys Vue bindings)
 function reSplitElement(el: HTMLElement | null, text: string) {
   if (!el) return
@@ -510,7 +505,7 @@ onUnmounted(() => {
       <div class="hero-section__main">
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
-          <h1 ref="titleRef" :class="['hero-section__title', typoClass('title')]" v-html="titleText"></h1>
+          <h1 ref="titleRef" :class="['hero-section__title', typoClass('title')]">{{ t('hero.titleFallbackLine1') }}<br>{{ t('hero.titleFallbackLine2') }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->

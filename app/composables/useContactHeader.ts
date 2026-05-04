@@ -8,34 +8,35 @@ interface WeatherData {
   weather_code: number
 }
 
-const weatherCodes: Record<number, string> = {
-  0: 'Clear sky',
-  1: 'Mainly clear',
-  2: 'Partly cloudy',
-  3: 'Overcast',
-  45: 'Foggy',
-  48: 'Foggy with rime',
-  51: 'Light drizzle',
-  53: 'Moderate drizzle',
-  55: 'Dense drizzle',
-  61: 'Slight rain',
-  63: 'Moderate rain',
-  65: 'Heavy rain',
-  71: 'Slight snow',
-  73: 'Moderate snow',
-  75: 'Heavy snow',
-  77: 'Snow grains',
-  80: 'Slight rain showers',
-  81: 'Moderate rain showers',
-  82: 'Violent rain showers',
-  85: 'Slight snow showers',
-  86: 'Heavy snow showers',
-  95: 'Thunderstorm',
-  96: 'Thunderstorm with slight hail',
-  99: 'Thunderstorm with heavy hail'
+const weatherCodeKeys: Record<number, string> = {
+  0: 'clearSky',
+  1: 'mainlyClear',
+  2: 'partlyCloudy',
+  3: 'overcast',
+  45: 'foggy',
+  48: 'foggyRime',
+  51: 'drizzleLight',
+  53: 'drizzleModerate',
+  55: 'drizzleDense',
+  61: 'rainSlight',
+  63: 'rainModerate',
+  65: 'rainHeavy',
+  71: 'snowSlight',
+  73: 'snowModerate',
+  75: 'snowHeavy',
+  77: 'snowGrains',
+  80: 'showersSlight',
+  81: 'showersModerate',
+  82: 'showersViolent',
+  85: 'snowShowersSlight',
+  86: 'snowShowersHeavy',
+  95: 'thunderstorm',
+  96: 'thunderHailSlight',
+  99: 'thunderHailHeavy'
 }
 
 export const useContactHeader = () => {
+  const { t } = useI18n()
   const time = ref('')
   const date = ref('')
   const temperature = ref('--°')
@@ -107,7 +108,8 @@ export const useContactHeader = () => {
 
       if (data.current && typeof data.current.temperature_2m === 'number') {
         temperature.value = `${Math.round(data.current.temperature_2m)}°`
-        weatherDescription.value = weatherCodes[data.current.weather_code] || 'Unknown'
+        const codeKey = weatherCodeKeys[data.current.weather_code]
+        weatherDescription.value = codeKey ? t(`weather.codes.${codeKey}`) : t('weather.codes.unknown')
       }
     } catch (error) {
       console.warn('Failed to fetch weather:', error)

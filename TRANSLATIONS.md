@@ -2,6 +2,8 @@
 
 Untranslated user-facing strings discovered across the codebase. Total: **~88 strings** in **13 files**.
 
+**Status: 88/88 ✅ COMPLETED** — all hardcoded strings have been migrated to `i18n/locales/hr.json` and `i18n/locales/en.json`, and source files updated to use `$t()` / `t()` calls.
+
 For each entry, fill in the translation column. Suggested i18n keys are starting points — adjust to match your existing structure in `i18n/locales/hr.json` and `i18n/locales/en.json`.
 
 **How to use:**

@@ -5,7 +5,9 @@
     "kicker": "Dostupni za suradnju",
     "heading": "Pomažemo brendovima rasti i graditi ljudsku povezanost.",
     "description": "Digitalna agencija iz Zagreba za ambiciozne brendove spremne na uspjeh.",
-    "scrollDown": "Skrolaj dolje"
+    "scrollDown": "Skrolaj dolje",
+    "titleFallbackLine1": "Vaš brend",
+    "titleFallbackLine2": "u prvom planu."
   },
   "whySection": {
     "label": "Zašto Go2Digital",
@@ -222,6 +224,9 @@
     "possibilities": {
       "label": "Mogućnosti",
       "subtitle": "Sve mogućnosti digitalnih ekrana"
+    },
+    "seo": {
+      "title": "Naslovnica - Go2Digital"
     }
   },
   "nav": {
@@ -250,6 +255,17 @@
     "pageTitle": "Kontakt",
     "batteryTextLine1": "Dan prolazi, a s njim",
     "batteryTextLine2": "i naša baterija.",
+    "social": {
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "youtube": "YouTube"
+    },
+    "info": {
+      "email": "info[{'@'}]go2digital.hr",
+      "phone": "+38514839192",
+      "address": "Radnička cesta 52, 10 000 Zagreb"
+    },
     "seo": {
       "title": "Kontakt - Go2Digital",
       "description": "Kontaktirajte Go2Digital digitalnu agenciju iz Zagreba"
@@ -270,10 +286,35 @@
           "title": "Pretplati se"
         }
       }
+    },
+    "social": {
+      "linkedin": "LinkedIn",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "tiktok": "TikTok"
+    },
+    "contact": {
+      "emailLabel": "E-mail",
+      "emailValue": "info{'@'}go2digital.hr",
+      "phoneLabel": "Telefon",
+      "phoneValue": "+385 1 483 9192",
+      "locationLabel": "Lokacija",
+      "locationValue": "Radnička cesta 52, 10 000 Zagreb"
+    },
+    "links": {
+      "privacyPolicy": "Pravila privatnosti",
+      "cookieSettings": "Postavke kolačića"
+    },
+    "credits": {
+      "design": "Dizajn / N3 Studio",
+      "decodedBy": "Dekodirao:",
+      "agency": "Deckard"
     }
   },
   "esg": {
     "pageTitle": "ESG - Go2Digital",
+    "heading": "ESG",
+    "bgAlt": "ESG pozadina",
     "hero": {
       "label": "ESG Strategija"
     },
@@ -367,7 +408,11 @@
       "environments": "Okruženja",
       "clearAll": "Očisti sve",
       "apply": "Primijeni",
-      "all": "Sve"
+      "all": "Sve",
+      "noResults": "Nema rezultata"
+    },
+    "map": {
+      "nearbyPlaces": "Mjesta u blizini"
     },
     "search": {
       "placeholder": "Pretraži lokacije...",
@@ -399,6 +444,26 @@
     },
     "confirmClear": "Jeste li sigurni da želite očistiti sve odabrane lokacije?",
     "detail": {
+      "focalPoint": "Fokusna točka",
+      "back": "Natrag na lokacije",
+      "share": "Podijeli lokaciju",
+      "save": "Spremi u kolekciju",
+      "saved": "Spremljeno u kolekciju",
+      "about": "O lokaciji",
+      "gallery": "Galerija",
+      "spec": {
+        "city": "Grad",
+        "resolution": "Rezolucija",
+        "environment": "Okruženje",
+        "duration": "Trajanje",
+        "minutes": "minuta",
+        "type": "Tip"
+      },
+      "map": {
+        "indoor": "Unutarnji",
+        "outdoor": "Vanjski",
+        "fallback": "Lokacija"
+      },
       "statistics": {
         "title": "Statistika lokacije",
         "period": "(Mjesečno)",
@@ -422,6 +487,54 @@
       "nearby": {
         "title": "Lokacije u blizini"
       }
+    }
+  },
+  "share": {
+    "linkedin": "LinkedIn",
+    "facebook": "Facebook",
+    "x": "X"
+  },
+  "privacyPolicy": {
+    "title": "Pravila privatnosti",
+    "placeholder": "Sadržaj pravila privatnosti uskoro.",
+    "seo": {
+      "title": "Pravila privatnosti - Go2Digital"
+    }
+  },
+  "dialog": {
+    "confirm": {
+      "message": "Jeste li sigurni?",
+      "confirm": "Potvrdi",
+      "cancel": "Odustani"
+    }
+  },
+  "weather": {
+    "codes": {
+      "clearSky": "Vedro nebo",
+      "mainlyClear": "Pretežno vedro",
+      "partlyCloudy": "Djelomično oblačno",
+      "overcast": "Oblačno",
+      "foggy": "Maglovito",
+      "foggyRime": "Magla s injem",
+      "drizzleLight": "Slabo rominjanje",
+      "drizzleModerate": "Umjereno rominjanje",
+      "drizzleDense": "Gusto rominjanje",
+      "rainSlight": "Slaba kiša",
+      "rainModerate": "Umjerena kiša",
+      "rainHeavy": "Jaka kiša",
+      "snowSlight": "Slab snijeg",
+      "snowModerate": "Umjeren snijeg",
+      "snowHeavy": "Jak snijeg",
+      "snowGrains": "Zrnati snijeg",
+      "showersSlight": "Slabi pljuskovi",
+      "showersModerate": "Umjereni pljuskovi",
+      "showersViolent": "Žestoki pljuskovi",
+      "snowShowersSlight": "Slabi snježni pljuskovi",
+      "snowShowersHeavy": "Jaki snježni pljuskovi",
+      "thunderstorm": "Grmljavina",
+      "thunderHailSlight": "Grmljavina sa slabom tučom",
+      "thunderHailHeavy": "Grmljavina s jakom tučom",
+      "unknown": "Nepoznato"
     }
   }
 }

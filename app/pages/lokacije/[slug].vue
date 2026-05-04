@@ -39,7 +39,7 @@
             <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
             <path d="M8 1v3M8 12v3M1 8h3M12 8h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          Focal Point
+          {{ $t('location.detail.focalPoint') }}
         </button>
       </div>
 
@@ -48,23 +48,23 @@
 
         <div class="location-detail__specs" ref="specsRef" v-if="totem">
           <div class="location-detail__spec">
-            <span class="location-detail__spec-label">City</span>
+            <span class="location-detail__spec-label">{{ $t('location.detail.spec.city') }}</span>
             <span class="location-detail__spec-value">{{ cityName }}</span>
           </div>
           <div class="location-detail__spec" v-if="totem.screen_width && totem.screen_height">
-            <span class="location-detail__spec-label">Resolution</span>
+            <span class="location-detail__spec-label">{{ $t('location.detail.spec.resolution') }}</span>
             <span class="location-detail__spec-value">{{ totem.screen_width }}x{{ totem.screen_height }} px</span>
           </div>
           <div class="location-detail__spec" v-if="totem.postbuy_category">
-            <span class="location-detail__spec-label">Environment</span>
+            <span class="location-detail__spec-label">{{ $t('location.detail.spec.environment') }}</span>
             <span class="location-detail__spec-value">{{ capitalize(totem.postbuy_category) }}</span>
           </div>
           <div class="location-detail__spec" v-if="totem.ad_duration">
-            <span class="location-detail__spec-label">Duration</span>
-            <span class="location-detail__spec-value">{{ totem.ad_duration }} minutes</span>
+            <span class="location-detail__spec-label">{{ $t('location.detail.spec.duration') }}</span>
+            <span class="location-detail__spec-value">{{ totem.ad_duration }} {{ $t('location.detail.spec.minutes') }}</span>
           </div>
           <div class="location-detail__spec" v-if="totem.totem_motion">
-            <span class="location-detail__spec-label">Type</span>
+            <span class="location-detail__spec-label">{{ $t('location.detail.spec.type') }}</span>
             <span class="location-detail__spec-value">{{ capitalize(totem.totem_motion.replace('_', ' ')) }}</span>
           </div>
         </div>
@@ -76,17 +76,17 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M3 8l4-4M3 8l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Back to locations
+          {{ $t('location.detail.back') }}
         </button>
         <button class="location-detail__action" @click="shareLocation">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 9l4-2M6 7l4 2M14 5a2 2 0 11-4 0 2 2 0 014 0zM6 8a2 2 0 11-4 0 2 2 0 014 0zM14 11a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Share Location
+          {{ $t('location.detail.share') }}
         </button>
         <label class="location-detail__action location-detail__action--save" :class="{ 'location-detail__action--active': isSaved }">
           <input type="checkbox" :checked="isSaved" @change="toggleSaveToCollection">
-          {{ isSaved ? 'Saved to collection' : 'Save to collection' }}
+          {{ isSaved ? $t('location.detail.saved') : $t('location.detail.save') }}
         </label>
       </div>
     </section>
@@ -97,7 +97,7 @@
     <section class="location-detail__about" v-if="totem?.description">
       <div class="location-detail__about-label">
         <span class="location-detail__dot"></span>
-        About The Location
+        {{ $t('location.detail.about') }}
       </div>
       <p class="location-detail__about-text">{{ totem.description }}</p>
     </section>
@@ -107,15 +107,15 @@
     <section class="location-detail__maps" v-if="totem?.location?.[0]">
       <div class="location-detail__maps-grid" :class="{ 'location-detail__maps-grid--single': !hasIndoorOutdoor }">
         <div v-if="isIndoor || hasIndoorOutdoor" class="location-detail__map-item" :class="{ 'location-detail__map-item--large': hasIndoorOutdoor }">
-          <span class="location-detail__map-label">Indoor</span>
+          <span class="location-detail__map-label">{{ $t('location.detail.map.indoor') }}</span>
           <div class="location-detail__map-container" ref="indoorMapRef"></div>
         </div>
         <div v-if="isOutdoor || hasIndoorOutdoor" class="location-detail__map-item">
-          <span class="location-detail__map-label">Outdoor</span>
+          <span class="location-detail__map-label">{{ $t('location.detail.map.outdoor') }}</span>
           <div class="location-detail__map-container" ref="outdoorMapRef"></div>
         </div>
         <div v-if="!isIndoor && !isOutdoor && !hasIndoorOutdoor" class="location-detail__map-item location-detail__map-item--full">
-          <span class="location-detail__map-label">Location</span>
+          <span class="location-detail__map-label">{{ $t('location.detail.map.fallback') }}</span>
           <div class="location-detail__map-container" ref="singleMapRef"></div>
         </div>
       </div>
@@ -165,7 +165,7 @@
       <div class="location-detail__gallery-controls" v-if="galleryImages.length > 1">
         <div class="location-detail__gallery-label">
           <span class="location-detail__gallery-bullet"></span>
-          Gallery
+          {{ $t('location.detail.gallery') }}
         </div>
         <div class="location-detail__gallery-track">
           <div

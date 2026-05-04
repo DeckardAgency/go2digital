@@ -91,7 +91,7 @@ const orderedSections = computed(() =>
 
 
 useHead({
-  title: 'Homepage - Go2Digital'
+  title: () => t('homepage.seo.title')
 })
 </script>
 

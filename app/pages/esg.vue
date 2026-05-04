@@ -9,7 +9,7 @@
           data-split-type="chars"
           data-split-duration="0.6"
           data-split-stagger="0.03"
-        >ESG</h1>
+        >{{ $t('esg.heading') }}</h1>
       </div>
       <div class="esg-page__hero-label">
         <span class="esg-page__bullet"></span>
@@ -77,7 +77,7 @@
     <section ref="videoSection" class="esg-page__video-section">
       <!-- Mobile background image -->
       <div class="esg-page__mobile-bg">
-        <img :src="mobileBgUrl" alt="ESG Background">
+        <img :src="mobileBgUrl" :alt="$t('esg.bgAlt')">
       </div>
 
       <!-- Desktop video background -->
