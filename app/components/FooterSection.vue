@@ -16,6 +16,18 @@ const currentYear = useState('footer-current-year', () => new Date().getFullYear
 // Refs
 const eventTitleRef = ref<HTMLElement | null>(null)
 
+// Newsletter form — prefill the Mailchimp landing page on submit.
+const newsletterName = ref('')
+const newsletterEmail = ref('')
+const NEWSLETTER_URL = 'https://mailchi.mp/beb60412cf3b/go2digital-newsletter'
+
+function openNewsletter() {
+  const url = new URL(NEWSLETTER_URL)
+  if (newsletterEmail.value) url.searchParams.set('EMAIL', newsletterEmail.value)
+  if (newsletterName.value) url.searchParams.set('FNAME', newsletterName.value)
+  window.open(url.toString(), '_blank', 'noopener,noreferrer')
+}
+
 // Marquee animation state
 let marqueeTimeline: gsap.core.Timeline | null = null
 let innerWrapper: HTMLElement | null = null
@@ -237,14 +249,17 @@ onUnmounted(() => {
           <h3 class="footer__newsletter-title">{{ t('footer.newsletter.title') }}</h3>
           <p class="footer__newsletter-text">{{ t('footer.newsletter.description') }}</p>
 
-          <form class="footer__form" @submit.prevent>
+          <form class="footer__form" @submit.prevent="openNewsletter">
             <input
+              v-model="newsletterName"
               type="text"
               class="footer__input footer__input--name"
               :placeholder="t('footer.newsletter.form.placeholder.name')"
             >
             <input
+              v-model="newsletterEmail"
               type="email"
+              required
               class="footer__input footer__input--email"
               :placeholder="t('footer.newsletter.form.placeholder.email')"
             >
