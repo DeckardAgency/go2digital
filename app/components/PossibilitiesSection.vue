@@ -249,7 +249,7 @@ function destroy() {
   position: relative;
   width: 100%;
   height: 100svh;
-  background-color: $color-background;
+  background-color: #FAFAFA;
   display: flex;
   flex-direction: column;
   padding: $spacing-2xl;
