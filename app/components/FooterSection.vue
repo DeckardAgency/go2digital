@@ -73,10 +73,9 @@ const socialLinks = computed(() => {
     return socialData.value.map(link => ({ name: link.platform, url: link.url }))
   }
   return [
-    { name: t('footer.social.linkedin'), url: '#' },
-    { name: t('footer.social.instagram'), url: '#' },
-    { name: t('footer.social.facebook'), url: '#' },
-    { name: t('footer.social.tiktok'), url: '#' }
+    { name: t('footer.social.linkedin'), url: 'https://www.linkedin.com/company/go2digital-d-o-o-/?viewAsMember=true' },
+    { name: t('footer.social.instagram'), url: 'https://www.instagram.com/go2digital_hr' },
+    { name: t('footer.social.facebook'), url: 'https://www.facebook.com/go2digital.hr/' },
   ]
 })
 

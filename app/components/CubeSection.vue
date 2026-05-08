@@ -382,7 +382,7 @@ $cube-bg: #FAFAFA;
   gap: $spacing-xl;
   padding: 6rem 4rem;
   width: 100%;
-  background-color: #ffffff;
+  background-color: #FAFAFA;
   z-index: 30;
 
   @include tablet { padding: 4rem $spacing-lg; }
