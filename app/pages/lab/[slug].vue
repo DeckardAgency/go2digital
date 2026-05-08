@@ -514,8 +514,9 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   opacity: .4;
 
   :deep(p) {
-    margin: 0 0 $spacing-md;
-    &:last-child { margin-bottom: 0; }
+    margin: 0;
+    text-indent: 2.5em;
+    &:first-child { text-indent: 0; }
   }
 
   :deep(strong) {
