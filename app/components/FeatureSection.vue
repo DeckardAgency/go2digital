@@ -25,7 +25,7 @@ defineProps<{
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   width: 100%;
-  background-color: #ffffff;
+  background-color: #FAFAFA;
   position: relative;
   z-index: 30;
   border-top: 1px solid $color-border;

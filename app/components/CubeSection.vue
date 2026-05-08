@@ -6,10 +6,6 @@
         <div class="cube-section__header">
           <h2
             :class="['cube-section__title', typoClass('title')]"
-            data-split-text
-            data-split-type="lines"
-            data-split-duration="0.6"
-            data-split-stagger="0.1"
           >{{ cubeProduct?.title ?? $t('homepage.cube.title') }}</h2>
           <span :class="['cube-section__number', typoClass('number')]" aria-hidden="true">1</span>
           <div class="cube-section__badge">
@@ -236,7 +232,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 // Component-specific variable
-$cube-bg: #ffffff;
+$cube-bg: #FAFAFA;
 
 .cube-section {
   display: grid;

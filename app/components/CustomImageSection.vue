@@ -105,7 +105,7 @@ onUnmounted(() => {
 
 // Component-specific variables
 // --------------------------------------------------------------------------
-$custom-image-bg: #ffffff;
+$custom-image-bg: #FAFAFA;
 $custom-image-padding-desktop: $spacing-2xl;
 $custom-image-padding-mobile: $spacing-md;
 $custom-image-radius-desktop: 2rem;

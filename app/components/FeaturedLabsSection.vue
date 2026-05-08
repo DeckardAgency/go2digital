@@ -14,10 +14,6 @@
           <div class="featured-labs__title-wrapper">
             <h1
               :class="['featured-labs__title', typoClass('title')]"
-              data-split-text
-              data-split-type="lines"
-              data-split-duration="0.6"
-              data-split-stagger="0.1"
             >
               {{ sectionTitle }}
             </h1>
@@ -143,7 +139,7 @@ const labItems = computed(() => {
 
 // Component-specific variables
 // --------------------------------------------------------------------------
-$labs-bg: #ffffff;
+$labs-bg: #FAFAFA;
 $labs-border-color: #D9D9D9;
 $labs-text-color: $color-primary;
 $labs-muted-opacity: 0.4;
@@ -161,14 +157,21 @@ $labs-dot-size: 6px;
   // ==========================================================================
   &__container {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     padding: $spacing-xl $spacing-xl 5rem;
     gap: 3.75rem;
     align-content: center;
+    min-width: 0;
 
     @include tablet {
       padding: $spacing-lg;
       gap: $spacing-xl;
+    }
+
+    @include mobile {
+      grid-template-columns: 1fr;
+      gap: $spacing-lg;
+      padding: $spacing-md;
     }
   }
 
@@ -211,8 +214,9 @@ $labs-dot-size: 6px;
   // ==========================================================================
   &__title-row {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: center;
+    min-width: 0;
 
     @include tablet {
       display: flex;
@@ -226,6 +230,7 @@ $labs-dot-size: 6px;
     grid-column: 1 / 9;
     display: flex;
     gap: 0.625rem;
+    min-width: 0;
 
     @include desktop {
       grid-column: 1 / 10;
@@ -239,6 +244,8 @@ $labs-dot-size: 6px;
   &__title {
     color: $labs-text-color;
     margin: 0;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
 
   &__count {
@@ -259,6 +266,15 @@ $labs-dot-size: 6px;
       width: 100%;
       max-width: 17.5rem;
     }
+
+    @include mobile {
+      max-width: none;
+
+      :deep(.btn-animated) {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
   }
 
   // ==========================================================================
@@ -268,6 +284,7 @@ $labs-dot-size: 6px;
     grid-column: 1 / 4;
     display: flex;
     align-items: flex-start;
+    min-width: 0;
 
     @include desktop {
       grid-column: 1 / 5;
@@ -282,6 +299,8 @@ $labs-dot-size: 6px;
     color: $labs-text-color;
     opacity: $labs-muted-opacity;
     margin: 0;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
 
   // ==========================================================================

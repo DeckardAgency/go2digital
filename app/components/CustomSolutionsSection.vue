@@ -10,10 +10,6 @@
     <header class="custom-solutions__header">
       <h2
         :class="['custom-solutions__title', typoClass('title')]"
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="0.6"
-        data-split-stagger="0.1"
       >
         {{ customSolution?.title ?? $t('homepage.customSolutions.title') }}
       </h2>
@@ -60,7 +56,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 // Component-specific variables
 // --------------------------------------------------------------------------
-$solutions-bg: #ffffff;
+$solutions-bg: #FAFAFA;
 $solutions-text-color: $color-primary;
 $solutions-muted-color: rgba($color-primary, 0.6);
 $solutions-title-indent: 55%;

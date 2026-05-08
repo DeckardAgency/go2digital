@@ -7,10 +7,6 @@
     <header class="human-focused__header">
       <h2
         :class="['human-focused__title', typoClass('title')]"
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="0.6"
-        data-split-stagger="0.1"
       >{{ humanFocused?.title ?? $t('homepage.humanFocused.title') }}</h2>
     </header>
     <div class="human-focused__content">
@@ -51,7 +47,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   padding: 6rem $spacing-2xl 7.5rem;
   width: 100%;
   position: relative;
-  background-color: #ffffff;
+  background-color: #FAFAFA;
   z-index: 30;
 
   @include tablet {

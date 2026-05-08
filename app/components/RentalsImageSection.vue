@@ -74,7 +74,7 @@ onUnmounted(() => {
   contain: layout paint;
   width: 100%;
   padding: $spacing-2xl;
-  background-color: #ffffff;
+  background-color: #FAFAFA;
   z-index: 30;
   @include mobile { padding: $spacing-md; }
 

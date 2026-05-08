@@ -268,7 +268,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 <style scoped lang="scss">
 .lab-detail {
   min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
-  background-color: $color-background;
+  background-color: #FAFAFA;
 }
 
 // ==========================================================================
@@ -511,6 +511,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 .lab-detail__section-content {
   color: $color-muted;
+  opacity: .4;
 
   :deep(p) {
     margin: 0 0 $spacing-md;

@@ -38,7 +38,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   gap: 2rem;
   padding: 6rem 4rem;
   width: 100%;
-  background-color: #ffffff;
+  background-color: #FAFAFA;
   position: relative;
   z-index: 30;
   @include mobile { padding: 1rem; }

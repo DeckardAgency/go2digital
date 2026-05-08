@@ -284,7 +284,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 <style scoped lang="scss">
 .blog-detail {
   min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
-  background-color: $color-background;
+  background-color: #FAFAFA;
 }
 
 // ==========================================================================
@@ -369,6 +369,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   display: block;
   color: $color-muted;
   margin-bottom: $spacing-xs;
+  opacity: .4;
 }
 
 .blog-detail__spec-value {
@@ -448,13 +449,15 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   color: $color-muted;
   min-width: 0;
   overflow-wrap: break-word;
+  opacity: .4;
 
   @include tablet { grid-column: 5 / 13; }
   @include mobile { grid-column: 1; }
 
   :deep(p) {
-    margin: 0 0 $spacing-md;
-    &:last-child { margin-bottom: 0; }
+    margin: 0;
+    text-indent: 2.5em;
+    &:first-child { text-indent: 0; }
   }
   :deep(h2) {
     color: $color-primary;

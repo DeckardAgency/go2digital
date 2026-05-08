@@ -6,10 +6,6 @@
         <div class="interactive-display__header">
           <h2
             :class="['interactive-display__title', typoClass('title')]"
-            data-split-text
-            data-split-type="lines"
-            data-split-duration="0.6"
-            data-split-stagger="0.1"
           >{{ displayProduct?.title ?? $t('homepage.interactiveDisplay.title') }}</h2>
           <span :class="['interactive-display__number', typoClass('number')]" aria-hidden="true">2</span>
           <div class="interactive-display__badge">
@@ -216,7 +212,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 // Component-specific variable
-$display-bg: #ffffff;
+$display-bg: #FAFAFA;
 
 .interactive-display {
   display: grid;

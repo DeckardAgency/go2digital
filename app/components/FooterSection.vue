@@ -418,7 +418,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   border-top: 1px solid var(--footer-border);
-  background-color: var(--footer-bg);
+  background-color: #FAFAFA;
   z-index: 30;
 
   &--esg {
@@ -431,7 +431,7 @@ onUnmounted(() => {
 // ============================================
 .footer__section {
   &--top {
-    background-color: var(--footer-bg);
+    background-color: #FAFAFA;
   }
 
   &--middle {
@@ -755,7 +755,6 @@ onUnmounted(() => {
 .footer__contact-value {
   font-size: 0.9375rem;
   color: var(--footer-text);
-  opacity: 0.3;
   text-decoration: none;
   transition: opacity 0.15s ease;
 

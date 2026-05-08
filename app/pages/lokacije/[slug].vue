@@ -807,7 +807,7 @@ useHead({
 <style scoped lang="scss">
 .location-detail {
   min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
-  background-color: $color-background;
+  background-color: #FAFAFA;
 }
 
 // Hero
@@ -918,6 +918,7 @@ useHead({
   letter-spacing: 0.01875rem;
   color: $color-muted;
   margin-bottom: $spacing-xs;
+  opacity: .4;
 }
 
 .location-detail__spec-value {
@@ -1276,6 +1277,7 @@ useHead({
   font-weight: 400;
   line-height: 1.3;
   color: $color-muted;
+  opacity: .4;
   max-width: 300px;
 
   @include tablet { max-width: 100%; }

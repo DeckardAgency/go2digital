@@ -9,10 +9,6 @@
         <h2
           ref="titleRef"
           :class="['billboard-section__title', typoClass('title')]"
-          data-split-text
-          data-split-type="lines"
-          data-split-duration="0.6"
-          data-split-stagger="0.1"
         >{{ billboard?.title ?? $t('homepage.billboard.title') }}</h2>
         <BtnAnimated
           :text="billboard?.buttonText ?? $t('homepage.billboard.buttonText')"
@@ -25,10 +21,6 @@
         <h3 :class="['billboard-section__subtitle', typoClass('subtitle')]">{{ billboard?.subtitle ?? $t('homepage.billboard.subtitle') }}</h3>
         <p
           :class="['billboard-section__description', typoClass('description')]"
-          data-split-text
-          data-split-type="lines"
-          data-split-duration="0.6"
-          data-split-stagger="0.08"
         >{{ billboard?.description ?? $t('homepage.billboard.description') }}</p>
       </div>
     </div>
