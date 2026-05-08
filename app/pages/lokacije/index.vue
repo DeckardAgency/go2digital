@@ -1725,7 +1725,8 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     .locations-sidebar__count { color: $dark-muted; }
     .locations-sidebar__clear-btn { border-color: $dark-border; color: $dark-text; }
     .locations-sidebar__view-toggle { color: $dark-text; }
-    .locations-sidebar__mode-btn { border-color: $dark-border; color: $dark-text; &--active { background-color: $dark-text; color: $dark-background; } }
+    .locations-sidebar__mode-switch { background-color: $dark-surface; }
+    .locations-sidebar__mode-btn { color: $dark-muted; &--active { background-color: $dark-background; color: $dark-text; } }
     .locations-sidebar__filters { border-color: $dark-border; }
     .locations-sidebar__mobile-buttons { border-color: $dark-border; }
     .locations-sidebar__collection-btn,
@@ -1752,6 +1753,15 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
       max-height: 0;
       opacity: 0;
       pointer-events: none;
+
+      // On mobile/tablet the cards container is the scrollable region and
+      // collapsing the toolbar mid-scroll changes its flex height, which
+      // confuses iOS momentum scrolling. Keep the toolbar always visible.
+      @include tablet {
+        max-height: 500px;
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
   }
 
@@ -1781,7 +1791,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     @include mobile {
       flex-direction: column;
       align-items: flex-start;
-      padding-top: 7rem;
+      padding: 7rem 1rem 2rem;
     }
   }
 
@@ -1837,18 +1847,32 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
   &__view-checkbox { width: 1rem; height: 1rem; accent-color: $color-accent; }
 
-  &__mode-switch { display: none; @include tablet { display: flex; gap: $spacing-xs; } }
+  &__mode-switch {
+    display: none;
+    @include tablet {
+      display: inline-flex;
+      gap: 0;
+      padding: 0.25rem;
+      background-color: $color-surface;
+      border-radius: 0.5rem;
+    }
+  }
   &__mode-btn {
-    padding: 0.375rem 0.75rem;
-    border: 1px solid $color-border;
-    border-radius: $radius-full;
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: 0.375rem;
     background: transparent;
+    color: $color-muted;
     font-size: $font-size-old-xs;     /* old: 0.75rem */
     font-weight: 400;
     text-transform: capitalize;
     cursor: pointer;
-    transition: all $transition-base;
-    &--active { background-color: $color-primary; border-color: $color-primary; color: $color-background; }
+    transition: background-color $transition-base, color $transition-base;
+    &--active {
+      background-color: $color-background;
+      color: $color-primary;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
   }
 
   // ── Filters ──
@@ -1866,6 +1890,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     padding: $spacing-md 1.75rem;
     gap: $spacing-md;
     @include tablet { display: flex; }
+    @include mobile { padding: $spacing-md 1rem; }
   }
 
   &__collection-btn,
@@ -1880,6 +1905,8 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     font-size: $font-size-old-base;   /* old: 1rem */
     font-weight: 400;
     cursor: pointer;
+
+    @include mobile { border-radius: 0.5rem; }
   }
 
   &__collection-btn-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background-color: $color-accent; }
@@ -1889,6 +1916,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     display: flex;
     gap: 0;
     padding: 0 2rem 2rem;
+    @include mobile { padding: 0 1rem 2rem; }
   }
 
   &__search-input {
@@ -1935,6 +1963,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: center;
     gap: $spacing-sm;
     padding: 0 1.75rem 1.25rem;
+    @include mobile { padding: 0 1rem 1.25rem; }
   }
 
   &__tag {
@@ -2007,7 +2036,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
 
     @container sidebar (max-width: 480px) { grid-template-columns: 1fr; }
     @container sidebar (min-width: 750px) { grid-template-columns: repeat(3, 1fr); }
-    @include mobile { grid-template-columns: 1fr; }
+    @include mobile { grid-template-columns: 1fr; padding: 1.75rem 1rem; }
   }
 
   &__empty { grid-column: 1 / -1; text-align: center; padding: $spacing-xl; color: $color-muted; }
