@@ -130,10 +130,14 @@ $solutions-dot-size: 6px;
   &__title {
     color: $solutions-text-color;
     margin: 0;
+    text-indent: 20rem;
 
+    @include desktop { text-indent: 12rem; }
     @include tablet {
       line-height: 1.3;
+      text-indent: 6rem;
     }
+    @include mobile { text-indent: 0; }
   }
 
   // ==========================================================================

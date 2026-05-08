@@ -94,8 +94,11 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   &__title {
     color: $color-primary;
     margin: 0;
+    text-indent: 20rem;
 
-    @include tablet { line-height: 1.3; }
+    @include desktop { text-indent: 12rem; }
+    @include tablet { line-height: 1.3; text-indent: 6rem; }
+    @include mobile { text-indent: 0; }
   }
 
   &__content {
