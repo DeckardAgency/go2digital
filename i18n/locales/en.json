@@ -482,6 +482,10 @@
           "description": "{category} location in {city}.",
           "indoor": "Indoor placement with high foot traffic.",
           "outdoor": "Outdoor placement with strong vehicle and pedestrian visibility."
+        },
+        "screens": {
+          "label": "Screens",
+          "description": "This location has {count} screens providing comprehensive coverage."
         }
       },
       "nearby": {

@@ -102,21 +102,12 @@
       <p class="location-detail__about-text">{{ totem.description }}</p>
     </section>
 
-    <!-- Floor Plans -->
     <!-- Location Map -->
     <section class="location-detail__maps" v-if="totem?.location?.[0]">
-      <div class="location-detail__maps-grid" :class="{ 'location-detail__maps-grid--single': !hasIndoorOutdoor }">
-        <div v-if="isIndoor || hasIndoorOutdoor" class="location-detail__map-item" :class="{ 'location-detail__map-item--large': hasIndoorOutdoor }">
+      <div class="location-detail__maps-grid location-detail__maps-grid--single">
+        <div class="location-detail__map-item location-detail__map-item--full">
           <span class="location-detail__map-label">{{ $t('location.detail.map.indoor') }}</span>
           <div class="location-detail__map-container" ref="indoorMapRef"></div>
-        </div>
-        <div v-if="isOutdoor || hasIndoorOutdoor" class="location-detail__map-item">
-          <span class="location-detail__map-label">{{ $t('location.detail.map.outdoor') }}</span>
-          <div class="location-detail__map-container" ref="outdoorMapRef"></div>
-        </div>
-        <div v-if="!isIndoor && !isOutdoor && !hasIndoorOutdoor" class="location-detail__map-item location-detail__map-item--full">
-          <span class="location-detail__map-label">{{ $t('location.detail.map.fallback') }}</span>
-          <div class="location-detail__map-container" ref="singleMapRef"></div>
         </div>
       </div>
     </section>
@@ -213,20 +204,19 @@
       </div>
 
       <!-- Secondary label -->
-      <div class="location-detail__stats-secondary" v-if="totem.postbuy_category">
+      <div class="location-detail__stats-secondary">
         <div class="location-detail__stats-type">{{ $t('location.detail.statistics.secondary') }}</div>
       </div>
 
-      <!-- Stat: Neighbourhood -->
-      <div class="location-detail__stat-row location-detail__stat-row--no-value" v-if="totem.postbuy_category">
+      <!-- Stat: Screens -->
+      <div class="location-detail__stat-row">
         <div class="location-detail__stat-label">
           <span class="location-detail__dot"></span>
-          {{ $t('location.detail.statistics.neighbourhood.label') }}
+          {{ $t('location.detail.statistics.screens.label') }}
         </div>
-        <div class="location-detail__stat-value"></div>
+        <div class="location-detail__stat-value">{{ screensCount }}</div>
         <div class="location-detail__stat-desc">
-          {{ $t('location.detail.statistics.neighbourhood.description', { category: capitalize(totem.postbuy_category), city: cityName }) }}
-          {{ totem.totem_type === 'indoor' ? $t('location.detail.statistics.neighbourhood.indoor') : $t('location.detail.statistics.neighbourhood.outdoor') }}
+          {{ $t('location.detail.statistics.screens.description', { count: screensCount }) }}
         </div>
       </div>
     </section>
@@ -356,6 +346,7 @@ const matchedData = computed(() => {
 
 const totem = computed(() => matchedData.value?.totem || null)
 const cityName = computed(() => matchedData.value?.cityName || '')
+const screensCount = computed(() => totem.value?.screens ?? 0)
 
 // Sync focal point from totem data
 watch(totem, (t) => {
@@ -411,23 +402,13 @@ const galleryImages = computed(() => {
   return totem.value.images.map((img: any) => resolveUrl(img.main || img.large || img.thumbnail || ''))
 })
 
-const isIndoor = computed(() => totem.value?.totem_type === 'indoor')
-const isOutdoor = computed(() => totem.value?.totem_type === 'outdoor' || totem.value?.postbuy_category === 'roadside')
-const hasIndoorOutdoor = computed(() => {
-  // If location has floor plans for both or postbuy suggests both
-  const cat = totem.value?.postbuy_category || ''
-  return cat === 'shopping' || cat === 'mall' // these typically have both indoor and outdoor views
-})
-
 const indoorMapRef = ref<HTMLElement | null>(null)
-const outdoorMapRef = ref<HTMLElement | null>(null)
-const singleMapRef = ref<HTMLElement | null>(null)
 
 let detailMaps: any[] = []
 
 async function initDetailMaps() {
   const t = totem.value
-  if (!t?.location?.[0]) return
+  if (!t?.location?.[0] || !indoorMapRef.value) return
 
   const { useMapboxToken } = await import('~/composables/useMapboxToken')
   const token = await useMapboxToken()
@@ -438,42 +419,36 @@ async function initDetailMaps() {
   const lat = t.location[0]
   const lng = t.location[1]
 
-  const createMap = (container: HTMLElement, zoom: number) => {
-    const map = new mapboxgl.default.Map({
-      container,
-      style: 'mapbox://styles/mapbox/light-v11',
-      center: [lng, lat],
-      zoom,
-      interactive: false,
-      attributionControl: false,
-    })
+  const isMobile = window.matchMedia('(max-width: 575px)').matches
 
-    // Green marker
-    const markerEl = document.createElement('div')
-    markerEl.style.cssText = `
-      width: 16px; height: 16px; border-radius: 50%;
-      background-color: #0CD459; border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    `
-    new mapboxgl.default.Marker({ element: markerEl })
-      .setLngLat([lng, lat])
-      .addTo(map)
+  const map = new mapboxgl.default.Map({
+    container: indoorMapRef.value,
+    style: 'mapbox://styles/mapbox/light-v11',
+    center: [lng, lat],
+    zoom: 15,
+    attributionControl: false,
+    // On mobile, disable touch gestures so a finger drag scrolls the page
+    // instead of the map. Users can still zoom via the +/- control buttons.
+    dragPan: !isMobile,
+    scrollZoom: !isMobile,
+    touchZoomRotate: !isMobile,
+    touchPitch: !isMobile,
+    doubleClickZoom: !isMobile,
+  })
 
-    detailMaps.push(map)
-    return map
-  }
+  map.addControl(new mapboxgl.default.NavigationControl({ showCompass: false }), 'top-right')
 
-  // Create maps based on type
-  if (hasIndoorOutdoor.value) {
-    if (indoorMapRef.value) createMap(indoorMapRef.value, 15) // closer zoom for indoor
-    if (outdoorMapRef.value) createMap(outdoorMapRef.value, 12) // wider for outdoor
-  } else if (isIndoor.value && indoorMapRef.value) {
-    createMap(indoorMapRef.value, 15)
-  } else if (isOutdoor.value && outdoorMapRef.value) {
-    createMap(outdoorMapRef.value, 12)
-  } else if (singleMapRef.value) {
-    createMap(singleMapRef.value, 13)
-  }
+  const markerEl = document.createElement('div')
+  markerEl.style.cssText = `
+    width: 16px; height: 16px; border-radius: 50%;
+    background-color: #0CD459; border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  `
+  new mapboxgl.default.Marker({ element: markerEl })
+    .setLngLat([lng, lat])
+    .addTo(map)
+
+  detailMaps.push(map)
 }
 
 const locationName = computed(() =>
@@ -548,7 +523,7 @@ function toggleSaveToCollection() {
         lat: t.location?.[0] || 0,
         lng: t.location?.[1] || 0,
         image: img ? resolveUrl(img.main || img.large || img.thumbnail || '') : '',
-        screens: t.screen_count || 0,
+        screens: t.screens || 0,
       })
       isSaved.value = true
       showToast(`Dodano "${name}" u kolekciju`)
@@ -1001,7 +976,11 @@ useHead({
   letter-spacing: -0.02125rem;
   font-weight: 400;
   margin: 0;
-  @include tablet { font-size: 1.125rem; }
+  text-indent: 20rem;
+
+  @include desktop { text-indent: 12rem; }
+  @include tablet { font-size: 1.125rem; text-indent: 6rem; }
+  @include mobile { text-indent: 0; }
 }
 
 // Dot indicator
@@ -1053,6 +1032,8 @@ useHead({
 .location-detail__map-container {
   width: 100%;
   height: 500px;
+  border-radius: 2rem;
+  overflow: hidden;
   @include tablet { height: 350px; }
   @include mobile { height: 280px; }
 }

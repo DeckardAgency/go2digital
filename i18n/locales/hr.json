@@ -482,6 +482,10 @@
           "description": "{category} lokacija u gradu {city}.",
           "indoor": "Unutarnje postavljanje s visokim pješačkim prometom.",
           "outdoor": "Vanjsko postavljanje s jakom vidljivošću za vozila i pješake."
+        },
+        "screens": {
+          "label": "Ekrani",
+          "description": "Ova lokacija sadrži {count} ekrana koji pružaju sveobuhvatnu pokrivenost."
         }
       },
       "nearby": {
