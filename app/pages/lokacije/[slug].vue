@@ -212,11 +212,13 @@
       <div class="location-detail__stat-row">
         <div class="location-detail__stat-label">
           <span class="location-detail__dot"></span>
-          {{ $t('location.detail.statistics.screens.label') }}
+          {{ getLocSetting('location.detail.statistics.screens.label') || $t('location.detail.statistics.screens.label') }}
         </div>
         <div class="location-detail__stat-value">{{ screensCount }}</div>
         <div class="location-detail__stat-desc">
-          {{ $t('location.detail.statistics.screens.description', { count: screensCount }) }}
+          {{ getLocSetting('location.detail.statistics.screens.description')
+              ? fillCount(getLocSetting('location.detail.statistics.screens.description'), screensCount)
+              : $t('location.detail.statistics.screens.description', { count: screensCount }) }}
         </div>
       </div>
     </section>
@@ -270,6 +272,27 @@ const CDN_BASE = 'https://cdn.go2digital.hr'
 
 const route = useRoute()
 const slug = route.params.slug as string
+
+// CMS-editable translations via settings API
+const { locale: i18nLocale } = useI18n()
+const { data: locSettingsData } = useApi<any>('/api/settings?group=location', { lazy: true, server: false })
+
+function getLocSetting(key: string): string {
+  const raw = locSettingsData.value
+  const settings = Array.isArray(raw)
+    ? raw
+    : (raw?.member ?? raw?.['hydra:member'] ?? [])
+  const s = settings.find((s: any) => s.key === key)
+  if (!s?.value) return ''
+  if (s.value[i18nLocale.value]) return s.value[i18nLocale.value]
+  if (s.value.value !== undefined) return s.value.value
+  return ''
+}
+
+function fillCount(s: string, count: number | string): string {
+  const c = String(count)
+  return s.replace(/\{count\}/g, c).replace(/\{\}/g, c)
+}
 
 // Admin auth for focal point editor
 const { isAdmin, adminToken, checkAdmin } = useAdminAuth()
@@ -427,6 +450,9 @@ async function initDetailMaps() {
     center: [lng, lat],
     zoom: 15,
     attributionControl: false,
+    // Require Ctrl/Cmd + scroll to zoom on desktop so page scroll isn't
+    // hijacked by the map. Shows a helper overlay on plain scroll/touch.
+    cooperativeGestures: true,
     // On mobile, disable touch gestures so a finger drag scrolls the page
     // instead of the map. Users can still zoom via the +/- control buttons.
     dragPan: !isMobile,
@@ -861,7 +887,7 @@ useHead({
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $spacing-2xl;
-  padding: $spacing-2xl $spacing-2xl 0;
+  padding: $spacing-md $spacing-2xl 0;
   flex: 1;
   align-content: start;
   @include tablet { grid-template-columns: 1fr; gap: $spacing-lg; padding: $spacing-lg $spacing-lg 0; }
@@ -1191,6 +1217,7 @@ useHead({
 }
 
 .location-detail__stats-type {
+  display: none;
   font-size: 0.875rem;              // old .location-statistics__metric-label: 0.875rem/500 capitalize
   font-weight: 500;
   text-transform: capitalize;

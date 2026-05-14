@@ -98,7 +98,7 @@ $billboard-text-color: #FAFAFA;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: $spacing-2xl 0 $spacing-2xl $spacing-2xl;
+    padding: $spacing-2xl 0 $spacing-2xl $spacing-5xl;
     height: 56.25rem;
     @include tablet { grid-column: 1 / -1; height: auto; padding: $spacing-xl 0; gap: $spacing-2xl; }
   }

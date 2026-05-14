@@ -127,7 +127,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
     }
 
     &--right {
-      grid-column: 7 / 10;
+      grid-column: 8 / 11;
       @include tablet { grid-column: 1 / 13; }
     }
   }

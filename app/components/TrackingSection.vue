@@ -113,7 +113,7 @@ $tracking-border-color: #293331;
   }
 
   &__title {
-    grid-column: 1 / 11;
+    grid-column: 1 / 10;
     color: $tracking-text-color;
     margin: 0;
     white-space: nowrap;
@@ -122,9 +122,15 @@ $tracking-border-color: #293331;
   }
 
   &__cta {
-    grid-column: 11 / 13;
+    grid-column: 10 / 13;
     display: flex;
     justify-content: flex-end;
+
+    :deep(.btn-animated) {
+      width: 100%;
+      justify-content: space-between;
+    }
+
     @include mobile { grid-column: 1 / -1; justify-content: flex-start; }
   }
 

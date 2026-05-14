@@ -256,7 +256,12 @@ $labs-dot-size: 6px;
   // Element: Button
   // ==========================================================================
   &__button-wrapper {
-    grid-column: 11 / -1;
+    grid-column: 10 / -1;
+
+    :deep(.btn-animated) {
+      width: 100%;
+      justify-content: space-between;
+    }
 
     @include desktop {
       grid-column: 10 / -1;
@@ -269,11 +274,6 @@ $labs-dot-size: 6px;
 
     @include mobile {
       max-width: none;
-
-      :deep(.btn-animated) {
-        width: 100%;
-        justify-content: space-between;
-      }
     }
   }
 
@@ -375,12 +375,13 @@ $labs-dot-size: 6px;
   }
 
   &-media {
-    margin: 0;
+    width: 75%;
+    margin: 0 0 0 auto;
     border-radius: $radius-xl;
     overflow: hidden;
     background-color: rgba($labs-text-color, 0.05);
 
-    @include tablet { order: 4; width: 10.25rem; margin: $spacing-xl $spacing-md; }
+    @include tablet { order: 4; width: 7.6875rem; margin: $spacing-xl $spacing-md; }
 
     img {
       width: 100%;

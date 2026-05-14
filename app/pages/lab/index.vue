@@ -4,22 +4,10 @@
     <header class="lab__header">
       <div :class="['lab__label', typoClass('label')]">
         <span class="lab__dot"></span>
-        <span
-          data-split-text
-          data-split-type="lines"
-          data-split-duration="0.5"
-          data-split-stagger="0.08"
-        >{{ $t('lab.breadcrumb') }}</span>
+        <span>{{ $t('lab.breadcrumb') }}</span>
       </div>
 
-      <p
-        :class="['lab__intro', typoClass('intro')]"
-        data-split-text
-        data-split-type="lines"
-        data-split-duration="0.6"
-        data-split-delay="0.2"
-        data-split-stagger="0.1"
-      >{{ $t('lab.intro') }}</p>
+      <p :class="['lab__intro', typoClass('intro')]">{{ $t('lab.intro') }}</p>
     </header>
 
     <!-- Hero Section -->
@@ -595,6 +583,7 @@ $grid-padding-mobile: 1rem;
   // ==========================================================================
   &__description {
     color: $color-muted;
+    opacity: 0.4;
     margin: 0;
 
     @include mobile {
@@ -632,13 +621,14 @@ $grid-padding-mobile: 1rem;
   // Element: Media (Image container)
   // ==========================================================================
   &__media {
-    margin: 0;
+    width: 75%;
+    margin: 0 0 0 auto;
     border-radius: 1rem;
     overflow: hidden;
 
     @include mobile {
       order: 4;
-      width: 10.25rem;
+      width: 7.6875rem;
       margin: 2.5rem 0;
     }
 
