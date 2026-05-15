@@ -160,8 +160,8 @@ onUnmounted(() => {
       <div class="social-links">
         <BtnAnimated
           :text="$t('contact.social.linkedin')"
-          href="https://linkedin.com/company/go2digital"
-          target="_blank"
+          to="https://linkedin.com/company/go2digital"
+          :external="true"
           variant="on-dark"
           size="small"
           :no-icon="true"
@@ -169,8 +169,8 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.instagram')"
-          href="https://instagram.com/go2digital"
-          target="_blank"
+          to="https://instagram.com/go2digital"
+          :external="true"
           variant="on-dark"
           size="small"
           :no-icon="true"
@@ -178,8 +178,8 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.facebook')"
-          href="https://facebook.com/go2digital"
-          target="_blank"
+          to="https://facebook.com/go2digital"
+          :external="true"
           variant="on-dark"
           size="small"
           :no-icon="true"
@@ -187,8 +187,8 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.youtube')"
-          href="https://youtube.com/go2digital"
-          target="_blank"
+          to="https://youtube.com/go2digital"
+          :external="true"
           variant="on-dark"
           size="small"
           :no-icon="true"
@@ -201,7 +201,8 @@ onUnmounted(() => {
         <div class="contact-info__row">
           <BtnAnimated
             :text="$t('contact.info.email')"
-            href="mailto:info@go2digital.hr"
+            to="mailto:info@go2digital.hr"
+            :external="true"
             variant="on-dark"
             size="small"
             :no-icon="true"
@@ -209,7 +210,8 @@ onUnmounted(() => {
           />
           <BtnAnimated
             :text="$t('contact.info.phone')"
-            href="tel:+38514839192"
+            to="tel:+38514839192"
+            :external="true"
             variant="on-dark"
             size="small"
             :no-icon="true"
@@ -218,8 +220,8 @@ onUnmounted(() => {
         </div>
         <BtnAnimated
           :text="$t('contact.info.address')"
-          href="https://maps.google.com/?q=Radnička+cesta+52,+Zagreb"
-          target="_blank"
+          to="https://maps.google.com/?q=Radnička+cesta+52,+Zagreb"
+          :external="true"
           variant="on-dark"
           size="small"
           :no-icon="true"

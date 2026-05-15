@@ -256,7 +256,7 @@ $labs-dot-size: 6px;
   // Element: Button
   // ==========================================================================
   &__button-wrapper {
-    grid-column: 10 / -1;
+    grid-column: 11 / -1;
 
     :deep(.btn-animated) {
       width: 100%;
