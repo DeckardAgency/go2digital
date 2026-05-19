@@ -1578,22 +1578,25 @@ onMounted(async () => {
   initializeMap()
   document.addEventListener('click', handleClickOutside)
 
-  // iOS scroll recovery after route transition. Entering /lokacije via in-app
-  // navigation runs an enter animation with `filter: blur` on .page-wrapper,
-  // which creates a containing block and can leave the body scroll detached on
-  // mobile WebKit until something forces a reflow. Refreshing the page skips
-  // the transition entirely, which is why refresh works but navigation didn't.
+  // iOS scroll recovery after route transition. The page-wrapper's filter
+  // animation in app.vue is now skipped on mobile, but keep a defensive reflow
+  // after the enter animation completes — clears any lingering inline styles
+  // from a transition that finished mid-flight and forces body to recompute
+  // its scrollable height.
   if (window.matchMedia('(max-width: 767px)').matches) {
-    // Defensive: ensure no stale lock from a transition that didn't finish cleanly.
-    document.documentElement.classList.remove('is-transitioning')
-    requestAnimationFrame(() => {
-      const cards = cardsContainer.value?.$el || cardsContainer.value
-      if (cards instanceof HTMLElement) {
-        // Reading offsetHeight forces a synchronous layout, which rebinds the
-        // scroll context that iOS detached during the wrapper's filter animation.
-        void cards.offsetHeight
+    const recover = () => {
+      document.documentElement.classList.remove('is-transitioning')
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+      const wrapper = document.querySelector('.page-wrapper') as HTMLElement | null
+      if (wrapper) {
+        wrapper.style.filter = ''
+        wrapper.style.transform = ''
       }
-    })
+      void document.body.offsetHeight
+    }
+    requestAnimationFrame(recover)
+    setTimeout(recover, 900)
   }
 
   // Check if returning from a detail page

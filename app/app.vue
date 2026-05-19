@@ -124,6 +124,12 @@ router.beforeEach(async (to, from) => {
 
   isAnimating.value = true
 
+  // iOS WebKit detaches the body scroll context whenever a `filter` is applied
+  // to an ancestor (it creates a containing block), and doesn't re-attach it
+  // after the filter is cleared. Skip the blur on mobile so /lokacije & co.
+  // stay scrollable after in-app navigation; scale/y still carry the transition.
+  const isMobileTransition = window.matchMedia('(max-width: 767px)').matches
+
   await new Promise<void>((resolve) => {
     document.documentElement.classList.add('is-transitioning')
 
@@ -133,7 +139,7 @@ router.beforeEach(async (to, from) => {
       .to(wrapper, {
         scale: 0.85,
         y: -80,
-        filter: 'blur(4px)',
+        filter: isMobileTransition ? 'none' : 'blur(4px)',
         duration: 0.6,
         ease: 'power3.inOut'
       })
@@ -189,6 +195,9 @@ nuxtApp.hook('page:finish', async () => {
         }
       })
 
+      // Skip filter blur on mobile — see leave animation comment above.
+      const isMobileEnter = window.matchMedia('(max-width: 767px)').matches
+
       // Hide white overlay immediately (it covered the leave animation)
       tl.set(transitionOverlay, { visibility: 'hidden', yPercent: 100 }, 0)
         // Fade out dark overlay
@@ -199,8 +208,8 @@ nuxtApp.hook('page:finish', async () => {
         }, 0)
         // Fade in page content
         .fromTo(wrapper,
-          { opacity: 0, filter: 'blur(4px)' },
-          { opacity: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' },
+          { opacity: 0, filter: isMobileEnter ? 'none' : 'blur(4px)' },
+          { opacity: 1, filter: isMobileEnter ? 'none' : 'blur(0px)', duration: 0.6, ease: 'power2.out' },
           0.1
         )
     })
