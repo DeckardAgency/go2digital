@@ -2012,17 +2012,19 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     align-items: start;
     gap: 1.5rem 1rem;
     padding: 1.75rem;
-    overflow-y: auto;
     flex: 1;
     min-height: 0;
 
     // Desktop only: the sidebar has fixed 100dvh height so this container
     // does the scrolling. Isolate it so the wheel/touch doesn't chain out.
-    // On mobile the sidebar grows with content and the body does the
-    // scrolling — applying these rules there makes iOS claim the touch for
-    // a non-scrollable region and the page becomes unscrollable after the
-    // first gesture.
+    // On mobile the sidebar grows with content and the BODY does the
+    // scrolling. Critically, `overflow-y: auto` must NOT be set on mobile —
+    // iOS WebKit registers the container as a scrollable region, consumes
+    // the touch gesture, and (because the container's content already fits
+    // inside it after the parent flexed to fit) never scrolls anything and
+    // never propagates the gesture to the body.
     @media (min-width: 768px) {
+      overflow-y: auto;
       touch-action: pan-y;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
