@@ -1,5 +1,5 @@
 <template>
-  <div class="locations-page" :class="[currentViewClass, { 'locations-page--dark': isDarkMode, 'locations-page--scrolled': isScrolled }]">
+  <div class="locations-page" :class="[currentViewClass, { 'locations-page--dark': isDarkMode }]">
     <!-- Confirm Dialog -->
     <ConfirmDialog
       v-model:visible="showClearConfirm"
@@ -10,7 +10,7 @@
     />
 
     <!-- Sidebar -->
-    <aside class="locations-sidebar" :class="{ 'locations-sidebar--dark': isDarkMode, 'locations-sidebar--scrolled': isScrolled }">
+    <aside class="locations-sidebar" :class="{ 'locations-sidebar--dark': isDarkMode }">
       <!-- Header -->
       <div class="locations-sidebar__header" ref="headerRef">
         <div class="locations-sidebar__title-row">
@@ -49,8 +49,8 @@
         </div>
       </div>
 
-      <!-- Collapsible toolbar (hides on scroll) -->
-      <div class="locations-sidebar__toolbar" :class="{ 'locations-sidebar__toolbar--collapsed': isScrolled }">
+      <!-- Toolbar -->
+      <div class="locations-sidebar__toolbar">
 
       <!-- Filters (Desktop) -->
       <div class="locations-sidebar__filters" ref="filtersRef">
@@ -673,7 +673,6 @@ const focusedLocationId = ref<string | null>(null)
 // UI State
 const isSidebarOpen = ref(false)
 const isLoading = computed(() => !locData.value)
-const isScrolled = ref(false)
 const currentMobileView = ref('grid')
 
 // Filter State
@@ -1367,14 +1366,6 @@ const scrollProgress = ref(0)
 
 function onCardsScroll(e: Event) {
   const target = e.target as HTMLElement
-  const scrolled = target.scrollTop > 10
-  if (scrolled && !isScrolled.value) {
-    isCityDropdownOpen.value = false
-    isEnvDropdownOpen.value = false
-  }
-  isScrolled.value = scrolled
-
-  // Calculate scroll progress (0-1)
   const maxScroll = target.scrollHeight - target.clientHeight
   scrollProgress.value = maxScroll > 0 ? target.scrollTop / maxScroll : 0
 }
@@ -1587,6 +1578,24 @@ onMounted(async () => {
   initializeMap()
   document.addEventListener('click', handleClickOutside)
 
+  // iOS scroll recovery after route transition. Entering /lokacije via in-app
+  // navigation runs an enter animation with `filter: blur` on .page-wrapper,
+  // which creates a containing block and can leave the body scroll detached on
+  // mobile WebKit until something forces a reflow. Refreshing the page skips
+  // the transition entirely, which is why refresh works but navigation didn't.
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    // Defensive: ensure no stale lock from a transition that didn't finish cleanly.
+    document.documentElement.classList.remove('is-transitioning')
+    requestAnimationFrame(() => {
+      const cards = cardsContainer.value?.$el || cardsContainer.value
+      if (cards instanceof HTMLElement) {
+        // Reading offsetHeight forces a synchronous layout, which rebinds the
+        // scroll context that iOS detached during the wrapper's filter animation.
+        void cards.offsetHeight
+      }
+    })
+  }
+
   // Check if returning from a detail page
   const returnSlug = sessionStorage.getItem('returnSlug')
   const returnImage = sessionStorage.getItem('returnImage')
@@ -1739,30 +1748,12 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     .locations-sidebar__empty { color: $dark-muted; }
   }
 
-  // Collapsible toolbar
+  // Toolbar
   &__toolbar {
     overflow: visible;
     position: relative;
     z-index: $z-dropdown + 1;
-    max-height: 500px;
-    opacity: 1;
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
     border-top: 1px solid $color-border;
-
-    &--collapsed {
-      max-height: 0;
-      opacity: 0;
-      pointer-events: none;
-
-      // On mobile/tablet the cards container is the scrollable region and
-      // collapsing the toolbar mid-scroll changes its flex height, which
-      // confuses iOS momentum scrolling. Keep the toolbar always visible.
-      @include tablet {
-        max-height: 500px;
-        opacity: 1;
-        pointer-events: auto;
-      }
-    }
   }
 
   // Scroll progress bar
@@ -1925,7 +1916,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border: 1px solid $color-border;
     border-radius: $radius-md 0 0 $radius-md;
     border-right: none;
-    font-size: $font-size-old-base;   /* old: 1rem */
+    font-size: $font-size-base;
     font-weight: 400;
     line-height: 1.3;
     font-family: inherit;
@@ -1942,7 +1933,7 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     border-radius: 0 $radius-md $radius-md 0;
     background-color: $color-surface;
     color: $color-primary;
-    font-size: $font-size-old-xs;     /* old: $font-base = 0.75rem */
+    font-size: $font-size-base;
     font-family: inherit;
     font-weight: 400;
     cursor: pointer;

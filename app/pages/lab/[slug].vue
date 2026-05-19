@@ -48,7 +48,7 @@
         </div>
         <div class="lab-detail__section-body">
           <h2 v-if="section.title" :class="['lab-detail__section-title', typoClass('sectionTitle')]">{{ section.title }}</h2>
-          <div :class="['lab-detail__section-content', typoClass('sectionContent')]" v-html="section.content"></div>
+          <div :class="['lab-detail__section-content', typoClass('sectionContent')]" v-html="cleanContent(section.content)"></div>
           <picture v-if="section.imagePath" class="lab-detail__section-picture">
             <source media="(min-width: 1024px)" :srcset="sectionImageUrl(section.imagePath)">
             <source media="(min-width: 768px)" :srcset="sectionImageUrl(section.imagePath, 'large')">
@@ -107,6 +107,11 @@ const meta = computed(() => {
 const subtitle = computed(() => project.value?.subtitle ?? '')
 const body = computed(() => project.value?.body ?? '')
 const sections = computed(() => project.value?.sections ?? [])
+
+function cleanContent(html: string | null | undefined): string {
+  if (!html) return ''
+  return html.replace(/&nbsp;/g, ' ').replace(/ /g, ' ')
+}
 
 function sectionImageUrl(path: string, size?: 'small' | 'medium' | 'large'): string {
   if (!path) return ''

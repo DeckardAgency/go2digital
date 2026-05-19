@@ -122,7 +122,7 @@ $tracking-border-color: #293331;
   }
 
   &__cta {
-    grid-column: 10 / 13;
+    grid-column: 11 / 13;
     display: flex;
     justify-content: flex-end;
 

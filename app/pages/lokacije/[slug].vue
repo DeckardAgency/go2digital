@@ -79,8 +79,9 @@
           {{ $t('location.detail.back') }}
         </button>
         <button class="location-detail__action" @click="shareLocation">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 9l4-2M6 7l4 2M14 5a2 2 0 11-4 0 2 2 0 014 0zM6 8a2 2 0 11-4 0 2 2 0 014 0zM14 11a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M11.5 8.6665C13.1667 10.3332 13.1667 12.9165 11.5 14.5832L9.16667 16.9165C7.5 18.5832 4.91667 18.5832 3.25 16.9165C1.58333 15.2498 1.58333 12.6665 3.25 10.9998L5.33333 8.99984" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9.16797 11C7.5013 9.3333 7.5013 6.75 9.16797 5.08333L11.5013 2.75C13.168 1.08333 15.7513 1.08333 17.418 2.75C19.0846 4.41667 19.0846 7 17.418 8.66667L15.3346 10.6667" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           {{ $t('location.detail.share') }}
         </button>
@@ -106,7 +107,6 @@
     <section class="location-detail__maps" v-if="totem?.location?.[0]">
       <div class="location-detail__maps-grid location-detail__maps-grid--single">
         <div class="location-detail__map-item location-detail__map-item--full">
-          <span class="location-detail__map-label">{{ $t('location.detail.map.indoor') }}</span>
           <div class="location-detail__map-container" ref="indoorMapRef"></div>
         </div>
       </div>
@@ -115,6 +115,32 @@
     <!-- Gallery -->
     <section class="location-detail__gallery" v-if="galleryImages.length > 0">
       <div class="location-detail__gallery-carousel">
+        <!-- Prev arrow -->
+        <button
+          type="button"
+          class="location-detail__gallery-arrow location-detail__gallery-arrow--prev"
+          v-if="galleryImages.length > 1"
+          @click="prevGalleryImage"
+          :aria-label="$t('location.detail.gallery')"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Next arrow -->
+        <button
+          type="button"
+          class="location-detail__gallery-arrow location-detail__gallery-arrow--next"
+          v-if="galleryImages.length > 1"
+          @click="nextGalleryImage"
+          :aria-label="$t('location.detail.gallery')"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
         <!-- Previous image (peek) -->
         <div
           class="location-detail__gallery-peek location-detail__gallery-peek--prev"
@@ -274,7 +300,7 @@ const route = useRoute()
 const slug = route.params.slug as string
 
 // CMS-editable translations via settings API
-const { locale: i18nLocale } = useI18n()
+const { t: tr, locale: i18nLocale } = useI18n()
 const { data: locSettingsData } = useApi<any>('/api/settings?group=location', { lazy: true, server: false })
 
 function getLocSetting(key: string): string {
@@ -754,12 +780,13 @@ function goBack() {
   goBackWithTransition('/lokacije', slug, heroImage.value, imageWrapperRef.value, { x: focalX.value, y: focalY.value })
 }
 
-function shareLocation() {
+async function shareLocation() {
   const url = window.location.href
-  if (navigator.share) {
-    navigator.share({ title: totem.value?.name, url })
-  } else {
-    navigator.clipboard.writeText(url)
+  try {
+    await navigator.clipboard.writeText(url)
+    showToast(tr('location.detail.linkCopied'))
+  } catch {
+    showToast(url)
   }
 }
 
@@ -907,14 +934,14 @@ useHead({
 .location-detail__specs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-lg $spacing-xl;
+  gap: $spacing-5xl $spacing-xl;
   align-content: start;
   @include mobile { grid-template-columns: repeat(2, 1fr); }
 }
 
 .location-detail__spec-label {
   display: block;
-  font-size: 0.875rem;              // old .location-hero__detail-label: 0.875rem
+  font-size: 1.00625rem;
   font-weight: 400;
   letter-spacing: 0.01875rem;
   color: $color-muted;
@@ -924,7 +951,7 @@ useHead({
 
 .location-detail__spec-value {
   display: block;
-  font-size: 1rem;                  // old .location-hero__detail-value: 1rem
+  font-size: 1.15rem;
   font-weight: 500;
 }
 
@@ -1079,7 +1106,41 @@ useHead({
   gap: 1.5rem;
   padding: 0 0;
   margin-bottom: 2rem;
+  position: relative;
   @include tablet { gap: 0.75rem; }
+}
+
+.location-detail__gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid $color-border;
+  background: $color-background;
+  color: $color-primary;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: background-color $transition-base, border-color $transition-base, transform $transition-base;
+
+  &:hover { background-color: #e8e8e8; }
+  &:active { transform: translateY(-50%) scale(0.96); }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &--prev { left: $spacing-lg; }
+  &--next { right: $spacing-lg; }
+
+  @include mobile {
+    width: 2.25rem;
+    height: 2.25rem;
+    &--prev { left: $spacing-sm; }
+    &--next { right: $spacing-sm; }
+  }
 }
 
 .location-detail__gallery-viewport {
@@ -1234,14 +1295,14 @@ useHead({
 
 .location-detail__stat-row {
   display: grid;
-  grid-template-columns: 200px 1fr 300px;
+  grid-template-columns: 200px 1fr 480px;
   gap: $spacing-2xl;
   align-items: start;
   padding: 2.5rem $spacing-2xl;
   border-top: 1px solid $color-border;
 
   @include desktop {
-    grid-template-columns: 180px 1fr 260px;
+    grid-template-columns: 180px 1fr 480px;
   }
 
   @include tablet {
@@ -1286,7 +1347,7 @@ useHead({
   line-height: 1.3;
   color: $color-muted;
   opacity: .4;
-  max-width: 300px;
+  max-width: 480px;
 
   @include tablet { max-width: 100%; }
 }
