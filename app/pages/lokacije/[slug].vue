@@ -777,6 +777,7 @@ onMounted(() => {
 
   nextTick(() => {
     setupEntranceAnimation()
+    setupScrollAnimation()
     initGalleryEffect()
   })
 })
