@@ -628,7 +628,7 @@ $grid-padding-mobile: 1rem;
 
     @include mobile {
       order: 4;
-      width: 7.6875rem;
+      width: 11rem;
       margin: 2.5rem 0;
     }
 

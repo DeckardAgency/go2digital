@@ -382,6 +382,7 @@ $labs-dot-size: 6px;
     background-color: rgba($labs-text-color, 0.05);
 
     @include tablet { order: 4; width: 7.6875rem; margin: $spacing-xl $spacing-md; }
+    @include mobile { width: 11rem; }
 
     img {
       width: 100%;
