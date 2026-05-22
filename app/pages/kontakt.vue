@@ -160,7 +160,7 @@ onUnmounted(() => {
       <div class="social-links">
         <BtnAnimated
           :text="$t('contact.social.linkedin')"
-          to="https://linkedin.com/company/go2digital"
+          to="https://www.linkedin.com/company/go2digital-d-o-o-/"
           :external="true"
           variant="on-dark"
           size="small"
@@ -169,7 +169,7 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.instagram')"
-          to="https://instagram.com/go2digital"
+          to="https://www.instagram.com/go2digital_hr/"
           :external="true"
           variant="on-dark"
           size="small"
@@ -178,7 +178,7 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.facebook')"
-          to="https://facebook.com/go2digital"
+          to="https://www.facebook.com/go2digital.hr/"
           :external="true"
           variant="on-dark"
           size="small"
@@ -187,7 +187,7 @@ onUnmounted(() => {
         />
         <BtnAnimated
           :text="$t('contact.social.youtube')"
-          to="https://youtube.com/go2digital"
+          to="https://www.youtube.com/channel/UCsbdtVvbIDtUdSA5mM5zFaA"
           :external="true"
           variant="on-dark"
           size="small"
