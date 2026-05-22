@@ -41,6 +41,39 @@
           </svg>
           {{ $t('location.detail.focalPoint') }}
         </button>
+
+        <!-- YouTube video overlay (PiP in bottom-right of hero) -->
+        <div v-if="youtubeVideoId" class="location-detail__video">
+          <iframe
+            v-if="isVideoActivated"
+            :src="`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`"
+            :title="`${totem?.name} - video`"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="location-detail__video-iframe"
+          ></iframe>
+          <button
+            v-else
+            type="button"
+            class="location-detail__video-btn"
+            :aria-label="$t('location.detail.video.watch')"
+            @click.stop="isVideoActivated = true"
+          >
+            <img
+              :src="`https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`"
+              :alt="`${totem?.name} - video`"
+              class="location-detail__video-thumb"
+              loading="lazy"
+            >
+            <span class="location-detail__video-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" fill="#FF0000"/>
+              </svg>
+            </span>
+            <span class="location-detail__video-label">{{ $t('location.detail.video.watch') }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="location-detail__hero-info" ref="heroInfoRef">
@@ -400,6 +433,26 @@ const matchedData = computed(() => {
 
 const totem = computed(() => matchedData.value?.totem || null)
 const cityName = computed(() => matchedData.value?.cityName || transitionCity.value || '')
+
+// YouTube video — extract ID from totem.video_url (supports watch?v=, youtu.be, embed)
+const youtubeVideoId = computed<string | null>(() => {
+  const url = totem.value?.video_url
+  if (!url) return null
+  const patterns = [
+    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+    /youtu\.be\/([a-zA-Z0-9_-]+)/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]+)/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m) return m[1]
+  }
+  return null
+})
+
+const isVideoActivated = ref(false)
+watch(youtubeVideoId, () => { isVideoActivated.value = false })
 const screensCount = computed(() => totem.value?.screens ?? 0)
 
 // Sync focal point from totem data
@@ -909,6 +962,95 @@ useHead({
   .location-detail__hero-image--mobile {
     display: block;
   }
+}
+
+// YouTube PiP overlay (bottom-right of hero)
+.location-detail__video {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 343px;
+  height: 193px; // 16:9
+  z-index: 10;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  background: #000;
+
+  @include mobile {
+    width: 200px;
+    height: 113px;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    border-radius: 8px;
+  }
+}
+
+.location-detail__video-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.location-detail__video-btn {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-family: inherit;
+
+  &:hover .location-detail__video-thumb { opacity: 0.7; }
+  &:hover .location-detail__video-play { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.location-detail__video-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.location-detail__video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  transition: transform 0.2s ease;
+  pointer-events: none;
+
+  @include mobile {
+    width: 40px;
+    height: 40px;
+    svg { width: 20px; height: 20px; }
+  }
+}
+
+.location-detail__video-label {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+
+  @include mobile { display: none; }
 }
 
 .location-detail__focal-btn {
