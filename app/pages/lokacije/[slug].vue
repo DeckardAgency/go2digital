@@ -44,7 +44,7 @@
       </div>
 
       <div class="location-detail__hero-info" ref="heroInfoRef">
-        <h1 class="location-detail__title" ref="titleRef">{{ totem?.name || locationName }}</h1>
+        <h1 class="location-detail__title" ref="titleRef">{{ totem?.name || transitionName || locationName }}</h1>
 
         <div class="location-detail__specs" ref="specsRef" v-if="totem">
           <div class="location-detail__spec">
@@ -271,7 +271,7 @@
             >
           </div>
           <div class="location-detail__nearby-info">
-            <span class="location-detail__nearby-city">{{ cityName }}</span>
+            <span class="location-detail__nearby-city">{{ loc._cityName }}</span>
             <span class="location-detail__nearby-name">{{ loc.name }}</span>
           </div>
         </div>
@@ -332,6 +332,11 @@ const focalX = ref(storedFocalX)
 const focalY = ref(storedFocalY)
 const focalMobileX = ref(50)
 const focalMobileY = ref(50)
+
+// Initial title from the listing card (via sessionStorage) so the H1 doesn't
+// flash from slug-derived Title Case to the real DB name once the API resolves.
+const transitionName = ref(import.meta.client ? (sessionStorage.getItem('locationTransitionName') || '') : '')
+const transitionCity = ref(import.meta.client ? (sessionStorage.getItem('locationTransitionCity') || '') : '')
 
 onMounted(() => {
   checkAdmin()
@@ -394,7 +399,7 @@ const matchedData = computed(() => {
 })
 
 const totem = computed(() => matchedData.value?.totem || null)
-const cityName = computed(() => matchedData.value?.cityName || '')
+const cityName = computed(() => matchedData.value?.cityName || transitionCity.value || '')
 const screensCount = computed(() => totem.value?.screens ?? 0)
 
 // Sync focal point from totem data
@@ -507,18 +512,39 @@ const locationName = computed(() =>
   totem.value?.name || slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
 )
 
-// Nearby locations (same city, excluding current)
+// Nearby locations — 4 closest by geographic distance (Haversine), across all cities
 const nearbyLocations = computed(() => {
   if (!locData.value || !totem.value) return []
+  const current = totem.value
+  const lat = current.location?.[0]
+  const lng = current.location?.[1]
+  if (lat == null || lng == null) return []
+
+  const EARTH_RADIUS_KM = 6371
+  const toRad = (d: number) => (d * Math.PI) / 180
+
+  const candidates: Array<{ loc: any; cityName: string; distance: number }> = []
   for (const city of locData.value) {
-    const found = city.totems.find((t: any) => toSlug(t.name) === slug)
-    if (found) {
-      return city.totems
-        .filter((t: any) => t.totem_id !== found.totem_id)
-        .slice(0, 4)
+    for (const t of city.totems) {
+      if (t.totem_id === current.totem_id) continue
+      const tLat = t.location?.[0]
+      const tLng = t.location?.[1]
+      if (tLat == null || tLng == null) continue
+
+      const dLat = toRad(tLat - lat)
+      const dLng = toRad(tLng - lng)
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat)) * Math.cos(toRad(tLat)) *
+                Math.sin(dLng / 2) ** 2
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      const distance = EARTH_RADIUS_KM * c
+
+      candidates.push({ loc: { ...t, _cityName: city.name }, cityName: city.name, distance })
     }
   }
-  return []
+
+  candidates.sort((a, b) => a.distance - b.distance)
+  return candidates.slice(0, 4).map(c => c.loc)
 })
 
 // Gallery state
@@ -680,7 +706,6 @@ onMounted(() => {
 
   nextTick(() => {
     setupEntranceAnimation()
-    setupScrollAnimation()
     initGalleryEffect()
   })
 })
@@ -941,7 +966,7 @@ useHead({
 
 .location-detail__spec-label {
   display: block;
-  font-size: 1.00625rem;
+  font-size: 0.875rem;
   font-weight: 400;
   letter-spacing: 0.01875rem;
   color: $color-muted;
@@ -951,7 +976,7 @@ useHead({
 
 .location-detail__spec-value {
   display: block;
-  font-size: 1.15rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -977,13 +1002,12 @@ useHead({
   padding: 0;
   border: none;
   background: none;
-  font-size: 0.875rem;              // old .location-hero__action-btn: 0.875rem
+  font-size: 0.875rem;
   font-weight: 500;
   font-family: inherit;
   color: $color-primary;
   cursor: pointer;
   transition: opacity $transition-base;
-  @include tablet { font-size: 0.8125rem; }
   &:hover { opacity: 0.6; }
 
   input[type="checkbox"] {

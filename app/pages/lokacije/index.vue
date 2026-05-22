@@ -257,7 +257,7 @@
           </div>
 
           <div class="location-card__link" @click.stop="animateToDetail(location, $event)">
-            <div class="location-card__image-wrapper">
+            <div class="location-card__image-wrapper" @mouseenter="preloadDetailHero(location)">
               <img
                 v-if="location.image"
                 :src="location.image"
@@ -434,7 +434,7 @@
                 </svg>
               </div>
               <div class="location-card__link" @click.stop="animateToDetail(location, $event)">
-                <div class="location-card__image-wrapper">
+                <div class="location-card__image-wrapper" @mouseenter="preloadDetailHero(location)">
                   <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image location-card__image--desktop" :style="{ objectPosition: `${location.focalX}% ${location.focalY}%` }">
                   <img v-if="location.image" :src="location.image" :alt="location.name" class="location-card__image location-card__image--mobile" :style="{ objectPosition: `${location.focalMobileX}% ${location.focalMobileY}%` }">
                 </div>
@@ -630,6 +630,7 @@ interface Location {
   lat: number
   lng: number
   image: string
+  heroPreloadUrl: string
   screens: number
   focalX: number
   focalY: number
@@ -758,6 +759,13 @@ function parseLocData(data: any[]) {
 
       const firstImage = totem.images?.[0]
       const imageUrl = resolveImageUrl(firstImage?.main || firstImage?.large || firstImage?.thumbnail || '')
+      // Mirror the URL the detail page actually fetches for its hero
+      // (heroImageWebp in /lokacije/[slug].vue) so hover-preloading warms
+      // the same cache entry, not a sibling.
+      const detailHeroPath = firstImage?.large || firstImage?.main || ''
+      const heroPreloadUrl = detailHeroPath
+        ? `${apiBase}/api/image-proxy?url=${encodeURIComponent(detailHeroPath)}`
+        : imageUrl
 
       allLocations.push({
         id: String(totem.totem_id),
@@ -769,6 +777,7 @@ function parseLocData(data: any[]) {
         lat: totem.location?.[0] || 0,
         lng: totem.location?.[1] || 0,
         image: imageUrl,
+        heroPreloadUrl,
         screens: totem.screens || 1,
         focalX: totem.image_focal_x ?? 50,
         focalY: totem.image_focal_y ?? 50,
@@ -1225,6 +1234,16 @@ function playReturnAnimation(slug: string, imageSrc: string) {
       }, 0.45)
     })
   })
+}
+
+const preloadedHeroImages = new Set<string>()
+function preloadDetailHero(location: Location) {
+  const url = location.heroPreloadUrl
+  if (!url || preloadedHeroImages.has(url)) return
+  preloadedHeroImages.add(url)
+  const img = new Image()
+  img.decoding = 'async'
+  img.src = url
 }
 
 function animateToDetail(location: Location, event: MouseEvent) {
