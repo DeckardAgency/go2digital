@@ -60,10 +60,9 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'hr',
     strategy: 'prefix_except_default',
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'i18n_redirected',
-      redirectOn: 'root'
-    }
+    // Always land on / (Croatian). User can switch to /en manually; we don't
+    // auto-redirect English browsers because the design treats Croatian as the
+    // canonical entry point.
+    detectBrowserLanguage: false
   }
 })
