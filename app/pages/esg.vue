@@ -724,7 +724,7 @@ $esg-color-border-faint: rgba(#0CD459, 0.2);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     gap: 1.25rem;
-    padding: 1.25rem 2.5rem 18.75rem 2.5rem;
+    padding: 3rem 3rem 12rem;
     border-bottom: 0.0625rem solid $esg-color-border-faint;
 
     @include mobile {

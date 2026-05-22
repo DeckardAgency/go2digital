@@ -1134,14 +1134,14 @@ useHead({
 .location-detail__specs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-5xl $spacing-xl;
+  gap: $spacing-4xl $spacing-xl;
   align-content: start;
   @include mobile { grid-template-columns: repeat(2, 1fr); }
 }
 
 .location-detail__spec-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 400;
   letter-spacing: 0.01875rem;
   color: $color-muted;
@@ -1151,7 +1151,7 @@ useHead({
 
 .location-detail__spec-value {
   display: block;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -1177,7 +1177,7 @@ useHead({
   padding: 0;
   border: none;
   background: none;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   font-family: inherit;
   color: $color-primary;
