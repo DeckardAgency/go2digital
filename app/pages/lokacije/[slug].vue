@@ -43,7 +43,10 @@
         </button>
 
         <!-- YouTube video overlay (PiP in bottom-right of hero) -->
-        <div v-if="youtubeVideoId" class="location-detail__video">
+        <!-- Hidden on initial load; fades in once the user starts scrolling, -->
+        <!-- mirroring the old /lokacije/{slug} where it appears only when the -->
+        <!-- pinned hero is in its expanded/fullscreen state. -->
+        <div v-if="youtubeVideoId" class="location-detail__video" :class="{ 'location-detail__video--visible': isHeroScrolled }">
           <iframe
             v-if="isVideoActivated"
             :src="`https://www.youtube-nocookie.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`"
@@ -453,6 +456,21 @@ const youtubeVideoId = computed<string | null>(() => {
 
 const isVideoActivated = ref(false)
 watch(youtubeVideoId, () => { isVideoActivated.value = false })
+
+// Reveal the PiP video only after the user starts scrolling — matches the
+// old /lokacije/{slug} where the overlay only appears when the hero is in its
+// pinned/expanded state. Threshold > 80px to ignore inertia jitter.
+const isHeroScrolled = ref(false)
+function onWindowScroll() {
+  isHeroScrolled.value = window.scrollY > 80
+}
+onMounted(() => {
+  window.addEventListener('scroll', onWindowScroll, { passive: true })
+  onWindowScroll()
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', onWindowScroll)
+})
 const screensCount = computed(() => totem.value?.screens ?? 0)
 
 // Sync focal point from totem data
@@ -976,6 +994,20 @@ useHead({
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   background: #000;
+
+  // Hidden by default — revealed once user starts scrolling (see --visible).
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+
+  &--visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 
   @include mobile {
     width: 200px;
