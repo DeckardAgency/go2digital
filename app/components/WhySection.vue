@@ -51,7 +51,7 @@
                   <h4 :class="['why-section__slide-title-mobile', typoClass('slideTitleMobile')]">{{ slide.title }}</h4>
                   <p class="why-section__slide-text typo-body-md">{{ slide.description }}</p>
                 </div>
-                <div class="why-section__slide-dots" :ref="el => dotsContainerRefs[index] = el as HTMLElement">
+                <div class="why-section__slide-dots">
                   <div
                     v-for="(dot, dotIndex) in slide.dots"
                     :key="dotIndex"
@@ -133,7 +133,6 @@ const sectionRef = ref<HTMLElement | null>(null)
 const slideRefs = ref<(HTMLElement | null)[]>([])
 const contentWrapperRefs = ref<(HTMLElement | null)[]>([])
 const contentRefs = ref<(HTMLElement | null)[]>([])
-const dotsContainerRefs = ref<(HTMLElement | null)[]>([])
 
 // Animation instances (#3: store timelines for proper cleanup)
 const slideTimelines: gsap.core.Timeline[] = []
@@ -162,12 +161,7 @@ onMounted(async () => {
     if (prefersReducedMotion.value) {
       slides.value.forEach((_, index) => {
         const content = contentRefs.value[index]
-        const dotsContainer = dotsContainerRefs.value[index]
         if (content) gsap.set(content, { scale: 1, opacity: 1, autoAlpha: 1 })
-        if (dotsContainer) {
-          const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
-          gsap.set(dots, { autoAlpha: 1 })
-        }
       })
       window.addEventListener('resize', handleResize, { passive: true })
       return
@@ -191,7 +185,6 @@ function createAnimations() {
     const slide = slideRefs.value[index]
     const contentWrapper = contentWrapperRefs.value[index]
     const content = contentRefs.value[index]
-    const dotsContainer = dotsContainerRefs.value[index]
 
     if (!slide || !contentWrapper || !content) return
 
@@ -228,25 +221,6 @@ function createAnimations() {
       0.8
     )
 
-    // #2: Dots — scrub-linked with stagger (reversible)
-    if (dotsContainer) {
-      const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
-      if (dots.length > 0) {
-        gsap.set(dots, { autoAlpha: 0 })
-
-        tl.fromTo(dots,
-          { autoAlpha: 0 },
-          {
-            autoAlpha: 1,
-            duration: 0.4,
-            stagger: 0.02,
-            ease: 'power2.out'
-          },
-          0.1 // Start early so dots are visible while card is still prominent
-        )
-      }
-    }
-
     slideTimelines.push(tl)
   })
 }
@@ -260,23 +234,15 @@ function destroy() {
   slideTimelines.forEach(tl => tl.kill())
   slideTimelines.length = 0
 
-  // #10: Reset content and dot elements
+  // #10: Reset content elements
   contentRefs.value.forEach(content => {
     if (content) gsap.set(content, { clearProps: 'all' })
-  })
-
-  dotsContainerRefs.value.forEach(dotsContainer => {
-    if (dotsContainer) {
-      const dots = dotsContainer.querySelectorAll('.why-section__slide-dot:not(.why-section__slide-dot--hide)')
-      gsap.set(dots, { clearProps: 'all' })
-    }
   })
 
   // #6: Clear refs to release DOM references
   slideRefs.value = []
   contentWrapperRefs.value = []
   contentRefs.value = []
-  dotsContainerRefs.value = []
 }
 </script>
 
@@ -609,17 +575,11 @@ $why-perspective: 250vw;
   }
 
   &__slide-dot {
-    // gpu-accelerate removed — tiny elements don't need permanent GPU layers
     width: $why-dot-size;
     height: $why-dot-size;
     aspect-ratio: 1;
     background-color: $color-accent;
     border-radius: $radius-full;
-
-    // #9: Hidden by default so no flash before JS initializes
-    &:not(&--hide) {
-      visibility: hidden;
-    }
 
     // ------------------------------------------
     // Modifier: Hidden dot (grid placeholder)
@@ -640,10 +600,6 @@ $why-perspective: 250vw;
 
     &__slide-content {
       transform: none !important;
-    }
-
-    &__slide-dot:not(.why-section__slide-dot--hide) {
-      visibility: visible;
     }
   }
 }
