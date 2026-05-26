@@ -49,7 +49,7 @@
               <div class="why-section__slide-bottom-right">
                 <div class="why-section__slide-bottom-content">
                   <h4 :class="['why-section__slide-title-mobile', typoClass('slideTitleMobile')]">{{ slide.title }}</h4>
-                  <p :class="['why-section__slide-text', typoClass('slideText')]">{{ slide.description }}</p>
+                  <p class="why-section__slide-text typo-body-md">{{ slide.description }}</p>
                 </div>
                 <div class="why-section__slide-dots" :ref="el => dotsContainerRefs[index] = el as HTMLElement">
                   <div
