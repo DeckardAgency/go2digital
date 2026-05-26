@@ -266,9 +266,6 @@
       </div>
 
       <!-- Secondary label -->
-      <div class="location-detail__stats-secondary">
-        <div class="location-detail__stats-type">{{ $t('location.detail.statistics.secondary') }}</div>
-      </div>
 
       <!-- Stat: Screens -->
       <div class="location-detail__stat-row">
