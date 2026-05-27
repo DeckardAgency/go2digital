@@ -505,7 +505,7 @@ onUnmounted(() => {
       <div class="hero-section__main">
         <!-- Left Column - Big Title -->
         <div class="hero-section__left">
-          <h1 ref="titleRef" :class="['hero-section__title', typoClass('title')]">{{ t('hero.titleFallbackLine1') }}<br>{{ t('hero.titleFallbackLine2') }}</h1>
+          <h1 ref="titleRef" :class="['hero-section__title', typoClass('title')]">{{ hero?.titleLine1 ?? t('hero.titleFallbackLine1') }}<br>{{ hero?.titleLine2 ?? t('hero.titleFallbackLine2') }}</h1>
         </div>
 
         <!-- Middle Column - Badge, Heading, Description -->
