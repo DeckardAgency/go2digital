@@ -2285,7 +2285,11 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     height: 100%;
     object-fit: cover;
     transition: transform $transition-slow;
-    .location-card:hover & { transform: scale(1.03); }
+    // hover:hover gates the zoom to real pointer devices. On touch the
+    // sticky-hover state was eating the first tap, requiring a double-tap.
+    @media (hover: hover) {
+      .location-card:hover & { transform: scale(1.03); }
+    }
 
     &--mobile { display: none; }
 
