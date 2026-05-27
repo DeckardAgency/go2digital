@@ -113,7 +113,10 @@ const formattedDate = computed(() => {
   const localeTag = locale.value === 'hr' ? 'hr-HR' : 'en-GB'
   return new Date(date.value).toLocaleDateString(localeTag, { day: 'numeric', month: 'long', year: 'numeric' })
 })
-const body = computed(() => post.value?.body ?? '')
+// Quill preserves &nbsp; (U+00A0) from pasted content as the inter-word space.
+// Non-breaking spaces prevent line breaks, so a paragraph full of them becomes
+// one unbreakable "word" and the browser breaks it mid-character to fit.
+const body = computed(() => (post.value?.body ?? '').replace(/&nbsp;| /g, ' '))
 
 // Share
 const linkJustCopied = ref(false)
