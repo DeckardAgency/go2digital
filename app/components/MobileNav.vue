@@ -48,28 +48,43 @@ const localePath = useLocalePath()
 
 const isHidden = ref(false)
 let lastScrollY = 0
+let consecutiveUpFrames = 0
 
-// Ignore sub-pixel jitter from ScrollTrigger pin/release and iOS address-bar
-// animation, otherwise the nav flashes briefly during pinned sections.
-const SCROLL_THRESHOLD = 6
+// ScrollTrigger pin engage/release and the iOS address-bar transition can
+// emit a single anomalous backwards-scroll frame, no matter how large. A px
+// threshold can't filter these — a magnitude check still passes. Instead,
+// require the upward motion to span multiple frames before un-hiding. Real
+// user swipes always do; jitter is always a one-frame event.
+const REQUIRED_UP_FRAMES = 2
 
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
-  // Don't hide if menu is open
   if (isMenuOpen.value) {
     isHidden.value = false
+    consecutiveUpFrames = 0
+    lastScrollY = currentScrollY
+    return
+  }
+
+  if (currentScrollY <= 100) {
+    isHidden.value = false
+    consecutiveUpFrames = 0
+    lastScrollY = currentScrollY
     return
   }
 
   const delta = currentScrollY - lastScrollY
 
-  if (delta > 0 && currentScrollY > 100) {
+  if (delta > 0) {
     isHidden.value = true
-  } else if (delta < -SCROLL_THRESHOLD) {
-    isHidden.value = false
+    consecutiveUpFrames = 0
+  } else if (delta < 0) {
+    consecutiveUpFrames++
+    if (consecutiveUpFrames >= REQUIRED_UP_FRAMES) {
+      isHidden.value = false
+    }
   }
-  // Within the deadband: keep current state.
 
   lastScrollY = currentScrollY
 }
