@@ -108,6 +108,10 @@ $billboard-text-color: #FAFAFA;
     flex-direction: column;
     gap: $spacing-xl;
     align-items: flex-start;
+
+    @include mobile {
+      :deep(.btn-animated) { width: 100%; justify-content: space-between; }
+    }
   }
 
   &__title {
