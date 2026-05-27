@@ -49,6 +49,10 @@ const localePath = useLocalePath()
 const isHidden = ref(false)
 let lastScrollY = 0
 
+// Ignore sub-pixel jitter from ScrollTrigger pin/release and iOS address-bar
+// animation, otherwise the nav flashes briefly during pinned sections.
+const SCROLL_THRESHOLD = 6
+
 const handleScroll = () => {
   const currentScrollY = window.scrollY
 
@@ -58,12 +62,14 @@ const handleScroll = () => {
     return
   }
 
-  // Hide when scrolling down, show when scrolling up
-  if (currentScrollY > lastScrollY && currentScrollY > 100) {
+  const delta = currentScrollY - lastScrollY
+
+  if (delta > 0 && currentScrollY > 100) {
     isHidden.value = true
-  } else {
+  } else if (delta < -SCROLL_THRESHOLD) {
     isHidden.value = false
   }
+  // Within the deadband: keep current state.
 
   lastScrollY = currentScrollY
 }
