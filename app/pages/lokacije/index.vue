@@ -505,57 +505,64 @@
       </Teleport>
     </ClientOnly>
 
-    <!-- Mobile Filters Modal -->
-    <div class="locations-filters-modal" :class="{ 'locations-filters-modal--open': isFiltersModalOpen }">
-      <div class="locations-filters-modal__header">
-        <h2 class="locations-filters-modal__title">{{ locFiltersTitle }} (<span>{{ totalFiltersCount }}</span>)</h2>
-        <button class="locations-filters-modal__close" @click="closeFiltersModal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M10.125 1.875L1.875 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M1.875 1.875L10.125 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
+    <!-- Mobile Filters Modal — teleported to body so it isn't trapped by
+         .locations-page's `contain: layout` containing block, which would
+         otherwise re-anchor position:fixed to the page and reveal the
+         modal mid-scroll. -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div class="locations-filters-modal" :class="{ 'locations-filters-modal--open': isFiltersModalOpen }">
+          <div class="locations-filters-modal__header">
+            <h2 class="locations-filters-modal__title">{{ locFiltersTitle }} (<span>{{ totalFiltersCount }}</span>)</h2>
+            <button class="locations-filters-modal__close" @click="closeFiltersModal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M10.125 1.875L1.875 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1.875 1.875L10.125 10.125" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
 
-      <div class="locations-filters-modal__content" data-lenis-prevent>
-        <!-- Cities Accordion -->
-        <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isCitiesAccordionOpen }">
-          <button class="locations-filters-modal__section-header" @click="isCitiesAccordionOpen = !isCitiesAccordionOpen">
-            <span class="locations-filters-modal__section-title">{{ locFiltersCities }} (<span>{{ modalSelectedCities.length }}</span>)</span>
-            <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="locations-filters-modal__section-content">
-            <label v-for="city in cities" :key="city.id" class="locations-filters-modal__option">
-              <span class="locations-filters-modal__option-label">{{ city.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities">
-            </label>
+          <div class="locations-filters-modal__content" data-lenis-prevent>
+            <!-- Cities Accordion -->
+            <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isCitiesAccordionOpen }">
+              <button class="locations-filters-modal__section-header" @click="isCitiesAccordionOpen = !isCitiesAccordionOpen">
+                <span class="locations-filters-modal__section-title">{{ locFiltersCities }} (<span>{{ modalSelectedCities.length }}</span>)</span>
+                <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="locations-filters-modal__section-content">
+                <label v-for="city in cities" :key="city.id" class="locations-filters-modal__option">
+                  <span class="locations-filters-modal__option-label">{{ city.name }}</span>
+                  <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities">
+                </label>
+              </div>
+            </div>
+
+            <!-- Environments Accordion -->
+            <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isEnvsAccordionOpen }">
+              <button class="locations-filters-modal__section-header" @click="isEnvsAccordionOpen = !isEnvsAccordionOpen">
+                <span class="locations-filters-modal__section-title">{{ locFiltersEnvironments }} (<span>{{ modalSelectedEnvironments.length }}</span>)</span>
+                <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="locations-filters-modal__section-content">
+                <label v-for="env in environments" :key="env.id" class="locations-filters-modal__option">
+                  <span class="locations-filters-modal__option-label">{{ env.name }}</span>
+                  <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments">
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="locations-filters-modal__footer">
+            <button class="locations-filters-modal__btn locations-filters-modal__btn--clear" @click="clearModalFilters">{{ locFiltersClearAll }}</button>
+            <button class="locations-filters-modal__btn locations-filters-modal__btn--apply" @click="applyModalFilters">{{ locFiltersApply }}</button>
           </div>
         </div>
-
-        <!-- Environments Accordion -->
-        <div class="locations-filters-modal__section" :class="{ 'locations-filters-modal__section--open': isEnvsAccordionOpen }">
-          <button class="locations-filters-modal__section-header" @click="isEnvsAccordionOpen = !isEnvsAccordionOpen">
-            <span class="locations-filters-modal__section-title">{{ locFiltersEnvironments }} (<span>{{ modalSelectedEnvironments.length }}</span>)</span>
-            <svg class="locations-filters-modal__section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <div class="locations-filters-modal__section-content">
-            <label v-for="env in environments" :key="env.id" class="locations-filters-modal__option">
-              <span class="locations-filters-modal__option-label">{{ env.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments">
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <div class="locations-filters-modal__footer">
-        <button class="locations-filters-modal__btn locations-filters-modal__btn--clear" @click="clearModalFilters">{{ locFiltersClearAll }}</button>
-        <button class="locations-filters-modal__btn locations-filters-modal__btn--apply" @click="applyModalFilters">{{ locFiltersApply }}</button>
-      </div>
-    </div>
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
 
