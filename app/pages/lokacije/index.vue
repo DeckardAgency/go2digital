@@ -1247,6 +1247,21 @@ function preloadDetailHero(location: Location) {
 }
 
 function animateToDetail(location: Location, event: MouseEvent) {
+  // Mobile: skip the morph animation but still seed sessionStorage so the
+  // detail page hero renders without flicker, and __skipPageTransition so
+  // app.vue's leave animation doesn't run either.
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    sessionStorage.setItem('locationTransitionImage', location.image)
+    sessionStorage.setItem('locationTransitionName', location.name)
+    sessionStorage.setItem('locationTransitionCity', location.city)
+    sessionStorage.setItem('locationTransitionEnv', location.environments?.[0] || '')
+    sessionStorage.setItem('locationTransitionFocalX', String(location.focalX))
+    sessionStorage.setItem('locationTransitionFocalY', String(location.focalY))
+    ;(window as any).__skipPageTransition = true
+    navigateTo(`/lokacije/${location.slug}`)
+    return
+  }
+
   animateCardToDetail(event, {
     slug: location.slug,
     basePath: '/lokacije',
