@@ -529,7 +529,7 @@
           <div class="locations-filters-modal__section-content">
             <label v-for="city in cities" :key="city.id" class="locations-filters-modal__option">
               <span class="locations-filters-modal__option-label">{{ city.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities" @change="applyModalFilters">
+              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="city.id" v-model="modalSelectedCities">
             </label>
           </div>
         </div>
@@ -545,7 +545,7 @@
           <div class="locations-filters-modal__section-content">
             <label v-for="env in environments" :key="env.id" class="locations-filters-modal__option">
               <span class="locations-filters-modal__option-label">{{ env.name }}</span>
-              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments" @change="applyModalFilters">
+              <input type="checkbox" class="locations-filters-modal__option-checkbox" :value="env.id" v-model="modalSelectedEnvironments">
             </label>
           </div>
         </div>
@@ -707,8 +707,8 @@ const filteredEnvironments = computed(() => {
 
 // Mobile Filters Modal
 const isFiltersModalOpen = ref(false)
-const isCitiesAccordionOpen = ref(true)
-const isEnvsAccordionOpen = ref(true)
+const isCitiesAccordionOpen = ref(false)
+const isEnvsAccordionOpen = ref(false)
 const modalSelectedCities = ref<string[]>([])
 const modalSelectedEnvironments = ref<string[]>([])
 
@@ -2693,12 +2693,16 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   flex-direction: column;
 
   @include tablet { display: flex; }
+  // dvh tracks the visible viewport — without it the modal extends under
+  // iOS Safari's bottom toolbar and the footer buttons disappear.
+  @include mobile { height: 100dvh; bottom: auto; }
   &--open { transform: translateY(0); }
 
   &__header {
     @include flex-between;
     padding: $spacing-lg;
     border-bottom: 1px solid $color-border;
+    flex-shrink: 0;
     @include mobile { padding-top: 7rem; }
   }
   &__title { font-size: $font-size-lg; font-weight: 400; margin: 0; }
@@ -2723,7 +2727,17 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
   }
   &__section-icon { transition: transform $transition-base; }
-  &__section-content { display: none; padding: 0 $spacing-lg $spacing-lg; }
+  &__section-content {
+    display: none;
+    padding: 0 $spacing-lg $spacing-lg;
+
+    @include mobile {
+      max-height: 50vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
   &__option {
     @include flex-between;
     padding: 0.75rem 0;
@@ -2733,14 +2747,45 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   }
   &__option-label { font-size: $font-size-base; }
   &__option-checkbox {
-    accent-color: $color-accent;
+    -webkit-appearance: none;
+    appearance: none;
     width: 1.25rem;
     height: 1.25rem;
     margin: 0;
     flex-shrink: 0;
     cursor: pointer;
+    border: 1px solid $color-border;
+    border-radius: 0.375rem;
+    background: transparent;
+    position: relative;
+    transition: border-color $transition-base;
+
+    &:checked {
+      border-color: $color-accent;
+    }
+
+    &:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: $color-accent;
+    }
   }
-  &__footer { display: flex; gap: $spacing-lg; padding: $spacing-lg; border-top: 1px solid $color-border; }
+  &__footer {
+    display: flex;
+    gap: $spacing-lg;
+    padding: $spacing-lg;
+    border-top: 1px solid $color-border;
+    flex-shrink: 0;
+    @include mobile {
+      padding-bottom: calc(#{$spacing-lg} + env(safe-area-inset-bottom));
+    }
+  }
   &__btn {
     flex: 1;
     padding: $spacing-md;
