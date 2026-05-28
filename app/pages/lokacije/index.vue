@@ -2201,7 +2201,11 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
   transition: opacity $transition-base;
   contain: layout style;
 
-  &:hover { opacity: 0.9; }
+  // Gate hover behind real pointer devices — on iOS the sticky hover state
+  // covers the whole card surface and eats the first tap on __link.
+  @media (hover: hover) {
+    &:hover { opacity: 0.9; }
+  }
   &--active .location-card__badge { }
 
   &--dark {
@@ -2227,7 +2231,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: box-shadow $transition-base;
-    &:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
+    @media (hover: hover) {
+      &:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
+    }
   }
 
   &__badge-input {
@@ -2259,7 +2265,9 @@ onUnmounted(() => { if (map) { map.remove(); map = null }; document.removeEventL
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: transform $transition-base, box-shadow $transition-base;
-    &:hover { transform: scale(1.05); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
+    @media (hover: hover) {
+      &:hover { transform: scale(1.05); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15); }
+    }
   }
 
   &__focus-icon {
