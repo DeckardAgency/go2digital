@@ -293,10 +293,21 @@ function getArticleImage(article: BlogPost): string {
   return resolveMediaUrl(article.image, 'large') || `https://picsum.photos/seed/${article.slug}/800/700`
 }
 
-// Helper to get category display name
+// API Platform serializes category as an IRI string ("/api/blog_categories/{id}"),
+// so look up the matching category from the already-fetched list.
+const categoryById = computed(() => {
+  const map = new Map<string, BlogCategory>()
+  for (const c of categoriesData.value ?? []) map.set(c.id, c)
+  return map
+})
+
 function getCategoryName(article: BlogPost): string {
-  if (article.category && typeof article.category === 'object') {
-    return article.category.name || article.category.slug
+  const cat = article.category
+  if (cat && typeof cat === 'object') return cat.name || cat.slug
+  if (typeof cat === 'string') {
+    const id = cat.split('/').pop() || ''
+    const found = categoryById.value.get(id)
+    if (found) return found.name || found.slug
   }
   return ''
 }
