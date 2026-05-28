@@ -59,6 +59,16 @@ watch(temperature, (newVal) => {
   }
 })
 
+// Click-to-copy email
+const CONTACT_EMAIL = 'info@go2digital.hr'
+async function copyEmail() {
+  try {
+    await navigator.clipboard.writeText(CONTACT_EMAIL)
+  } catch {
+    /* ignore */
+  }
+}
+
 // Initialize on mount
 onMounted(() => {
   init()
@@ -200,14 +210,22 @@ onUnmounted(() => {
       <div class="contact-info">
         <div class="contact-info__row">
           <BtnAnimated
+            class="contact-info__email-btn"
             :text="$t('contact.info.email')"
-            to="mailto:info@go2digital.hr"
-            :external="true"
+            tag="button"
+            type="button"
             variant="on-dark"
             size="small"
-            :no-icon="true"
             border-radius="0.5rem"
-          />
+            @click="copyEmail"
+          >
+            <template #icon>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" width="14" height="14">
+                <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10.5 2.5h-7A1 1 0 0 0 2.5 3.5v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </template>
+          </BtnAnimated>
           <BtnAnimated
             :text="$t('contact.info.phone')"
             to="tel:+38514839192"
@@ -440,6 +458,13 @@ $text-lighter: rgba(255, 255, 255, 0.6);
   &__row {
     display: flex;
     gap: $spacing-xs;
+  }
+
+  // Email copy button: flat icon (no chip background), no hover animation
+  &__email-btn {
+    :deep(.btn-animated__icon) { background-color: transparent; }
+    :deep(.btn-animated__fill) { display: none; }
+    &:hover :deep(.btn-animated__text-inner) { transform: none; }
   }
 
   @media (max-width: 410px) {

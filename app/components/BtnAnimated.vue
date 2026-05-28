@@ -14,9 +14,11 @@
       </span>
     </span>
     <span v-if="!noIcon" class="btn-animated__icon" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
-        <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <slot name="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
+          <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </slot>
     </span>
   </NuxtLink>
 
@@ -37,9 +39,11 @@
       </span>
     </span>
     <span v-if="!noIcon" class="btn-animated__icon" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
-        <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <slot name="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
+          <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </slot>
     </span>
   </a>
 
@@ -58,9 +62,11 @@
       </span>
     </span>
     <span v-if="!noIcon" class="btn-animated__icon" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
-        <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+      <slot name="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 11" fill="none">
+          <path d="M8.5 1L13 5.5M13 5.5L8.5 10M13 5.5H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </slot>
     </span>
   </button>
 </template>
