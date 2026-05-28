@@ -268,7 +268,7 @@ $labs-dot-size: 6px;
     }
 
     @include tablet {
-      width: 100%;
+      width: 50%;
       max-width: 17.5rem;
     }
 

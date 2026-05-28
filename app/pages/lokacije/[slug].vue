@@ -1458,7 +1458,7 @@ useHead({
 
 .location-detail__stats-title {
   // old .location-statistics__title: 2.625rem/300 (tablet 2rem)
-  font-size: clamp(2rem, 4vw, 2.625rem);
+  font-size: clamp(3.125rem, 4vw, 2.625rem);
   font-weight: 300;
   line-height: 1.2;
   letter-spacing: -0.02em;

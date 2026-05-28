@@ -363,7 +363,7 @@ $cube-bg: #FAFAFA;
   }
 
   &__spec-label { color: $color-primary; }
-  &__spec-value { color: $color-muted; margin: 0; text-align: right; }
+  &__spec-value { color: #999996; margin: 0; text-align: right; }
 }
 
 // #1: Accessibility — reduced motion

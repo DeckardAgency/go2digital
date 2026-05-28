@@ -131,7 +131,7 @@ $tracking-border-color: #293331;
       justify-content: space-between;
     }
 
-    @include mobile { grid-column: 1 / -1; justify-content: flex-start; }
+    @include mobile { grid-column: 1 / -1; justify-content: flex-start; width: fit-content; }
   }
 
 

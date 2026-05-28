@@ -66,7 +66,7 @@ defineProps<{
   }
 
   &__title {
-    font-size: $font-size-base;
+    font-size: 1rem;
     font-weight: 400;
     line-height: 1.3;
     color: $color-primary;
@@ -75,13 +75,15 @@ defineProps<{
   }
 
   &__description {
-    font-size: $font-size-base;
+    font-size: 1rem;
     font-weight: 400;
     line-height: 1.3;
     color: $color-primary;
     opacity: 0.4;
     margin: 0;
-    @include mobile { font-size: $font-size-sm; }
+    @include mobile {
+
+    }
   }
 }
 </style>

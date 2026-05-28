@@ -363,7 +363,7 @@ $display-bg: #FAFAFA;
   }
 
   &__spec-value {
-    color: $color-muted;
+    color: #999996;
     margin: 0;
     text-align: right;
   }
