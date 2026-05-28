@@ -110,7 +110,7 @@ $billboard-text-color: #FAFAFA;
     align-items: flex-start;
 
     @include mobile {
-      :deep(.btn-animated) { width: 100%; justify-content: space-between; }
+      :deep(.btn-animated) { width: fit-content; justify-content: space-between; }
     }
   }
 

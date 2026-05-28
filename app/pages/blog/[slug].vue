@@ -458,7 +458,7 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   @include mobile { grid-column: 1; }
 
   :deep(p) {
-    margin: 0;
+    margin: 0 0 1.25rem 0;
     text-indent: 2.5em;
     &:first-child { text-indent: 0; }
   }
