@@ -464,9 +464,21 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   }
   :deep(h2) {
     color: $color-primary;
-    margin: $spacing-2xl 0 $spacing-md;
+    margin: 30px 0 20px;
     font-size: $font-size-xl;
     font-weight: 400;
+  }
+  :deep(h3) {
+    color: $color-primary;
+    margin: 20px 0 16px;
+    font-size: $font-size-lg;
+    font-weight: 400;
+  }
+  :deep(a) {
+    color: $color-primary;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    &:hover { opacity: 0.7; }
   }
   :deep(strong) { color: $color-primary; font-weight: 600; }
   :deep(img) { width: 100%; border-radius: $radius-lg; margin: $spacing-lg 0; }
