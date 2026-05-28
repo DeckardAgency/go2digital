@@ -1713,19 +1713,29 @@ const runEntranceAnimations = () => {
     tl.to(searchRef.value, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.6)
   }
 
-  // Animate cards with stagger
+  // Animate cards with stagger. On mobile skip the GSAP entrance entirely:
+  // SPA navigation sometimes left cards at opacity:0 / translate3d (the
+  // staggered tweens take 6+ seconds with 100 cards and a route change or
+  // ScrollTrigger refresh would kill them mid-flight), so the user had to
+  // refresh the page to be able to tap a card. Clearing inline styles after
+  // the desktop entrance also defends against the same stale-transform case.
   const cardsEl = cardsContainer.value?.$el || cardsContainer.value
   if (cardsEl) {
     const cards = cardsEl.querySelectorAll('.location-card')
     if (cards.length > 0) {
-      gsap.set(cards, { opacity: 0, y: 30 })
-      tl.to(cards, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        stagger: 0.05,
-        ease: 'power2.out'
-      }, 0.7)
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        gsap.set(cards, { clearProps: 'all' })
+      } else {
+        gsap.set(cards, { opacity: 0, y: 30 })
+        tl.to(cards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.05,
+          ease: 'power2.out',
+          onComplete: () => gsap.set(cards, { clearProps: 'all' })
+        }, 0.7)
+      }
     }
   }
 }
