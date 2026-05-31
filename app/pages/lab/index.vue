@@ -44,7 +44,7 @@
         :key="lab.id"
         class="lab-card"
         :data-slug="lab.slug"
-        @mouseenter="onLabHover"
+        @mouseenter="onLabHover($event); preloadLabHero(lab)"
         @mouseleave="onLabLeave"
       >
         <div class="lab-card__link" @click="onCardClick(lab, $event)">
@@ -147,6 +147,19 @@ const filteredLabs = computed(() => labsData.value ?? [])
 // Helper to get lab image URL
 function getLabImage(lab: LabProject): string {
   return resolveMediaUrl(lab.image, 'large') || '/images/placeholder-lab.svg'
+}
+
+// Warm the detail page's hero image on hover so navigation feels instant.
+// The detail hero loads the original (resolveMediaUrl with no size) on desktop,
+// which is the same viewport that fires mouseenter — so preload that exact URL.
+const preloadedHeroImages = new Set<string>()
+function preloadLabHero(lab: LabProject): void {
+  const url = resolveMediaUrl(lab.image)
+  if (!url || preloadedHeroImages.has(url)) return
+  preloadedHeroImages.add(url)
+  const img = new Image()
+  img.decoding = 'async'
+  img.src = url
 }
 
 // Helper to get category display name for lab.

@@ -40,7 +40,7 @@
             :key="article.id"
             class="article-card article-card--small"
             :data-slug="article.slug"
-            @mouseenter="onCardHover"
+            @mouseenter="onCardHover($event); preloadArticleHero(article)"
             @mouseleave="onCardLeave"
           >
             <div class="article-card__link" @click="onCardClick(article, $event)">
@@ -72,7 +72,7 @@
             :key="article.id"
             class="article-card article-card--large"
             :data-slug="article.slug"
-            @mouseenter="onCardHover"
+            @mouseenter="onCardHover($event); preloadArticleHero(article)"
             @mouseleave="onCardLeave"
           >
             <div class="article-card__link" @click="onCardClick(article, $event)">
@@ -108,7 +108,7 @@
             :key="article.id"
             class="article-card article-card--small"
             :data-slug="article.slug"
-            @mouseenter="onCardHover"
+            @mouseenter="onCardHover($event); preloadArticleHero(article)"
             @mouseleave="onCardLeave"
           >
             <div class="article-card__link" @click="onCardClick(article, $event)">
@@ -144,7 +144,7 @@
             :key="article.id"
             class="article-card article-card--full"
             :data-slug="article.slug"
-            @mouseenter="onCardHover"
+            @mouseenter="onCardHover($event); preloadArticleHero(article)"
             @mouseleave="onCardLeave"
           >
             <div class="article-card__link" @click="onCardClick(article, $event)">
@@ -180,7 +180,7 @@
             :key="article.id"
             class="article-card article-card--medium"
             :data-slug="article.slug"
-            @mouseenter="onCardHover"
+            @mouseenter="onCardHover($event); preloadArticleHero(article)"
             @mouseleave="onCardLeave"
           >
             <div class="article-card__link" @click="onCardClick(article, $event)">
@@ -291,6 +291,19 @@ const filteredArticles = computed(() => postsData.value ?? [])
 // Helper to get article image URL
 function getArticleImage(article: BlogPost): string {
   return resolveMediaUrl(article.image, 'large') || `https://picsum.photos/seed/${article.slug}/800/700`
+}
+
+// Warm the detail page's hero image on hover so navigation feels instant.
+// The detail hero loads the original (resolveMediaUrl with no size) on desktop,
+// which is the same viewport that fires mouseenter — so preload that exact URL.
+const preloadedHeroImages = new Set<string>()
+function preloadArticleHero(article: BlogPost): void {
+  const url = resolveMediaUrl(article.image)
+  if (!url || preloadedHeroImages.has(url)) return
+  preloadedHeroImages.add(url)
+  const img = new Image()
+  img.decoding = 'async'
+  img.src = url
 }
 
 // API Platform serializes category as an IRI string ("/api/blog_categories/{id}"),
