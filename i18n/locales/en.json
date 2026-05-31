@@ -457,7 +457,7 @@
         "resolution": "Resolution",
         "environment": "Environment",
         "duration": "Duration",
-        "minutes": "minutes",
+        "seconds": "seconds",
         "type": "Type"
       },
       "map": {

@@ -457,7 +457,7 @@
         "resolution": "Rezolucija",
         "environment": "Okruženje",
         "duration": "Trajanje",
-        "minutes": "minuta",
+        "seconds": "sekundi",
         "type": "Tip"
       },
       "map": {

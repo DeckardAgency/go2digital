@@ -97,7 +97,7 @@
           </div>
           <div class="location-detail__spec" v-if="totem.ad_duration">
             <span class="location-detail__spec-label">{{ $t('location.detail.spec.duration') }}</span>
-            <span class="location-detail__spec-value">{{ totem.ad_duration }} {{ $t('location.detail.spec.minutes') }}</span>
+            <span class="location-detail__spec-value">{{ totem.ad_duration }} {{ $t('location.detail.spec.seconds') }}</span>
           </div>
           <div class="location-detail__spec" v-if="totem.totem_motion">
             <span class="location-detail__spec-label">{{ $t('location.detail.spec.type') }}</span>
