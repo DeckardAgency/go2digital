@@ -2,6 +2,8 @@
 
 Nuxt 4 application with GSAP page transitions.
 
+> 📖 Tehnička dokumentacija: [`DOKUMENTACIJA.md`](./DOKUMENTACIJA.md) · Pregled cijelog sustava: [`../DOKUMENTACIJA.md`](../DOKUMENTACIJA.md)
+
 ## Features
 
 - Nuxt 4 with Vue 3
