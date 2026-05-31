@@ -1423,24 +1423,37 @@ function loadFromStorage() {
   } catch (error) { console.error('Error loading from storage:', error); localStorage.removeItem(STORAGE_KEY) }
 }
 
+let sharedUrlApplied = false
 function loadFromUrl() {
+  if (import.meta.server || sharedUrlApplied) return
   const urlParams = new URLSearchParams(window.location.search)
   const sharedLocations = urlParams.get('locations')
-  if (sharedLocations) {
-    const externalIds = sharedLocations.split(',').map(id => id.trim()).filter(id => id)
-    if (externalIds.length > 0) {
-      selectedLocations.value.clear()
-      externalIds.forEach(extId => { const loc = locations.value.find(l => l.externalId === extId || l.id === extId); if (loc) selectedLocations.value.set(loc.id, loc) })
-      if (selectedLocations.value.size > 0) {
-        saveToStorage()
-        showToast(`Loaded ${selectedLocations.value.size} shared location(s)`, 'success')
-        showSelectedOnly.value = true
-        openSidebar()
-        window.history.replaceState({}, document.title, window.location.pathname)
-      }
+  if (!sharedLocations) { sharedUrlApplied = true; return }
+
+  // `locations` is fetched async (payload caching is disabled), so this can
+  // run before the list exists. Bail and let the watcher below retry once the
+  // data arrives — otherwise the shared ids match nothing and the selection
+  // silently stays empty for the visitor.
+  if (locations.value.length === 0) return
+
+  const externalIds = sharedLocations.split(',').map(id => id.trim()).filter(id => id)
+  if (externalIds.length > 0) {
+    selectedLocations.value.clear()
+    externalIds.forEach(extId => { const loc = locations.value.find(l => l.externalId === extId || l.id === extId); if (loc) selectedLocations.value.set(loc.id, loc) })
+    if (selectedLocations.value.size > 0) {
+      saveToStorage()
+      showToast(`Loaded ${selectedLocations.value.size} shared location(s)`, 'success')
+      showSelectedOnly.value = true
+      openSidebar()
+      window.history.replaceState({}, document.title, window.location.pathname)
     }
   }
+  sharedUrlApplied = true
 }
+
+// Locations load asynchronously after mount; re-attempt the URL restore as
+// soon as they're available.
+watch(locations, () => loadFromUrl())
 
 async function initializeMap() {
   if (!mapContainer.value) return
