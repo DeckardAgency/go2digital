@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, computed, onUnmounted, nextTick } from 'vue'
 
 const props = defineProps<{
   imageUrl: string
@@ -108,7 +108,13 @@ const currentPoint = computed(() => mode.value === 'desktop' ? desktopPoint : mo
 const sourceWrapRef = ref<HTMLElement | null>(null)
 const sourceImgRef = ref<HTMLImageElement | null>(null)
 
+// Bumped to force markerStyle to recompute once the image is laid out (rects
+// are 0 before the modal/image renders, which otherwise pins the marker to center).
+const markerTick = ref(0)
+
 const markerStyle = computed(() => {
+  // Depend on markerTick so an explicit bump re-runs this after layout settles.
+  void markerTick.value
   if (!sourceImgRef.value || !sourceWrapRef.value) {
     return { left: `${currentPoint.value.x}%`, top: `${currentPoint.value.y}%` }
   }
@@ -122,10 +128,6 @@ const markerStyle = computed(() => {
     top: (imgRect.top - wrapRect.top + imgRect.height * pt.y / 100) + 'px',
   }
 })
-
-// Force reactivity update for marker position
-const markerTick = ref(0)
-watch([() => currentPoint.value.x, () => currentPoint.value.y, markerTick], () => {})
 
 function open() {
   const dx = props.initialX ?? 50
@@ -142,10 +144,12 @@ function open() {
   document.body.style.overflow = 'hidden'
 
   nextTick(() => {
-    if (sourceImgRef.value?.complete) {
-      setTimeout(() => markerTick.value++, 50)
-    } else {
-      sourceImgRef.value?.addEventListener('load', () => markerTick.value++, { once: true })
+    const bump = () => { markerTick.value++ }
+    // Two frames: first lets the teleported modal lay out, second has final rects.
+    requestAnimationFrame(() => { bump(); requestAnimationFrame(bump) })
+    // Cover the case where the source image hasn't decoded yet.
+    if (sourceImgRef.value && !sourceImgRef.value.complete) {
+      sourceImgRef.value.addEventListener('load', bump, { once: true })
     }
   })
 }
