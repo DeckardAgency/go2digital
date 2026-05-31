@@ -286,7 +286,8 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 <style scoped lang="scss">
 .blog-detail {
-  min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
+  min-height: 100vh; // fallback for browsers without svh
+  min-height: 100svh; // smallest viewport so the page never relies on chrome being hidden
   background-color: #FAFAFA;
 }
 
@@ -294,7 +295,11 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 // Hero — same pattern as /lokacije/[slug]
 // ==========================================================================
 .blog-detail__hero {
-  height: 100dvh; // dvh so the actions row never slips under the mobile browser chrome
+  // svh = smallest viewport (browser chrome fully shown), so the bottom actions
+  // row always stays above the mobile browser's toolbar. dvh/vh can resolve to
+  // the taller "chrome-hidden" height and push the row under a bottom toolbar.
+  height: 100vh; // fallback for browsers without svh
+  height: 100svh;
   display: flex;
   flex-direction: column;
   overflow: hidden; // clip info/actions when image expands past them
@@ -452,14 +457,13 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
   color: $color-muted;
   min-width: 0;
   overflow-wrap: break-word;
-  opacity: .4;
+  opacity: .6;
 
   @include tablet { grid-column: 5 / 13; }
   @include mobile { grid-column: 1; }
 
   :deep(p) {
     margin: 0 0 1.25rem 0;
-    text-indent: 2.5em;
     &:first-child { text-indent: 0; }
   }
   :deep(h2) {

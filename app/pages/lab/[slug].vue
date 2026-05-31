@@ -272,7 +272,8 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 
 <style scoped lang="scss">
 .lab-detail {
-  min-height: 100dvh; // dvh accounts for mobile browser chrome (URL bar, toolbar)
+  min-height: 100vh; // fallback for browsers without svh
+  min-height: 100svh; // smallest viewport so the page never relies on chrome being hidden
   background-color: #FAFAFA;
 }
 
@@ -280,7 +281,10 @@ function typoClass(key: keyof typeof DEFAULT_PRESETS): string {
 // Hero — same pattern as /lokacije/[slug]
 // ==========================================================================
 .lab-detail__hero {
-  height: 100dvh; // dvh so the actions row never slips under the mobile browser chrome
+  // svh = smallest viewport (browser chrome fully shown), so the bottom actions
+  // row always stays above the mobile browser's toolbar.
+  height: 100vh; // fallback for browsers without svh
+  height: 100svh;
   display: flex;
   flex-direction: column;
   overflow: hidden; // clip info/actions when image expands past them
