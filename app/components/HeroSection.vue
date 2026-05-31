@@ -784,7 +784,6 @@ onUnmounted(() => {
 
   &__scroll-text {
     color: $color-primary;
-    text-transform: capitalize;
   }
 }
 
