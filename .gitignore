@@ -46,3 +46,6 @@ coverage
 *.local
 .eslintcache
 .stylelintcache
+
+# Generated documentation PDFs
+*.pdf
