@@ -427,6 +427,7 @@
     "downloadPdf": "Download PDF",
     "emptyCollection": "Your collection is empty",
     "emptyCollectionHint": "Add locations by clicking the checkbox",
+    "sharedLoaded": "Loaded {count} shared location(s)",
     "viewSwitcher": {
       "grid": "Grid",
       "map": "Map"

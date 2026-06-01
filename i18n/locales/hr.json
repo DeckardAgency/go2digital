@@ -427,6 +427,7 @@
     "downloadPdf": "Preuzmi PDF",
     "emptyCollection": "Vaša kolekcija je prazna",
     "emptyCollectionHint": "Dodajte lokacije klikom na kvačicu",
+    "sharedLoaded": "Učitano {count} dijeljenih lokacija",
     "viewSwitcher": {
       "grid": "Lista",
       "map": "Mapa"

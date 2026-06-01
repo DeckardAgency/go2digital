@@ -1442,7 +1442,7 @@ function loadFromUrl() {
     externalIds.forEach(extId => { const loc = locations.value.find(l => l.externalId === extId || l.id === extId); if (loc) selectedLocations.value.set(loc.id, loc) })
     if (selectedLocations.value.size > 0) {
       saveToStorage()
-      showToast(`Loaded ${selectedLocations.value.size} shared location(s)`, 'success')
+      showToast(t('location.sharedLoaded', { count: selectedLocations.value.size }), 'success')
       showSelectedOnly.value = true
       openSidebar()
       window.history.replaceState({}, document.title, window.location.pathname)
